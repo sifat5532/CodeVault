@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVault — Store. Share. Version.</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ---- Landing-specific styles ---- */
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(79, 142, 247, 0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      padding: 5px 14px;
+      font-size: 12.5px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.1s forwards;
+    }
+
+    .hero-eyebrow .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse-glow 2s infinite;
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 66px);
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      max-width: 780px;
+      margin-bottom: 22px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.2s forwards;
+    }
+
+    .hero h1 .accent {
+      color: var(--accent);
+      position: relative;
+    }
+
+    .hero-sub {
+      font-size: 16.5px;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 38px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.3s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.4s forwards;
+    }
+
+    .hero-actions .btn {
+      padding: 11px 26px;
+      font-size: 14.5px;
+    }
+
+    .hero-code-strip {
+      margin-top: 56px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 24px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 480px;
+      width: 100%;
+      text-align: left;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.55s forwards;
+    }
+
+    .hero-code-strip .line {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .hero-code-strip .line:last-child {
+      margin-bottom: 0;
+    }
+
+    .hero-code-strip .ln {
+      color: #363d52;
+      user-select: none;
+    }
+
+    .hero-code-strip .kw {
+      color: var(--accent);
+    }
+
+    .hero-code-strip .str {
+      color: var(--green);
+    }
+
+    .hero-code-strip .fn {
+      color: #c084fc;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+      padding: 28px 0;
+    }
+
+    .stats-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-item .num {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -1px;
+    }
+
+    .stat-item .num span {
+      color: var(--accent);
+    }
+
+    .stat-item .label {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Features */
+    .section {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 80px 32px;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--accent);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 600;
+      letter-spacing: -0.8px;
+      margin-bottom: 10px;
+    }
+
+    .section-sub {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 500px;
+      margin-bottom: 48px;
+      line-height: 1.7;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: #2e3448;
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+    }
+
+    .feature-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* How it works */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 680px;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      position: relative;
+      padding-bottom: 36px;
+    }
+
+    .step:last-child {
+      padding-bottom: 0;
+    }
+
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .step-line {
+      width: 1px;
+      flex: 1;
+      background: var(--border);
+      margin-top: 8px;
+    }
+
+    .step:last-child .step-line {
+      display: none;
+    }
+
+    .step-body h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      padding-top: 6px;
+    }
+
+    .step-body p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* CTA section */
+    .cta-section {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 32px;
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 14px;
+    }
+
+    .cta-section p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    .cta-section .btn {
+      padding: 12px 32px;
+      font-size: 15px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 32px;
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    .footer-copy {
+      font-size: 12.5px;
+      color: #3a4155;
+      font-family: var(--font-mono);
+    }
+
+    /* Auth modal overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      width: 100%;
+      max-width: 400px;
+      margin: 16px;
+      position: relative;
+      transform: scale(0.97) translateY(8px);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.open .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    .modal h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .modal .modal-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input::placeholder {
+      color: #3f4656;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .modal-footer-text {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    .modal-footer-text a {
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .modal-tabs {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3px;
+      margin-bottom: 28px;
+    }
+
+    .modal-tab {
+      flex: 1;
+      padding: 7px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-tab.active {
+      background: var(--bg-3);
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon">⬡</div>
+      Code<span class="dim">Vault</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#How_it_works">How it works</a>
+      <a href="#stats">Stats</a>
+    </div>
+
+    <div class="nav-right">
+      <button class="btn btn-ghost btn-sm" onclick="openModal('login')">Sign in</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('signup')">Get started</button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <main class="page-wrap">
+    <section class="hero">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        Now in public beta
+      </div>
+
+      <h1>Your code,<br /><span class="accent">vaulted</span> and versioned.</h1>
+
+      <p class="hero-sub">
+        Upload, share, and manage your projects with ease. Drop a README and a ZIP — CodeVault handles the rest.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="openModal('signup')">Create free account</button>
+        <a href="#features" class="btn btn-ghost">See how it works</a>
+      </div>
+
+      <div class="hero-code-strip">
+        <div class="line"><span class="ln">1</span><span class="kw">vault</span> <span class="fn">create</span> <span
+            class="str">"my-project"</span></div>
+        <div class="line"><span class="ln">2</span><span class="kw">vault</span> <span class="fn">upload</span> <span
+            class="str">README.md</span> <span class="str">project.zip</span></div>
+        <div class="line"><span class="ln">3</span><span class="fn"># → version v1 created ✓</span></div>
+      </div>
+    </section>
+
+    <!-- ===== STATS ===== -->
+    <div class="stats-bar" id="stats">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <div class="num">12<span>K+</span></div>
+          <div class="label">Repositories</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">4<span>K+</span></div>
+          <div class="label">Developers</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">38<span>K+</span></div>
+          <div class="label">Versions uploaded</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">99<span>%</span></div>
+          <div class="label">Uptime</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="section" id="features">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything you need, nothing you don't.</h2>
+      <p class="section-sub">CodeVault is built for simplicity. No complex workflows — just clean code storage with the
+        social layer developers love.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3>Upload & Version</h3>
+          <p>Drop a README and a ZIP file. Each upload creates a new version automatically — v1, v2, v3 and beyond.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Public or Private</h3>
+          <p>Control visibility at the repo level. Keep work-in-progress private, go public when you're ready to share.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⭐</div>
+          <h3>Stars & Discovery</h3>
+          <p>Star repos you love, follow developers you admire. Your feed stays relevant with what matters to you.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3>Powerful Search</h3>
+          <p>Find any repo or developer instantly. Filter by language tag, visibility, or sort by stars and activity.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>Follow Developers</h3>
+          <p>Build your network. Follow people and get their latest uploads surfaced right in your feed.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗂️</div>
+          <h3>Version History</h3>
+          <p>Every upload is preserved. Browse and download any previous version of a repository at any time.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="section" style="padding-top: 0;" id="How_it_works">
+      <div class="section-label">How it works</div>
+      <h2 class="section-title">Simple by design.</h2>
+      <p class="section-sub">Get a project online in under a minute.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-left">
+            <div class="step-num">01</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-body">
+            <h3>Create a repository</h3>
+            <p>Give it a name, write a short description, and choose public or private. Your vault is ready.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-left">
+            <div class="step-num">02</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-body">
+            <h3>Upload your files</h3>
+            <p>Upload a README.md and your code as a ZIP archive. CodeVault tags it as version 1 automatically.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-left">
+            <div class="step-num">03</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-body">
+            <h3>Share or keep private</h3>
+            <p>Share the link with anyone or keep it locked to just you. Public repos show up in search and feeds.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-left">
+            <div class="step-num">04</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-body">
+            <h3>Keep uploading new versions</h3>
+            <p>When your code evolves, just upload again. Each upload becomes a new version — all old ones stay safe.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="cta-section">
+      <h2>Ready to vault your code?</h2>
+      <p>Free forever for public repos. Private repos included in every account.</p>
+      <button class="btn btn-primary" onclick="openModal('signup')">Create your account →</button>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <div class="footer-logo">⬡ CodeVault</div>
+      <div class="footer-links">
+        <a href="#">About</a>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-copy">© 2025 CodeVault</div>
+    </footer>
+  </main>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+
+      <div class="modal-tabs">
+        <div class="modal-tab active" id="tab-login" onclick="switchTab('login')">Sign in</div>
+        <div class="modal-tab" id="tab-signup" onclick="switchTab('signup')">Sign up</div>
+      </div>
+
+      <!-- Login Form -->
+      <div id="form-login">
+        <div class="form-group">
+          <label>Username or Email</label>
+          <input type="text" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••" />
+        </div>
+        <a href="feed.html">
+          <button class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">Sign in</button>
+        </a>
+        <p class="modal-footer-text">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></p>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="form-signup" style="display:none;">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" placeholder="cooldev42" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••" />
+        </div>
+        <a href="feed.html">
+          <button class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">Create
+            account</button>
+        </a>
+        <p class="modal-footer-text">Already have an account? <a onclick="switchTab('login')">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(tab) {
+      document.getElementById('authModal').classList.add('open');
+      switchTab(tab);
+    }
+
+    function closeModal() {
+      document.getElementById('authModal').classList.remove('open');
+    }
+
+    document.getElementById('authModal').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+
+    function switchTab(tab) {
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+      document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+    }
+  </script>
+</body>
+
+</html>
