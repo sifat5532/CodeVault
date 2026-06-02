@@ -523,12 +523,6 @@ h4 {
   transition: all 0.2s;
 }
 
-.star-btn.starred {
-  color: var(--yellow);
-  border-color: rgba(251, 191, 36, 0.3);
-  background: rgba(251, 191, 36, 0.05);
-}
-
 
 /* ---- Page layout ---- */
 .page-wrap {
@@ -1797,5 +1791,305 @@ footer {
 
   .nav-search {
     max-width: 200px;
+  }
+}
+
+/* ---- Settings Layout ---- */
+.settings-layout {
+  max-width: 1040px; /* Adjust as needed, similar to section max-width */
+  margin: 0 auto;
+  padding: 28px 30px 60px;
+  display: grid;
+  grid-template-columns: 240px 1fr; /* Left sidebar and main content */
+  gap: 32px; /* Increased gap for better spacing */
+  align-items: start;
+}
+
+.settings-main {
+  display: flex;
+  flex-direction: column;
+  gap: 40px; /* Spacing between settings sections */
+}
+
+.settings-section {
+  /* Inherits anim-fadeup */
+}
+
+.settings-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* Spacing between form groups/setting items */
+}
+
+.profile-avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align label and avatar to start */
+  margin-bottom: 10px;
+}
+
+.profile-avatar-upload .avatar {
+  margin-bottom: 10px;
+}
+
+.profile-avatar-upload input[type="file"] {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+.profile-avatar-upload input[type="file"]::-webkit-file-upload-button {
+  visibility: hidden;
+  width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-avatar-upload input[type="file"]::before {
+  content: 'Choose File';
+  display: inline-block;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  outline: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.profile-avatar-upload input[type="file"]:hover::before {
+  border-color: #353a4d;
+  background: #1e2230;
+  color: var(--text);
+}
+
+.profile-avatar-upload input[type="file"]:active::before {
+  background: #1a1e28;
+}
+
+
+.settings-card textarea {
+  width: 100%;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: vertical;
+}
+
+.settings-card textarea::placeholder {
+  color: #3f4656;
+}
+
+.settings-card textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.settings-card select {
+  width: 100%;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none; /* Remove default arrow */
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1.5em 1.5em;
+}
+
+.settings-card select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.setting-item label {
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+}
+
+.setting-item p {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* Toggle Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border);
+  transition: .4s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--bg-3);
+  transition: .4s;
+  border-radius: 50%;
+  border: 1px solid var(--text-muted);
+}
+
+input:checked + .slider {
+  background-color: var(--accent);
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+  border-color: var(--accent);
+  background-color: #fff;
+}
+
+/* Danger Zone specific styles */
+.danger-card {
+  border-color: var(--red);
+  background: rgba(248, 113, 113, 0.05);
+}
+
+.danger-card:hover {
+  border-color: var(--red);
+  box-shadow: 0 4px 20px rgba(248, 113, 113, 0.2);
+}
+
+.btn-red {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.btn-red:hover {
+  background: #dc2626; /* A darker red */
+  border-color: #dc2626;
+  box-shadow: 0 0 16px rgba(248, 113, 113, 0.35);
+}
+
+.btn-outline-red {
+  background: transparent;
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.btn-outline-red:hover {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* Responsive adjustments for settings page */
+@media (max-width: 1024px) {
+  .settings-layout {
+    grid-template-columns: 1fr; /* Stack sidebar and main content */
+    padding: 24px;
+  }
+
+  .sidebar-left {
+    position: static; /* Remove sticky behavior */
+    margin-bottom: 24px;
+  }
+
+  .sidebar-nav {
+    display: flex; /* Make sidebar nav horizontal for smaller screens */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .sidebar-nav a {
+    border-bottom: none;
+    padding: 8px 14px;
+  }
+
+  .sidebar-nav a .nav-icon {
+    display: none; /* Hide icons in horizontal nav */
+  }
+}
+
+@media (max-width: 720px) {
+  .settings-layout {
+    padding: 16px;
+  }
+
+  .settings-card {
+    padding: 18px;
+  }
+
+  .settings-main {
+    gap: 30px;
+  }
+
+  .section-title {
+    font-size: 22px;
+  }
+
+  .section-sub {
+    font-size: 14px;
+  }
+
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .setting-item label {
+    width: 100%;
+  }
+
+  .switch {
+    margin-left: auto; /* Push toggle to the right if not full width */
   }
 }
