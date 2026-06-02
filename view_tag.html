@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>#react — Technology Tag — CodeVault</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR (Strictly from feed.html) ===== -->
+    <nav class="navbar">
+        <a href="feed.html" class="nav-logo">
+            <div class="logo-icon">⬡</div>
+            Code<span class="dim">Vault</span>
+        </a>
+
+        <div class="nav-links">
+            <a href="feed.html">Explore</a>
+        </div>
+
+        <div class="nav-search">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search repos, developers…" />
+        </div>
+
+        <div class="nav-right">
+            <a href="new_repository.html"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
+
+            <a href="notification.html">
+                <div class="notif-btn">
+                    🔔
+                    <div class="notif-dot"></div>
+                </div>
+            </a>
+
+            <div class="user-menu">
+                <div class="avatar" onclick="toggleDropdown()">RK</div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="profile.html">👤 My Profile</a>
+                    <a href="settings.html">⚙️ Settings</a>
+                    <div class="dd-divider"></div>
+                    <a href="index.html" class="danger">🚪 Sign out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== PAGE ===== -->
+    <div class="page-wrap">
+        <div class="feed-layout">
+
+            <!-- ===== TAG PROFILE SIDEBAR ===== -->
+            <aside class="sidebar-left">
+                <div class="sidebar-profile">
+                    <div class="tag-icon-box" style="margin: 0 auto 12px; width: 72px; height: 72px; font-size: 32px;">🏷️</div>
+                    <div class="profile-name" style="font-size: 24px; margin-top: 12px;">#react</div>
+                    <div class="profile-handle">Technology Tag</div>
+                    <p class="text-dim" style="font-size: 13.5px; margin: 12px 0;">A JavaScript library for building user interfaces. Maintained by Meta and a community of individual developers and companies.</p>
+
+                    <div class="profile-info-list"
+                        style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+                        <div class="repo-meta" style="margin-bottom: 8px;">📁 980 Repositories</div>
+                        <div class="repo-meta" style="margin-bottom: 8px;">👥 450 Developers</div>
+                        <div class="repo-meta" style="margin-bottom: 8px;">📅 Popularized in 2013</div>
+                    </div>
+                </div>
+
+                <!-- Tag Statistics Widget (Style from user_profile.html) -->
+                <div class="sidebar-widget">
+                    <div class="widget-header">Global Impact</div>
+                    <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
+                        <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+                            <div class="n">980</div>
+                            <div class="l">Repos</div>
+                        </div>
+                        <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+                            <div class="n">150k</div>
+                            <div class="l">Stars</div>
+                        </div>
+                        <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+                            <div class="n">450</div>
+                            <div class="l">Devs</div>
+                        </div>
+                        <div class="profile-stat" style="width: 33%;">
+                            <div class="n">2.4M</div>
+                            <div class="l">Downloads</div>
+                        </div>
+                        <div class="profile-stat" style="width: 33%;">
+                            <div class="n">12M</div>
+                            <div class="l">Views</div>
+                        </div>
+                        <div class="profile-stat" style="width: 33%;">
+                            <div class="n">98%</div>
+                            <div class="l">Growth</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tag Metadata Section -->
+                <div class="sidebar-widget">
+                    <div class="widget-header">Metadata</div>
+                    <div style="padding: 16px;">
+                        <div class="repo-meta" style="margin-bottom: 12px;">📂 <strong>Category:</strong> Frontend</div>
+                        <div class="repo-meta" style="margin-bottom: 12px;">🔥 <strong>Popularity:</strong> Very High</div>
+                        <div class="repo-meta" style="margin-bottom: 12px;">🛠️ <strong>Related:</strong> JavaScript, TypeScript</div>
+                        <div class="repo-meta">🔗 <a href="#" class="text-accent" target="_blank">react.dev</a></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ===== MAIN CONTENT ===== -->
+            <main class="feed-main">
+                <div class="feed-header">
+                    <div>
+                        <h2 style="font-size: 20px;">Repositories tagged with <span class="text-accent">#react</span></h2>
+                        <p class="text-muted" style="font-size: 14px; margin-top: 4px;">Showing 980 total repositories using this technology</p>
+                    </div>
+                </div>
+
+                <div class="feed-list">
+                    <!-- Tagged Repo 1 -->
+                    <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
+                        <div class="frc-top">
+                            <div class="frc-meta">
+                                <div class="avatar">NJ</div>
+                                <div>
+                                    <div class="repo-name">neeraj_dev / react-dashboard-kit</div>
+                                    <div class="by">by <strong>neeraj_dev</strong></div>
+                                </div>
+                            </div>
+                            <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button>
+                        </div>
+                        <p class="frc-desc">A lightweight, zero-dependency React dashboard component library. Now with dark mode support and improved chart rendering performance in v4.</p>
+                        <div class="frc-footer">
+                            <div class="version-chip">✦ v4</div>
+                            <span class="tag">react</span>
+                            <span class="tag">typescript</span>
+                            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 2h ago</div>
+                            <a href="view_repo.html" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
+                        </div>
+                    </div>
+
+                    <!-- Tagged Repo 2 -->
+                    <div class="feed-repo-card anim-fadeup" style="animation-delay:0.1s">
+                        <div class="frc-top">
+                            <div class="frc-meta">
+                                <div class="avatar">AM</div>
+                                <div>
+                                    <div class="repo-name">alex_m / admin-panel-react</div>
+                                    <div class="by">by <strong>alex_m</strong></div>
+                                </div>
+                            </div>
+                            <button class="star-btn starred" onclick="toggleStar(this)">★ <span>531</span></button>
+                        </div>
+                        <p class="frc-desc">Professional admin panel template built with React, Tailwind, and Recharts. Highly customizable and responsive.</p>
+                        <div class="frc-footer">
+                            <div class="version-chip">✦ v12</div>
+                            <span class="tag">react</span>
+                            <span class="tag">tailwind</span>
+                            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated Yesterday</div>
+                            <a href="view_repo.html" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- ===== RIGHT SIDEBAR ===== -->
+            <aside class="sidebar-right">
+                <!-- Related Tags -->
+                <div class="sidebar-widget">
+                    <div class="widget-header">Related Tags</div>
+                    <a href="#" class="trending-tag"><span class="t-name">#javascript</span><span class="t-count">1.2k repos</span></a>
+                    <a href="#" class="trending-tag"><span class="t-name">#typescript</span><span class="t-count">843 repos</span></a>
+                    <a href="#" class="trending-tag"><span class="t-name">#frontend</span><span class="t-count">2.1k repos</span></a>
+                    <a href="#" class="trending-tag"><span class="t-name">#nextjs</span><span class="t-count">412 repos</span></a>
+                </div>
+
+                <!-- Popular Contributors Widget -->
+                <div class="sidebar-widget">
+                    <div class="widget-header">Top Contributors</div>
+                    <div class="suggest-user">
+                        <div class="avatar">MZ</div>
+                        <div class="info">
+                            <div class="name">man_zhang</div>
+                            <div class="handle">@man_zhang</div>
+                        </div>
+                        <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+                    </div>
+                    <div class="suggest-user">
+                        <div class="avatar">NJ</div>
+                        <div class="info">
+                            <div class="name">neeraj_dev</div>
+                            <div class="handle">@neeraj_dev</div>
+                        </div>
+                        <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER (Strictly from index.html) ===== -->
+    <footer>
+        <div class="footer-logo">⬡ CodeVault</div>
+        <div class="footer-links">
+            <a href="#">About</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="footer-copy">© 2025 CodeVault</div>
+    </footer>
+
+    <!-- ===== SCRIPTS (Strictly from feed.html) ===== -->
+    <script>
+        // Dropdown toggle
+        function toggleDropdown() {
+            document.getElementById('userDropdown').classList.toggle('open');
+        }
+        document.addEventListener('click', function (e) {
+            const menu = document.querySelector('.user-menu');
+            if (!menu.contains(e.target)) {
+                document.getElementById('userDropdown').classList.remove('open');
+            }
+        });
+
+        // Follow toggle
+        function toggleFollow(btn) {
+            if (btn.classList.contains('following')) {
+                btn.classList.remove('following');
+                btn.textContent = 'Follow';
+            } else {
+                btn.classList.add('following');
+                btn.textContent = 'Following';
+            }
+        }
+
+        // Star toggle
+        function toggleStar(btn) {
+            btn.classList.toggle('starred');
+        }
+    </script>
+</body>
+
+</html>
