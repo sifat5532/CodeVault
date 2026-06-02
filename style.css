@@ -1774,6 +1774,66 @@ footer {
 
 /* from feed.html ends */
 
+/* ---- Search Page Mobile Filters ---- */
+.mobile-search-filters {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .feed-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .mobile-search-filters {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .mobile-search-filters a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-soft);
+    transition: all 0.2s;
+  }
+
+  .mobile-search-filters a:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-search-filters a.active {
+    background: var(--bg-3);
+    color: var(--text);
+    border-left: 2px solid var(--accent);
+  }
+
+  .mobile-search-filters .nav-badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+  }
+
+  .mobile-search-filters .nav-icon {
+    font-size: 15px;
+    width: 18px;
+    text-align: center;
+  }
+}
+
 
 
 
