@@ -2022,6 +2022,11 @@ footer {
   }
 }
 
+.explore-section {
+  scroll-margin-top: calc(var(--nav-h) + 24px);
+  margin-bottom: 60px;
+}
+
 /* ---- Settings Layout ---- */
 .settings-layout {
   max-width: 1040px;
