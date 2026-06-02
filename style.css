@@ -1351,6 +1351,12 @@ footer {
   margin-bottom: 16px;
 }
 
+.profile-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .profile-stats {
   display: flex;
   justify-content: space-around;
