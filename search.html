@@ -71,12 +71,7 @@
             <h2 style="font-size: 18px;">Results for <span class="text-accent">"react dashboard"</span></h2>
             <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Found 124 results across the vault</p>
           </div>
-          <div class="feed-filters">
-            <span class="text-muted" style="font-size: 12px; align-self: center; margin-right: 8px;">Sort:</span>
-            <button class="filter-btn active">Relevant</button>
-            <button class="filter-btn">Recent</button>
-            <button class="filter-btn">Stars</button>
-          </div>
+          
         </div>
 
         <div class="feed-list">
@@ -115,7 +110,7 @@
               </div>
             </div>
             <div class="flex flex-col gap-8">
-                <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+               
                 <button class="btn btn-ghost btn-sm">View Profile</button>
             </div>
           </div>
@@ -141,6 +136,23 @@
             </div>
           </div>
 
+          <!-- Tag Result -->
+          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
+            <div class="tag-icon-box">🏷️</div>
+            <div class="follower-info">
+              <div class="follower-name text-accent mono">#react</div>
+              <div class="follower-handle">Technology Tag</div>
+              <p class="text-muted" style="font-size: 13px; margin-top: 4px;">The most popular UI library. Includes results for React components, hooks, and frameworks like Next.js.</p>
+              <div class="flex items-center gap-12 mt-8">
+                <span class="repo-meta">📦 980 repos</span>
+                <span class="repo-meta">🔥 12 uploads today</span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-8">
+                <button class="btn btn-ghost btn-sm">Browse Tag</button>
+            </div>
+          </div>
+
           <!-- Empty State (Hidden by default, used when no results found) -->
           <div class="notif-empty anim-fadein" style="display: none;">
             <div class="notif-empty-icon">🔍</div>
@@ -156,24 +168,7 @@
 
       <!-- ===== RIGHT SIDEBAR (Stats) ===== -->
       <aside class="sidebar-right">
-        <div class="sidebar-widget">
-          <div class="widget-header">Search Statistics</div>
-          <div class="profile-stats" style="border: none; padding: 20px;">
-            <div class="profile-stat">
-              <div class="n">86</div>
-              <div class="l">Repos</div>
-            </div>
-            <div class="profile-stat">
-              <div class="n">32</div>
-              <div class="l">Devs</div>
-            </div>
-            <div class="profile-stat">
-              <div class="n">6</div>
-              <div class="l">Tags</div>
-            </div>
-          </div>
-        </div>
-
+   
         <div class="sidebar-widget">
             <div class="widget-header">Suggested Keywords</div>
             <div class="trending-tag"><span class="t-name">#react-ui</span></div>
