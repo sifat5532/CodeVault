@@ -523,6 +523,12 @@ h4 {
   transition: all 0.2s;
 }
 
+.star-btn.starred {
+  color: var(--yellow);
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.05);
+}
+
 
 /* ---- Page layout ---- */
 .page-wrap {
