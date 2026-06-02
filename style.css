@@ -1778,6 +1778,28 @@ footer {
 
 /* from feed.html ends */
 
+/* ---- New Repo Layout ---- */
+.create-repo-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.create-repo-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.file-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mb-24 {
+  margin-bottom: 24px;
+}
+
 /* ---- Repository View Specific ---- */
 .repo-view-layout {
   max-width: 1200px;
@@ -2082,6 +2104,35 @@ footer {
   background: #1a1e28;
 }
 
+/* ---- Modern Custom File Input ---- */
+.custom-file-input {
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Hide the default button across different browsers */
+.custom-file-input::-webkit-file-upload-button { display: none; }
+.custom-file-input::file-selector-button { display: none; }
+
+.custom-file-input::before {
+  content: '📁 Browse Files';
+  display: inline-block;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 16px;
+  margin-right: 12px;
+  color: var(--text);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.custom-file-input:hover::before {
+  border-color: var(--accent);
+  background: var(--bg-2);
+}
 
 .settings-card textarea {
   width: 100%;
