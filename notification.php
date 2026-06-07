@@ -16,7 +16,7 @@
   </a>
 
   <div class="nav-links">
-    <a href="feed.php">Explore</a>
+    <a href="explore.php">Explore</a>
   </div>
 
   <div class="nav-search">
