@@ -19,7 +19,6 @@
 
     <div class="nav-links">
       <a href="#features">Features</a>
-      <a href="#stats">Stats</a>
     </div>
 
     <div class="nav-right">
