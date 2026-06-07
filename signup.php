@@ -118,24 +118,24 @@ if(isset($_POST["sign_in_btn"])){
     async function validate_username() {
         let input_data = uname_input.value;
         if(input_data != ""){
-            if(isValid(input_data) == 3){
+            if(isValid(input_data) && input_data.length >= 3){
                 let url = "php/validate_username.php?username=" + encodeURIComponent(input_data);
                 let response = await fetch(url);
                 let data = await response.json();
 
                 if(data.status == true){
                     signup_btn.disabled = true;
-                    uname_label.innerHTML = "Username: <span style='color: #dc3545;'>This user name is already taken</span>";
+                    uname_label.innerHTML = "Username: <span style='color: #dc3545;'>This username is already taken</span>";
                 }else{
                     signup_btn.disabled = false;
-                    uname_label.innerHTML = "Username: <span style='color: #00de76;'>It is available</span>";
+                    uname_label.innerHTML = "Username: <span style='color: #00de76;'>It's available</span>";
                 }
-            }else if(isValid(input_data) < 3){
+            }else if(isValid(input_data) && input_data.length < 3){
                 signup_btn.disabled = true;
                 uname_label.innerHTML = "Username: <span style='color: #dc3545;'>Too small</span>";
             }else{
                 signup_btn.disabled = true;
-                uname_label.innerHTML = "Username: <span style='color: #dc3545;'>Invalid username format</span>";
+                uname_label.innerHTML = "Username: <span style='color: #dc3545;'>Invalid format. Allowed [a-z,A-Z,0-9,_]</span>";
             }
         }else{
             uname_label.innerHTML = "Username";
@@ -144,14 +144,7 @@ if(isset($_POST["sign_in_btn"])){
     }
 
     function isValid(username) {
-      // return 0 to 2 if the username size is less than 3, return -1 if invalid, return 3 if validate_username
-      if(/^[a-zA-Z0-9_]{3,20}$/.test(username)){
-        return 3;
-      }else if(username.length < 3){
-        return username.length;
-      }else{
-        -1
-      }
+      return /^[a-zA-Z0-9_]+$/.test(username);
     }
   </script>
 </body>
