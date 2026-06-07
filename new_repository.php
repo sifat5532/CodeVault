@@ -5,6 +5,11 @@ if (!isset($_SESSION["id"])) {
   exit();
 }
 require "php/config.php";
+$creator = $_SESSION["id"];
+
+// check the default_repo_visibility from user table
+$default_repo_visibility = (mysqli_fetch_assoc(mysqli_query($conn, "SELECT default_repo_visibility AS def FROM user WHERE id = '$creator'"))["def"] == "public") ? "checked" : " ";
+
 if (isset($_POST["create_btn"])) {
   $title = $_POST["title"];
   $file = $_FILES["file"];
@@ -12,16 +17,28 @@ if (isset($_POST["create_btn"])) {
   $file_tmp = $file["tmp_name"];
   $file_err = $file["error"];
   $file_size = $file["size"];
-  if (isset($_POST["description"])) $description = $_POST["description"];
-  else $description = " ";
-  $creator = $_SESSION["id"];
-  if (isset($_POST["demo"])) $demo = $_POST["demo"];
-  else $demo = "";
+  if (isset($_POST["description"]))
+    $description = $_POST["description"];
+  else
+    $description = " ";
+
+  if (isset($_POST["demo"]))
+    $demo = $_POST["demo"];
+  else
+    $demo = "";
   $visibility = $_POST["visibility"];
 
+  if ($visibility == "on") {
+    $visibility = "public";
+  } else {
+    $visibility = "private";
+  }
+
   $initial_version = $_POST["initial_version"];
-  if (isset($_POST["version_description"])) $version_description = $_POST["version_description"];
-  else $version_description = "";
+  if (isset($_POST["version_description"]))
+    $version_description = $_POST["version_description"];
+  else
+    $version_description = "";
   if ($file_err === 0) {
 
     $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
@@ -41,13 +58,16 @@ if (isset($_POST["create_btn"])) {
 
           if (mysqli_query($conn, $query2)) {
             $msg = "<div style='color: #28a745'>Repository Created Successfully!</div>";
-            header("Location: feed.php");
-            exit();
-          } else $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
-        } else $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
-      } else  $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
-    } else  $msg = "<div style='color: #dc3545'>Error! Please give zip file .</div>";
-  } else  $msg = "<div style='color: #dc3545'>Error! Please Try Again 5</div>";
+          } else
+            $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
+        } else
+          $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
+      } else
+        $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
+    } else
+      $msg = "<div style='color: #dc3545'>Error! Please give zip file .</div>";
+  } else
+    $msg = "<div style='color: #dc3545'>Error! Please Try Again</div>";
 }
 ?>
 
@@ -61,6 +81,11 @@ if (isset($_POST["create_btn"])) {
   <title>Create New Repository — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 
 <body>
 
@@ -112,7 +137,8 @@ if (isset($_POST["create_btn"])) {
       <?php if (isset($msg)) {
         echo $msg;
       } ?>
-      <form method="POST" enctype="multipart/form-data" class="settings-card anim-fadeup" style="animation-delay: 0.1s;">
+      <form method="POST" enctype="multipart/form-data" class="settings-card anim-fadeup"
+        style="animation-delay: 0.1s;">
         <!-- Title -->
         <div class="form-group">
           <label for="repo-title">Repository Title</label>
@@ -142,7 +168,8 @@ if (isset($_POST["create_btn"])) {
 
         <div class="form-group">
           <label for="version-desc">Version Notes</label>
-          <textarea id="version-desc" rows="3" name="version_description" placeholder="Initial release features..."></textarea>
+          <textarea id="version-desc" rows="3" name="version_description"
+            placeholder="Initial release features..."></textarea>
         </div>
 
         <div class="divider mb-24"></div>
@@ -162,7 +189,7 @@ if (isset($_POST["create_btn"])) {
             <p class="text-muted">Anyone on the internet can see this repository.</p>
           </div>
           <label class="switch">
-            <input type="checkbox" name="visibility" checked>
+            <input type="checkbox" name="visibility" <?php echo $default_repo_visibility; ?>>
             <span class="slider round"></span>
           </label>
         </div>
@@ -193,7 +220,7 @@ if (isset($_POST["create_btn"])) {
     function toggleDropdown() {
       document.getElementById('userDropdown').classList.toggle('open');
     }
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       const menu = document.querySelector('.user-menu');
       if (!menu.contains(e.target)) {
         document.getElementById('userDropdown').classList.remove('open');
@@ -202,7 +229,7 @@ if (isset($_POST["create_btn"])) {
 
     // Feed filter
     document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', function () {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
       });
@@ -211,7 +238,7 @@ if (isset($_POST["create_btn"])) {
     // Custom implementation: Version Number Restriction
     const versionInput = document.getElementById('version-number');
     if (versionInput) {
-      versionInput.addEventListener('input', function(e) {
+      versionInput.addEventListener('input', function (e) {
         // Restriction: only digits and dots
         this.value = this.value.replace(/[^0-9.]/g, '');
       });
@@ -220,7 +247,7 @@ if (isset($_POST["create_btn"])) {
     // Custom implementation: Image Count Restriction (Max 5)
     const previewsInput = document.getElementById('previews');
     if (previewsInput) {
-      previewsInput.addEventListener('change', function() {
+      previewsInput.addEventListener('change', function () {
         if (this.files.length > 5) {
           alert("You can only upload a maximum of 5 images.");
           this.value = ""; // Reset the input
