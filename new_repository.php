@@ -47,7 +47,7 @@ if (isset($_POST["create_btn"])) {
         } else $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
       } else  $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
     } else  $msg = "<div style='color: #dc3545'>Error! Please give zip file .</div>";
-  } else  $msg = "<div style='color: #dc3545'>Error! Please Try Again 5</div>";
+  } else  $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
 }
 ?>
 
