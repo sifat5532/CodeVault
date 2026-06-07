@@ -60,7 +60,6 @@
           <a href="#profile-settings" class="active"><span class="nav-icon">👤</span> Profile</a>
           <a href="#account-settings"><span class="nav-icon">⚙️</span> Account</a>
           <a href="#notification-preferences"><span class="nav-icon">🔔</span> Notifications</a>
-          <a href="#privacy-settings"><span class="nav-icon">🔒</span> Privacy</a>
           <a href="#repository-defaults"><span class="nav-icon">📦</span> Repositories</a>
           <a href="#danger-zone"><span class="nav-icon">⚠️</span> Danger Zone</a>
         </nav>
@@ -167,36 +166,6 @@
           </div>
         </section>
 
-        <!-- Privacy Settings -->
-        <section id="privacy-settings" class="settings-section anim-fadeup" style="animation-delay:0.2s">
-          <h2 class="section-title">Privacy Settings</h2>
-          <p class="section-sub">Control the visibility of your profile and repositories.</p>
-
-          <div class="settings-card">
-            <div class="setting-item">
-              <label for="privacy-profile">Public profile</label>
-              <label class="switch">
-                <input type="checkbox" id="privacy-profile" checked>
-                <span class="slider round"></span>
-              </label>
-            </div>
-            <div class="setting-item">
-              <label for="privacy-repos">Show repositories on profile</label>
-              <label class="switch">
-                <input type="checkbox" id="privacy-repos" checked>
-                <span class="slider round"></span>
-              </label>
-            </div>
-            <div class="setting-item">
-              <label for="privacy-discovery">Allow developer discovery</label>
-              <label class="switch">
-                <input type="checkbox" id="privacy-discovery">
-                <span class="slider round"></span>
-              </label>
-            </div>
-          </div>
-        </section>
-
         <!-- Repository Defaults -->
         <section id="repository-defaults" class="settings-section anim-fadeup" style="animation-delay:0.25s">
           <h2 class="section-title">Repository Defaults</h2>
@@ -208,21 +177,6 @@
               <select id="default-visibility">
                 <option value="public">Public</option>
                 <option value="private">Private</option>
-              </select>
-            </div>
-            <div class="setting-item">
-              <label for="auto-version">Enable automatic version creation</label>
-              <label class="switch">
-                <input type="checkbox" id="auto-version" checked>
-                <span class="slider round"></span>
-              </label>
-            </div>
-            <div class="form-group">
-              <label for="default-readme">Default README template</label>
-              <select id="default-readme">
-                <option value="none">None</option>
-                <option value="basic">Basic README</option>
-                <option value="pro">Professional README</option>
               </select>
             </div>
           </div>
@@ -237,14 +191,8 @@
             <p class="text-red" style="margin-bottom: 15px;">
               <span class="nav-icon">⚠️</span> Be careful! These actions cannot be undone.
             </p>
-            <div class="setting-item">
-              <div>
-                <h3>Archive Account</h3>
-                <p class="text-muted">Temporarily disable your account and hide your repositories.</p>
-              </div>
-              <button class="btn btn-outline-red">Archive Account</button>
-            </div>
-            <div class="setting-item" style="border-top: 1px solid var(--border-soft); padding-top: 20px; margin-top: 20px;">
+
+            <div class="setting-item" style="border-top: 1px solid var(--border-soft); padding-top: 10px; margin-top: 0px;">
               <div>
                 <h3>Delete Account</h3>
                 <p class="text-muted">Permanently delete your account and all associated data.</p>
