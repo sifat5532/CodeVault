@@ -1,10 +1,10 @@
 <?php
-if (!isset($_SESSION["id"])) {
-  header("Location: login.php");
-  exit();
-}
+// if (!isset($_SESSION["id"])) {
+//   header("Location: login.php");
+//   exit();
+// }
 require "php/config.php";
-$repo_id = 6;
+$repo_id = 10;
 $query = "SELECT * FROM repo WHERE id='$repo_id'";
 if ($result = mysqli_query($conn, $query)) {
   $data1 = mysqli_fetch_assoc($result);
@@ -118,13 +118,12 @@ if ($result = mysqli_query($conn, $query)) {
         <!-- Version Card 4 -->
         <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
           <div class="frc-top">
-            <div class="version-chip" style="font-size: 14px; padding: 4px 12px;">v4.0</div>
+            <div class="version-chip" style="font-size: 14px; padding: 4px 12px;"><?php if(isset($data["version_number"])){ echo "v.".$data["version_number"];} ?></div>
             <button class="btn btn-primary btn-sm">⬇ Download ZIP</button>
           </div>
           <p class="frc-desc"><?php if(isset($data["description"])){ echo $data["description"];}?> </p>
           <div class="frc-footer">
-            <a href="view_tag.php"><span class="tag">latest</span></a>
-            <a href="view_tag.php"><span class="tag">stable</span></a>
+         
             <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php echo $data["created_at"]; ?></div>
           </div>
         </div>
