@@ -22,7 +22,7 @@
     </div>
 
     <div class="nav-right">
-      <a href="login.php" class="btn btn-ghost btn-sm">Sign in</a>
+      <a href="login.php" class="btn btn-ghost btn-sm">Login</a>
       <a href="signup.php" class="btn btn-primary btn-sm">Get started</a>
     </div>
   </nav>

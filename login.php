@@ -31,22 +31,20 @@
   </nav>
 
   <main class="page-wrap auth-container">
-    <div class="auth-card">
-      <h2 style="margin-bottom: 24px; text-align: center;">Sign in to CodeVault</h2>
+    <form method="POST" action="" class="auth-card">
+      <h2 style="margin-bottom: 24px; text-align: center;">Login to CodeVault</h2>
       
       <div class="form-group">
         <label>Username or Email</label>
-        <input type="text" placeholder="you@example.com" />
+        <input type="text" name="username_email" placeholder="you@example.com" />
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" placeholder="••••••••" />
+        <input type="password" name="password" placeholder="••••••••" />
       </div>
-      <a href="feed.php">
-        <button class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">Sign in</button>
-      </a>
+        <input type="submit" name="login_btn" value="Login" class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">
       <p class="modal-footer-text">Don't have an account? <a href="signup.php">Sign up free</a></p>
-    </div>
+    </form>
   </main>
 
   <footer>
