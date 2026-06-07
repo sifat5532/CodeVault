@@ -12,13 +12,13 @@
 
     <!-- ===== NAVBAR ===== -->
     <nav class="navbar">
-        <a href="feed.html" class="nav-logo">
+        <a href="feed.php" class="nav-logo">
             <div class="logo-icon">⬡</div>
             Code<span class="dim">Vault</span>
         </a>
 
         <div class="nav-links">
-            <a href="feed.html">Explore</a>
+            <a href="feed.php">Explore</a>
         </div>
 
         <div class="nav-search">
@@ -27,9 +27,9 @@
         </div>
 
         <div class="nav-right">
-            <a href="new_repository.html"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
+            <a href="new_repository.php"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
 
-            <a href="notification.html">
+            <a href="notification.php">
                 <div class="notif-btn">
                     🔔
                     <div class="notif-dot"></div>
@@ -39,10 +39,10 @@
             <div class="user-menu">
                 <div class="avatar" onclick="toggleDropdown()">RK</div>
                 <div class="user-dropdown" id="userDropdown">
-                    <a href="profile.html">👤 My Profile</a>
-                    <a href="settings.html">⚙️ Settings</a>
+                    <a href="profile.php">👤 My Profile</a>
+                    <a href="settings.php">⚙️ Settings</a>
                     <div class="dd-divider"></div>
-                    <a href="index.html" class="danger">🚪 Sign out</a>
+                    <a href="index.php" class="danger">🚪 Sign out</a>
                 </div>
             </div>
         </div>
@@ -75,11 +75,11 @@
                 <div class="sidebar-widget">
                     <div class="widget-header">Statistics</div>
                     <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
-                        <a href="followers.html" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+                        <a href="followers.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
                             <div class="n">1.2k</div>
                             <div class="l">Followers</div>
                         </a>
-                        <a href="followings.html" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+                        <a href="followings.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
                             <div class="n">80</div>
                             <div class="l">Following</div>
                         </a>
@@ -120,7 +120,7 @@
                     <!-- Card 2 -->
                     <div class="feed-repo-card" style="margin-bottom: 20px;">
                         <div class="frc-top">
-                            <a href="view_repo.html" class="repo-name">vault-cli-tool</a>
+                            <a href="view_repo.php" class="repo-name">vault-cli-tool</a>
                             <div>
                                 <button class="star-btn starred">★ <span>89</span></button>
                                 <div class="version-chip">v1.2</div>
@@ -145,7 +145,7 @@
                 <!-- Card 2 -->
                 <div class="feed-repo-card" style="margin-bottom: 20px;">
                     <div class="frc-top">
-                        <a href="view_repo.html" class="repo-name">vault-cli-tool</a>
+                        <a href="view_repo.php" class="repo-name">vault-cli-tool</a>
                         <div>
                             <button class="star-btn starred">★ <span>89</span></button>
                             <div class="version-chip">v1.2</div>
@@ -173,7 +173,7 @@
             <!-- Card 2 -->
             <div class="feed-repo-card" style="margin-bottom: 20px;">
                 <div class="frc-top">
-                    <a href="view_repo.html" class="repo-name">vault-cli-tool</a>
+                    <a href="view_repo.php" class="repo-name">vault-cli-tool</a>
                     <div>
                         <button class="star-btn starred">★ <span>89</span></button>
                         <div class="version-chip">v1.2</div>

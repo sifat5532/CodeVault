@@ -12,7 +12,7 @@
 
   <!-- ===== NAVBAR ===== -->
   <nav class="navbar">
-    <a href="feed.html" class="nav-logo">
+    <a href="feed.php" class="nav-logo">
       <div class="logo-icon">⬡</div>
       Code<span class="dim">Vault</span>
     </a>
@@ -27,9 +27,9 @@
     </div>
 
     <div class="nav-right">
-      <a href="new_repository.html"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
+      <a href="new_repository.php"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
 
-      <a href="notification.html">
+      <a href="notification.php">
         <div class="notif-btn">
           🔔
           <div class="notif-dot"></div>
@@ -42,7 +42,7 @@
           <a href="#">👤 My Profile</a>
           <a href="#">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.html" class="danger">🚪 Sign out</a>
+          <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -71,11 +71,11 @@
         <div class="sidebar-widget">
             <div class="widget-header">Statistics</div>
             <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
-              <a href="followers.html" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+              <a href="followers.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
                 <div class="n">86</div>
                 <div class="l">Followers</div>
               </a>
-              <a href="followings.html" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+              <a href="followings.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
                 <div class="n">42</div>
                 <div class="l">Following</div>
               </a>
@@ -113,7 +113,7 @@
           <!-- Card 1 -->
           <div class="feed-repo-card">
             <div class="frc-top">
-              <a href="view_repo.html" class="repo-name">react-dashboard-kit</a>
+              <a href="view_repo.php" class="repo-name">react-dashboard-kit</a>
               <div class="version-chip">v4.0</div>
             </div>
             <p class="frc-desc">A lightweight, zero-dependency React dashboard component library. Now with dark mode support.</p>
@@ -124,15 +124,15 @@
             </div>
             <div class="divider" style="margin: 15px 0;"></div>
             <div class="flex gap-8">
-              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.html'">⚙️ Settings</button>
-              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.html'">+ New Version</button>
+              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php'">⚙️ Settings</button>
+              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php'">+ New Version</button>
             </div>
           </div>
 
           <!-- Card 2 -->
           <div class="feed-repo-card">
             <div class="frc-top">
-              <a href="view_repo.html" class="repo-name">vault-cli-tool</a>
+              <a href="view_repo.php" class="repo-name">vault-cli-tool</a>
               <div class="version-chip">v1.2</div>
             </div>
             <p class="frc-desc">Command line interface for interacting with the CodeVault API directly from your terminal.</p>
@@ -143,8 +143,8 @@
             </div>
             <div class="divider" style="margin: 15px 0;"></div>
             <div class="flex gap-8">
-              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.html'">⚙️ Settings</button>
-              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.html'">+ New Version</button>
+              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php'">⚙️ Settings</button>
+              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php'">+ New Version</button>
             </div>
           </div>
         </div>
@@ -153,7 +153,7 @@
         <div id="grid-contributing" class="features-grid anim-fadeup" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
           <div class="feed-repo-card">
             <div class="frc-top">
-              <a href="view_repo.html" class="repo-name">neeraj_dev / ui-core</a>
+              <a href="view_repo.php" class="repo-name">neeraj_dev / ui-core</a>
               <div class="version-chip">v2.1</div>
             </div>
             <p class="frc-desc">The core UI components used across all Neeraj projects. Contributing to chart modules.</p>
@@ -164,8 +164,8 @@
             </div>
             <div class="divider" style="margin: 15px 0;"></div>
             <div class="flex gap-8">
-              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.html'">⚙️ Settings</button>
-              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.html'">+ New Version</button>
+              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php'">⚙️ Settings</button>
+              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php'">+ New Version</button>
             </div>
           </div>
         </div>

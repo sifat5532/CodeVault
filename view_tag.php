@@ -10,15 +10,15 @@
 
 <body>
 
-    <!-- ===== NAVBAR (Strictly from feed.html) ===== -->
+    <!-- ===== NAVBAR (Strictly from feed.php) ===== -->
     <nav class="navbar">
-        <a href="feed.html" class="nav-logo">
+        <a href="feed.php" class="nav-logo">
             <div class="logo-icon">⬡</div>
             Code<span class="dim">Vault</span>
         </a>
 
         <div class="nav-links">
-            <a href="feed.html">Explore</a>
+            <a href="feed.php">Explore</a>
         </div>
 
         <div class="nav-search">
@@ -27,9 +27,9 @@
         </div>
 
         <div class="nav-right">
-            <a href="new_repository.html"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
+            <a href="new_repository.php"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
 
-            <a href="notification.html">
+            <a href="notification.php">
                 <div class="notif-btn">
                     🔔
                     <div class="notif-dot"></div>
@@ -39,10 +39,10 @@
             <div class="user-menu">
                 <div class="avatar" onclick="toggleDropdown()">RK</div>
                 <div class="user-dropdown" id="userDropdown">
-                    <a href="profile.html">👤 My Profile</a>
-                    <a href="settings.html">⚙️ Settings</a>
+                    <a href="profile.php">👤 My Profile</a>
+                    <a href="settings.php">⚙️ Settings</a>
                     <div class="dd-divider"></div>
-                    <a href="index.html" class="danger">🚪 Sign out</a>
+                    <a href="index.php" class="danger">🚪 Sign out</a>
                 </div>
             </div>
         </div>
@@ -68,7 +68,7 @@
                     </div>
                 </div>
 
-                <!-- Tag Statistics Widget (Style from user_profile.html) -->
+                <!-- Tag Statistics Widget (Style from user_profile.php) -->
                 <div class="sidebar-widget">
                     <div class="widget-header">Global Impact</div>
                     <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
@@ -130,7 +130,7 @@
                             <span class="tag">react</span>
                             <span class="tag">typescript</span>
                             <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 2h ago</div>
-                            <a href="view_repo.html" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
+                            <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
                         </div>
                     </div>
 
@@ -152,7 +152,7 @@
                             <span class="tag">react</span>
                             <span class="tag">tailwind</span>
                             <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated Yesterday</div>
-                            <a href="view_repo.html" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
+                            <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
                         </div>
                     </div>
                 </div>
@@ -193,7 +193,7 @@
         </div>
     </div>
 
-    <!-- ===== FOOTER (Strictly from index.html) ===== -->
+    <!-- ===== FOOTER (Strictly from index.php) ===== -->
     <footer>
         <div class="footer-logo">⬡ CodeVault</div>
         <div class="footer-links">
@@ -205,7 +205,7 @@
         <div class="footer-copy">© 2025 CodeVault</div>
     </footer>
 
-    <!-- ===== SCRIPTS (Strictly from feed.html) ===== -->
+    <!-- ===== SCRIPTS (Strictly from feed.php) ===== -->
     <script>
         // Dropdown toggle
         function toggleDropdown() {

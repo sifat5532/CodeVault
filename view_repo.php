@@ -12,7 +12,7 @@
 
   <!-- ===== NAVBAR ===== -->
   <nav class="navbar">
-    <a href="feed.html" class="nav-logo">
+    <a href="feed.php" class="nav-logo">
       <div class="logo-icon">⬡</div>
       Code<span class="dim">Vault</span>
     </a>
@@ -27,9 +27,9 @@
     </div>
 
     <div class="nav-right">
-      <a href="new_repository.html"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
+      <a href="new_repository.php"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
 
-      <a href="notification.html">
+      <a href="notification.php">
         <div class="notif-btn">
           🔔
           <div class="notif-dot"></div>
@@ -40,9 +40,9 @@
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
           <a href="#">👤 My Profile</a>
-          <a href="settings.html">⚙️ Settings</a>
+          <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.html" class="danger">🚪 Sign out</a>
+          <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -110,7 +110,7 @@
             <div class="flex items-center gap-8">
               📦 <span>Latest Files (v4)</span> <span class="text-muted" style="font-weight: 400; font-size: 12px; margin-left: 4px;">— 1.2 MB total</span>
             </div>
-            <a href="all_versions.html">See all versions</a>
+            <a href="all_versions.php">See all versions</a>
           </div>
           <div class="file-row">
             <div class="icon">📁</div>

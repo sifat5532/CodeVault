@@ -14,13 +14,13 @@
 
   <!-- ===== NAVBAR ===== -->
   <nav class="navbar">
-    <a href="feed.html" class="nav-logo">
+    <a href="feed.php" class="nav-logo">
       <div class="logo-icon">⬡</div>
       Code<span class="dim">Vault</span>
     </a>
 
     <div class="nav-links">
-      <a href="feed.html">Explore</a>
+      <a href="feed.php">Explore</a>
     </div>
 
     <div class="nav-search">
@@ -29,9 +29,9 @@
     </div>
 
     <div class="nav-right">
-      <a href="new_repository.html"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
+      <a href="new_repository.php"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
 
-      <a href="notification.html">
+      <a href="notification.php">
         <div class="notif-btn">
           🔔
           <div class="notif-dot"></div>
@@ -44,7 +44,7 @@
           <a href="#">👤 My Profile</a>
           <a href="#">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.html" class="danger">🚪 Sign out</a>
+          <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>

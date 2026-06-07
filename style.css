@@ -660,7 +660,7 @@ h4 {
 }
 
 
-/* from index.html */
+/* from index.php */
 /* ---- Landing-specific styles ---- */
 
 /* Hero */
@@ -1186,9 +1186,9 @@ footer {
   color: var(--text);
 }
 
-/* from index.html ends */
+/* from index.php ends */
 
-/* from notification.html starts */
+/* from notification.php starts */
 
 /* ---- Notification Layout ---- */
 .notif-container {
@@ -1294,18 +1294,18 @@ footer {
   opacity: 0.5;
 }
 
-/* notification.html ends */
+/* notification.php ends */
 
 
 
-/* from feed.html */
+/* from feed.php */
 
 /* ---- Feed Layout ---- */
 .feed-layout {
   max-width: 1160px;
   margin: 0 auto;
   padding: 28px 30px 60px;
-  /* fix: increase spacing in feed.html*/
+  /* fix: increase spacing in feed.php*/
   display: grid;
   grid-template-columns: 240px 1fr 260px;
   gap: 24px;
@@ -1318,11 +1318,11 @@ footer {
   position: sticky;
   top: calc(var(--nav-h) + 24px);
   gap: 20px;
-  /* add: increase spacing in feed.html*/
+  /* add: increase spacing in feed.php*/
   display: flex;
-  /* add: increase spacing in feed.html*/
+  /* add: increase spacing in feed.php*/
   flex-direction: column;
-  /* add: increase spacing in feed.html*/
+  /* add: increase spacing in feed.php*/
 }
 
 .sidebar-profile {
@@ -1468,7 +1468,7 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 30px;
-  /* fix: increase spacing in feed.html */
+  /* fix: increase spacing in feed.php */
 }
 
 /* Repo card extended for feed */
@@ -1583,7 +1583,7 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 30px;
-  /* fix:fix: increase spacing in feed.html*/
+  /* fix:fix: increase spacing in feed.php*/
 }
 
 .sidebar-widget {
@@ -1782,7 +1782,7 @@ footer {
   }
 }
 
-/* from feed.html ends */
+/* from feed.php ends */
 
 /* ---- New Repo Layout ---- */
 .create-repo-container {

@@ -12,7 +12,7 @@
 
   <!-- ===== NAVBAR ===== -->
   <nav class="navbar">
-    <a href="index.html" class="nav-logo">
+    <a href="index.php" class="nav-logo">
       <div class="logo-icon">⬡</div>
       Code<span class="dim">Vault</span>
     </a>
@@ -212,7 +212,7 @@
           <label>Password</label>
           <input type="password" placeholder="••••••••" />
         </div>
-        <a href="feed.html">
+        <a href="feed.php">
           <button class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">Sign in</button>
         </a>
         <p class="modal-footer-text">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></p>
@@ -232,7 +232,7 @@
           <label>Password</label>
           <input type="password" placeholder="••••••••" />
         </div>
-        <a href="feed.html">
+        <a href="feed.php">
           <button class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">Create
             account</button>
         </a>

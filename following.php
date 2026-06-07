@@ -10,9 +10,9 @@
 
 <body>
 
-  <!-- ===== NAVBAR (Copied from feed.html) ===== -->
+  <!-- ===== NAVBAR (Copied from feed.php) ===== -->
   <nav class="navbar">
-    <a href="feed.html" class="nav-logo">
+    <a href="feed.php" class="nav-logo">
       <div class="logo-icon">⬡</div>
       Code<span class="dim">Vault</span>
     </a>
@@ -27,9 +27,9 @@
     </div>
 
     <div class="nav-right">
-      <a href="new_repository.html"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
+      <a href="new_repository.php"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
 
-      <a href="notification.html">
+      <a href="notification.php">
         <div class="notif-btn">
           🔔
           <div class="notif-dot"></div>
@@ -42,7 +42,7 @@
           <a href="#">👤 My Profile</a>
           <a href="#">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.html" class="danger">🚪 Sign out</a>
+          <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -52,7 +52,7 @@
   <div class="page-wrap">
     <div class="feed-layout">
 
-      <!-- ===== LEFT SIDEBAR (Reference from followers.html) ===== -->
+      <!-- ===== LEFT SIDEBAR (Reference from followers.php) ===== -->
       <aside class="sidebar-left">
         <div class="sidebar-profile">
           <div class="avatar xl">RK</div>
@@ -75,12 +75,12 @@
         </div>
 
         <nav class="sidebar-nav">
-          <a href="feed.html"><span class="nav-icon">🏠</span> Home</a>
+          <a href="feed.php"><span class="nav-icon">🏠</span> Home</a>
           <a href="#"><span class="nav-icon">📦</span> My Repos</a>
           <a href="#"><span class="nav-icon">⭐</span> Starred</a>
-          <a href="followers.html"><span class="nav-icon">👥</span> Followers</a>
-          <a href="following.html" class="active"><span class="nav-icon">👥</span> Following</a>
-          <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+          <a href="followers.php"><span class="nav-icon">👥</span> Followers</a>
+          <a href="following.php" class="active"><span class="nav-icon">👥</span> Following</a>
+          <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>
 
@@ -135,7 +135,7 @@
         </div>
       </main>
 
-      <!-- ===== RIGHT SIDEBAR (Copied from feed.html) ===== -->
+      <!-- ===== RIGHT SIDEBAR (Copied from feed.php) ===== -->
       <aside class="sidebar-right">
         <div class="sidebar-widget">
           <div class="widget-header">
@@ -162,7 +162,7 @@
       </aside>
     </div>
 
-    <!-- ===== FOOTER (Copied from index.html) ===== -->
+    <!-- ===== FOOTER (Copied from index.php) ===== -->
     <footer>
       <div class="footer-logo">⬡ CodeVault</div>
       <div class="footer-links">
@@ -175,7 +175,7 @@
     </footer>
   </div>
 
-  <!-- ===== SCRIPTS (Copied from feed.html) ===== -->
+  <!-- ===== SCRIPTS (Copied from feed.php) ===== -->
   <script>
     // Dropdown toggle
     function toggleDropdown() {
