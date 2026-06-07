@@ -58,6 +58,12 @@ if (isset($_POST["create_btn"])) {
 
           if (mysqli_query($conn, $query2)) {
             $msg = "<div style='color: #28a745'>Repository Created Successfully!</div>";
+
+            // adding the tag names to the database
+            insert_tag_names($conn, $repo_id, $destinition);
+
+            // adding the notifciations to database
+            insert_notifications($conn, $repo_id, $creator, $title);
           } else
             $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
         } else
@@ -68,6 +74,77 @@ if (isset($_POST["create_btn"])) {
       $msg = "<div style='color: #dc3545'>Error! Please give zip file .</div>";
   } else
     $msg = "<div style='color: #dc3545'>Error! Please Try Again</div>";
+}
+
+
+function insert_tag_names($conn, $repo_id, $zipFileName)
+{
+  $zip = new ZipArchive();
+  $extensions = [];
+
+  if ($zip->open($zipFileName) === TRUE) {
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+      $name = $zip->getNameIndex($i);
+      // Skip folders
+      if (str_ends_with($name, '/')) {
+        continue;
+      }
+      $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+      if ($ext !== '') {
+        $extensions[$ext] = true;
+      }
+    }
+    $zip->close();
+  }
+  $extensions = array_keys($extensions);
+  if (count($extensions) <= 0) {
+    return;
+  }
+
+  $query = "INSERT INTO `tag` (`tag_name`, `repo_id`) VALUES ";
+  for ($i = 0; $i < count($extensions); $i++) {
+    $tag = $extensions[$i];
+    if ($i == count($extensions) - 1) {
+      $query .= "('$tag', '$repo_id')";
+    } else {
+      $query .= "('$tag', '$repo_id'), ";
+    }
+  }
+
+  $query .= ";";
+  mysqli_query($conn, $query);
+}
+
+
+function insert_notifications($conn, $repo_id, $creator, $title)
+{
+  $result = mysqli_query(
+    $conn,
+    "SELECT follower.who_is_following AS id
+         FROM follower
+         WHERE follower.who_is_being_followed = '$creator'"
+  );
+  $followers = [];
+  while ($data = mysqli_fetch_assoc($result)) {
+    $followers[] = $data["id"];
+  }
+
+  if (count($followers) == 0)
+    return;
+  $query = "INSERT INTO `notification`
+    (`who_sent`, `who_got`, `repo_id`, `is_read`, `type`) VALUES ";
+  $count = count($followers);
+  for ($i = 0; $i < $count; $i++) {
+    $follower_id = $followers[$i];
+    if ($i == $count - 1) {
+      $query .= "('$creator', '$follower_id', '$repo_id', 0, 'new_repo')";
+    } else {
+      $query .= "('$creator', '$follower_id', '$repo_id', 0, 'new_repo'), ";
+    }
+  }
+  $query .= ";";
+
+  mysqli_query($conn, $query);
 }
 ?>
 
