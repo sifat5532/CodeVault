@@ -1,3 +1,57 @@
+<?php
+session_start();
+if (!isset($_SESSION["id"])) {
+  header("Location: login.php");
+  exit();
+}
+require "php/config.php";
+if (isset($_POST["create_btn"])) {
+  $title = $_POST["title"];
+  $file = $_FILES["file"];
+  $file_name = $file["name"];
+  $file_tmp = $file["tmp_name"];
+  $file_err = $file["error"];
+  $file_size = $file["size"];
+  if (isset($_POST["description"])) $description = $_POST["description"];
+  else $description = " ";
+  $creator = $_SESSION["id"];
+  if (isset($_POST["demo"])) $demo = $_POST["demo"];
+  else $demo = "";
+  $visibility = $_POST["visibility"];
+
+  $initial_version = $_POST["initial_version"];
+  if (isset($_POST["version_description"])) $version_description = $_POST["version_description"];
+  else $version_description = "";
+  if ($file_err === 0) {
+
+    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    if ($file_ext == "zip") {
+      $new_file_name = $creator . "_" . time() . "." . $file_ext;
+      $upload_dir = "repo_files/";
+      if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+      }
+      $destinition = $upload_dir . $new_file_name;
+      if (move_uploaded_file($file_tmp, $destinition)) {
+        $query1 = "INSERT INTO repo(title,file,creator,description,demo,visibility) VALUES('$title','$new_file_name','$creator','$description','$demo','$visibility')";
+
+        if (mysqli_query($conn, $query1)) {
+          $repo_id = mysqli_insert_id($conn);
+          $query2 = "INSERT INTO version(repo_id,version_number,file_zip,description) VALUES('$repo_id','$initial_version','$new_file_name','$version_description')";
+
+          if (mysqli_query($conn, $query2)) {
+            $msg = "<div style='color: #28a745'>Repository Created Successfully!</div>";
+            header("Location: feed.php");
+            exit();
+          } else $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
+        } else $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
+      } else  $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
+    } else  $msg = "<div style='color: #dc3545'>Error! Please give zip file .</div>";
+  } else  $msg = "<div style='color: #dc3545'>Error! Please Try Again 5</div>";
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -55,19 +109,21 @@
         <h1 class="section-title">Create a new vault</h1>
         <p class="section-sub">A repository contains all your project files, including the version history.</p>
       </header>
-
-      <form class="settings-card anim-fadeup" style="animation-delay: 0.1s;">
+      <?php if (isset($msg)) {
+        echo $msg;
+      } ?>
+      <form method="POST" enctype="multipart/form-data" class="settings-card anim-fadeup" style="animation-delay: 0.1s;">
         <!-- Title -->
         <div class="form-group">
           <label for="repo-title">Repository Title</label>
-          <input type="text" id="repo-title" placeholder="e.g. my-awesome-project" required />
-          <p class="text-muted" style="font-size: 12px; mt-4">Great repository names are short and memorable.</p>
+          <input type="text" name="title" id="repo-title" placeholder="e.g. my-awesome-project" required />
+          <p class="text-muted" style="font-size: 12px; ">Great repository names are short and memorable.</p>
         </div>
 
         <!-- Description -->
         <div class="form-group">
           <label for="repo-desc">Description (optional)</label>
-          <textarea id="repo-desc" rows="3" placeholder="What is your project about?"></textarea>
+          <textarea id="repo-desc" rows="3" name="description" placeholder="What is your project about?"></textarea>
         </div>
 
         <div class="divider mb-24"></div>
@@ -76,17 +132,17 @@
         <div class="flex gap-12 mb-24">
           <div class="form-group" style="flex: 1;">
             <label for="version-number">Initial Version</label>
-            <input type="text" id="version-number" placeholder="1.0.0" required />
+            <input type="text" id="version-number" name="initial_version" placeholder="1.0.0" required />
           </div>
           <div class="form-group" style="flex: 2;">
             <label for="live-demo">Live Demo URL (optional)</label>
-            <input type="url" id="live-demo" placeholder="https://example.com" />
+            <input type="url" id="live-demo" name="demo" placeholder="https://example.com" />
           </div>
         </div>
 
         <div class="form-group">
           <label for="version-desc">Version Notes</label>
-          <textarea id="version-desc" rows="3" placeholder="Initial release features..."></textarea>
+          <textarea id="version-desc" rows="3" name="version_description" placeholder="Initial release features..."></textarea>
         </div>
 
         <div class="divider mb-24"></div>
@@ -94,16 +150,10 @@
         <!-- File Uploads -->
         <div class="form-group">
           <label for="zip-file">Project Source (ZIP) <span class="text-red">*</span></label>
-          <input type="file" id="zip-file" class="custom-file-input" accept=".zip" required />
+          <input type="file" id="zip-file" name="file" class="custom-file-input" accept=".zip" required />
         </div>
 
-        <!-- Contributors -->
-        <div class="form-group">
-          <label for="contributors">Add Contributors (optional)</label>
-          <input type="text" id="contributors" placeholder="Username or email, separated by commas" />
-        </div>
 
-        <div class="divider mb-24"></div>
 
         <!-- Visibility -->
         <div class="setting-item mb-24">
@@ -112,14 +162,14 @@
             <p class="text-muted">Anyone on the internet can see this repository.</p>
           </div>
           <label class="switch">
-            <input type="checkbox" checked>
+            <input type="checkbox" name="visibility" checked>
             <span class="slider round"></span>
           </label>
         </div>
 
         <div class="flex gap-12" style="justify-content: flex-end;">
-          <button type="button" class="btn btn-ghost" onclick="window.history.back()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Repository</button>
+          <button type="button" name="cancel_btn " class="btn btn-ghost" onclick="window.history.back()">Cancel</button>
+          <button type="submit" name="create_btn" class="btn btn-primary">Create Repository</button>
         </div>
       </form>
     </main>
@@ -143,7 +193,7 @@
     function toggleDropdown() {
       document.getElementById('userDropdown').classList.toggle('open');
     }
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
       const menu = document.querySelector('.user-menu');
       if (!menu.contains(e.target)) {
         document.getElementById('userDropdown').classList.remove('open');
@@ -152,7 +202,7 @@
 
     // Feed filter
     document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
       });
@@ -161,7 +211,7 @@
     // Custom implementation: Version Number Restriction
     const versionInput = document.getElementById('version-number');
     if (versionInput) {
-      versionInput.addEventListener('input', function (e) {
+      versionInput.addEventListener('input', function(e) {
         // Restriction: only digits and dots
         this.value = this.value.replace(/[^0-9.]/g, '');
       });
@@ -181,8 +231,3 @@
 </body>
 
 </html>
-```
-
-<!--
-[PROMPT_SUGGESTION]Add a JavaScript validation to ensure no more than 5 images are selected for previews.[/PROMPT_SUGGESTION]
-[PROMPT_SUGGESTION]Style the file upload inputs in new_repo.php to match the custom file input style used in settings.php.[/PROMPT_SUGGESTION]

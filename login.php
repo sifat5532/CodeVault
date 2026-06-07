@@ -1,3 +1,35 @@
+<?php 
+session_start();
+if(isset($_SESSION["id"])){
+  header("Location: feed.php");
+  exit();
+}
+require "php/config.php";
+if(isset($_POST["login_btn"])){
+  $username_email=$_POST["username_email"];
+  $password=$_POST["password"];
+  $query="SELECT * FROM user WHERE email='$username_email' OR user_name='$username_email'";
+   if($result=mysqli_query($conn,$query)){
+    if(mysqli_num_rows($result)==1){
+           $data=mysqli_fetch_assoc($result);
+           if(password_verify($password,$data["password"])){
+            $_SESSION["id"]=$data["id"];
+            $_SESSION["username"]=$data["user_name"];
+
+            $msg = "<div style='color: #28a745'>Login Successfully!</div>";
+          
+            header("Location: feed.php");
+             exit();
+            
+           }
+           else $msg="<div style='color: #dc3545'>Invalid username or password</div>";
+    }
+         else $msg="<div style='color: #dc3545'>Invalid username or password</div>";
+   }   else $msg="<div style='color: #dc3545'>Invalid username or password</div>";
+
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +65,7 @@
   <main class="page-wrap auth-container">
     <form method="POST" action="" class="auth-card">
       <h2 style="margin-bottom: 24px; text-align: center;">Login to CodeVault</h2>
-      
+      <?php if(isset($msg)){ echo $msg;} ?>
       <div class="form-group">
         <label>Username or Email</label>
         <input type="text" name="username_email" placeholder="you@example.com" />
