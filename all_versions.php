@@ -1,3 +1,28 @@
+<?php
+if (!isset($_SESSION["id"])) {
+  header("Location: login.php");
+  exit();
+}
+require "php/config.php";
+$repo_id = 6;
+$query = "SELECT * FROM repo WHERE id='$repo_id'";
+if ($result = mysqli_query($conn, $query)) {
+  $data1 = mysqli_fetch_assoc($result);
+  $repo_title=$data1["title"];
+  $creator_id = $data1["creator"];
+  $query = "SELECT * FROM user WHERE id='$creator_id'";
+
+  if ($result = mysqli_query($conn, $query)) {
+    $data2 =mysqli_fetch_assoc($result);
+    $creator_name = $data2["user_name"];
+     
+  }
+}
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,10 +37,14 @@
       margin: 0 auto;
       padding: 40px 24px 80px;
     }
+
     .version-header {
       margin-bottom: 32px;
     }
-    .mb-16 { margin-bottom: 16px; }
+
+    .mb-16 {
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 
@@ -62,47 +91,47 @@
   <!-- ===== PAGE ===== -->
   <div class="page-wrap">
     <main class="versions-container">
-      
+
       <div class="version-header anim-fadeup">
         <div class="repo-path mb-16">
-          <a href="user_profile.php"><span class="owner">neeraj_dev</span></a>
+          <a href="user_profile.php"><span class="owner"><?php if(isset($creator_name))
+            {echo $creator_name;} ?></span></a>
           <span class="sep">/</span>
-          <a href="view_repo.php"><span class="name">react-dashboard-kit</span></a>
+          <a href="view_repo.php"><span class="name"><?php if(isset($repo_name)){
+            echo $repo_name;} ?></span></a>
         </div>
         <h1>Release History</h1>
         <p class="text-muted mt-8">Browse and download previous versions of this project.</p>
         <div class="mt-16">
-            <a href="view_repo.php" class="text-accent">← Back to latest version</a>
+          <a href="view_repo.php" class="text-accent">← Back to latest version</a>
         </div>
       </div>
 
       <div class="feed-list">
+        <?php   
+              $query="SELECT * FROM version WHERE repo_id='$repo_id' ORDER BY id DESC";
+              if($result=mysqli_query($conn,$query)){
+                   $latest=-1;
+                while($data=mysqli_fetch_assoc($result)){
+                  if($latest==-1)  $latest=$data["id"];
+              ?>
         <!-- Version Card 4 -->
         <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
           <div class="frc-top">
             <div class="version-chip" style="font-size: 14px; padding: 4px 12px;">v4.0</div>
             <button class="btn btn-primary btn-sm">⬇ Download ZIP</button>
           </div>
-          <p class="frc-desc">Official React 18 support, dark mode components, and bundle size optimizations.</p>
+          <p class="frc-desc"><?php if(isset($data["description"])){ echo $data["description"];}?> </p>
           <div class="frc-footer">
             <a href="view_tag.php"><span class="tag">latest</span></a>
             <a href="view_tag.php"><span class="tag">stable</span></a>
-            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Uploaded Oct 24, 2024</div>
+            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php echo $data["created_at"]; ?></div>
           </div>
         </div>
 
-        <!-- Version Card 3 -->
-        <div class="feed-repo-card anim-fadeup" style="animation-delay:0.1s">
-          <div class="frc-top">
-            <div class="version-chip" style="font-size: 14px; padding: 4px 12px; background: var(--bg-3); border-color: var(--border); color: var(--text-dim);">v3.2</div>
-            <button class="btn btn-ghost btn-sm">⬇ Download ZIP</button>
-          </div>
-          <p class="frc-desc">Minor bug fixes for grid layout on Safari and updated peer dependencies.</p>
-          <div class="frc-footer">
-            <a href="view_tag.php"><span class="tag">maintenance</span></a>
-            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Uploaded Sep 12, 2024</div>
-          </div>
-        </div>
+               <?php  }} ?>
+
+
 
       </div>
 
@@ -126,7 +155,7 @@
     function toggleDropdown() {
       document.getElementById('userDropdown').classList.toggle('open');
     }
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
       const menu = document.querySelector('.user-menu');
       if (menu && !menu.contains(e.target)) {
         document.getElementById('userDropdown').classList.remove('open');
