@@ -1,3 +1,68 @@
+<?php
+// session_start();
+// if(!isset($_SESSION["id"])){
+//   header("Location: login.php");
+//   exit();
+// }
+
+if(isset($_GET["type"])){
+  $type = $_GET["type"];
+}else{
+  header("Location: feed.php");
+  exit();
+}
+if($type != "Followers" && $type != "Followings"){
+  header("Location: feed.php");
+  exit();
+}
+
+require "php/config.php";
+// $id = $_SESSION["id"];
+$id = 1;
+if($type === "Followers"){
+  $query = "SELECT COUNT(follower.who_is_being_followed) as total FROM follower WHERE follower.who_is_being_followed = $id;";
+  $query_user_list = "
+    SELECT
+      follower.who_is_following,
+        user.id,
+        user.user_name,
+        user.name,
+        user.profile_pic
+    FROM follower
+      JOIN user
+        ON follower.who_is_following = user.id
+    WHERE follower.who_is_being_followed = $id
+    ORDER BY user.name ASC;
+  ";
+}else{
+  $query = "SELECT COUNT(follower.who_is_following) AS total FROM follower WHERE follower.who_is_following = $id;";
+  $query_user_list = "
+    SELECT
+      follower.who_is_being_followed,
+        user.id,
+        user.user_name,
+        user.name,
+        user.profile_pic
+    FROM follower
+      JOIN user
+        ON follower.who_is_being_followed = user.id
+    WHERE follower.who_is_following = $id
+    ORDER BY user.name ASC;
+  ";
+}
+$count = ($result = mysqli_query($conn, $query)) ? mysqli_fetch_assoc($result)["total"] : 0;
+$result = mysqli_query($conn, $query_user_list);
+
+function get_avatar($string){
+  $words = explode(' ', $string);
+  $initials = '';
+  foreach ($words as $word) {
+      $initials .= strtoupper($word[0]);
+  }
+  return $initials;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -87,129 +152,20 @@
       <!-- ===== MAIN CONTENT (Followers List) ===== -->
       <main class="feed-main">
         <div class="feed-header" style="margin-bottom: 3vh;">
-          <h2>Followers (86)</h2>
+          <h2><?php echo $type;?> (<?php echo $count;?>)</h2>
         </div>
 
         <div class="follower-list">
-          <!-- Follower 1 -->
+          <?php while($data = mysqli_fetch_assoc($result)){?>
           <div class="follower-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="avatar lg">MZ</div>
+            <div class="avatar lg"><?php echo get_avatar($data["name"]);?></div>
             <div class="follower-info">
-              <div class="follower-name">man_zhang</div>
-              <div class="follower-handle">@man_zhang</div>
+              <div class="follower-name"><?php echo $data["name"];?></div>
+              <div class="follower-handle">@<?php echo $data["user_name"];?></div>
             </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
+            <a href="user_profile.php?user_id=<?php echo $data["id"];?>"><button class="btn btn-ghost btn-sm">View profile</button></a>
           </div>
-
-          <!-- Follower 2 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.1s">
-            <div class="avatar lg">DK</div>
-            <div class="follower-info">
-              <div class="follower-name">dev_kabir</div>
-              <div class="follower-handle">@dev_kabir</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-          </div>
-
-          <!-- Follower 3 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.15s">
-            <div class="avatar lg">YS</div>
-            <div class="follower-info">
-              <div class="follower-name">yui_sudo</div>
-              <div class="follower-handle">@yui_sudo</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 4 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="avatar lg">NJ</div>
-            <div class="follower-info">
-              <div class="follower-name">neeraj_dev</div>
-              <div class="follower-handle">@neeraj_dev</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 4 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="avatar lg">NJ</div>
-            <div class="follower-info">
-              <div class="follower-name">neeraj_dev</div>
-              <div class="follower-handle">@neeraj_dev</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 4 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="avatar lg">NJ</div>
-            <div class="follower-info">
-              <div class="follower-name">neeraj_dev</div>
-              <div class="follower-handle">@neeraj_dev</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 4 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="avatar lg">NJ</div>
-            <div class="follower-info">
-              <div class="follower-name">neeraj_dev</div>
-              <div class="follower-handle">@neeraj_dev</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 4 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="avatar lg">NJ</div>
-            <div class="follower-info">
-              <div class="follower-name">neeraj_dev</div>
-              <div class="follower-handle">@neeraj_dev</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 4 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="avatar lg">NJ</div>
-            <div class="follower-info">
-              <div class="follower-name">neeraj_dev</div>
-              <div class="follower-handle">@neeraj_dev</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 4 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="avatar lg">NJ</div>
-            <div class="follower-info">
-              <div class="follower-name">neeraj_dev</div>
-              <div class="follower-handle">@neeraj_dev</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 4 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="avatar lg">NJ</div>
-            <div class="follower-info">
-              <div class="follower-name">neeraj_dev</div>
-              <div class="follower-handle">@neeraj_dev</div>
-            </div>
-            <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-          </div>
-
-          <!-- Follower 5 -->
-          <div class="follower-card anim-fadeup" style="animation-delay:0.25s">
-            <div class="avatar lg">SL</div>
-            <div class="follower-info">
-              <div class="follower-name">samon_liu</div>
-              <div class="follower-handle">@samon_liu</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-          </div>
+         <?php } ?>
         </div>
       </main>
 
