@@ -1,3 +1,18 @@
+<?php
+require "php/config.php";
+
+function getNumFromDB($con, $query){
+  if($result = mysqli_query($con, $query)){
+    return mysqli_fetch_assoc($result)["total"];
+  }
+  return 0;
+}
+
+$total_repo = getNumFromDB($conn, "SELECT COUNT(id) AS total FROM repo");
+$total_dev = getNumFromDB($conn, "SELECT COUNT(id) AS total FROM user");
+$total_version = getNumFromDB($conn, "SELECT COUNT(id) AS total FROM version");
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -59,15 +74,15 @@
     <div class="stats-bar" id="stats">
       <div class="stats-inner">
         <div class="stat-item">
-          <div class="num">12<span>K+</span></div>
+          <div class="num"><?php echo $total_repo;?><span>+</span></div>
           <div class="label">Repositories</div>
         </div>
         <div class="stat-item">
-          <div class="num">4<span>K+</span></div>
+          <div class="num"><?php echo $total_dev; ?><span>+</span></div>
           <div class="label">Developers</div>
         </div>
         <div class="stat-item">
-          <div class="num">38<span>K+</span></div>
+          <div class="num"><?php echo $total_version ?><span>+</span></div>
           <div class="label">Versions uploaded</div>
         </div>
         <div class="stat-item">

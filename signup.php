@@ -55,6 +55,14 @@ if(isset($_POST["sign_in_btn"])){
       width: 100%;
       max-width: 400px;
     }
+
+    .border-success{
+        border: !important 1px solid #198754;
+    }
+
+    .border-danger{
+        border: !important 1px solid #dc3545;
+    }
   </style>
 </head>
 <body>
@@ -74,8 +82,8 @@ if(isset($_POST["sign_in_btn"])){
         <input type="text" name="name" placeholder="Jhon Doe" required/>
       </div>
       <div class="form-group">
-        <label>Username</label>
-        <input type="text" name="user_name" placeholder="cooldev42" required/>
+        <label id="usernameLabel">Username</label>
+        <input type="text" name="user_name" id="username" placeholder="cooldev42" required/>
       </div>
       <div class="form-group">
         <label>Email</label>
@@ -85,7 +93,7 @@ if(isset($_POST["sign_in_btn"])){
         <label>Password</label>
         <input type="password" name="password" placeholder="••••••••" required/>
       </div>
-        <input type="submit" name="sign_in_btn" value="Create account" class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">
+        <input type="submit" name="sign_in_btn" id="sign_in_btn" value="Create account" class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">
       <p class="modal-footer-text">Already have an account? <a href="login.php">Sign in</a></p>
     </form>
   </main>
@@ -100,5 +108,44 @@ if(isset($_POST["sign_in_btn"])){
     </div>
     <div class="footer-copy">© 2025 CodeVault</div>
   </footer>
+
+  <script>
+    const uname_input = document.getElementById("username");
+    const uname_label = document.getElementById("usernameLabel");
+    const signup_btn = document.getElementById("sign_in_btn");
+    uname_input.addEventListener("input", validate_username);
+
+    async function validate_username() {
+        let input_data = uname_input.value;
+        if(input_data != ""){
+            if(isValid(input_data) && input_data.length >= 3){
+                let url = "php/validate_username.php?username=" + encodeURIComponent(input_data);
+                let response = await fetch(url);
+                let data = await response.json();
+
+                if(data.status == true){
+                    signup_btn.disabled = true;
+                    uname_label.innerHTML = "Username: <span style='color: #dc3545;'>This username is already taken</span>";
+                }else{
+                    signup_btn.disabled = false;
+                    uname_label.innerHTML = "Username: <span style='color: #00de76;'>It's available</span>";
+                }
+            }else if(isValid(input_data) && input_data.length < 3){
+                signup_btn.disabled = true;
+                uname_label.innerHTML = "Username: <span style='color: #dc3545;'>Too small</span>";
+            }else{
+                signup_btn.disabled = true;
+                uname_label.innerHTML = "Username: <span style='color: #dc3545;'>Invalid format. Allowed [a-z,A-Z,0-9,_]</span>";
+            }
+        }else{
+            uname_label.innerHTML = "Username";
+            signup_btn.disabled = true;
+        }
+    }
+
+    function isValid(username) {
+      return /^[a-zA-Z0-9_]+$/.test(username);
+    }
+  </script>
 </body>
 </html>
