@@ -22,8 +22,8 @@
     </div>
 
     <div class="nav-right">
-      <button class="btn btn-ghost btn-sm" onclick="openModal('login')">Sign in</button>
-      <button class="btn btn-primary btn-sm" onclick="openModal('signup')">Get started</button>
+      <a href="login.php" class="btn btn-ghost btn-sm">Login</a>
+      <a href="signup.php" class="btn btn-primary btn-sm">Get started</a>
     </div>
   </nav>
 
@@ -42,7 +42,7 @@
       </p>
 
       <div class="hero-actions">
-        <button class="btn btn-primary" onclick="openModal('signup')">Create free account</button>
+        <a href="signup.php" class="btn btn-primary">Create free account</a>
         <a href="#features" class="btn btn-ghost">See how it works</a>
       </div>
 
@@ -175,7 +175,7 @@
     <section class="cta-section">
       <h2>Ready to vault your code?</h2>
       <p>Free forever for public repos. Private repos included in every account.</p>
-      <button class="btn btn-primary" onclick="openModal('signup')">Create your account →</button>
+      <a href="signup.php" class="btn btn-primary">Create your account →</a>
     </section>
 
     <!-- ===== FOOTER ===== -->
@@ -191,76 +191,6 @@
     </footer>
   </main>
 
-  <!-- ===== AUTH MODAL ===== -->
-  <div class="modal-overlay" id="authModal">
-    <div class="modal">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-
-      <div class="modal-tabs">
-        <div class="modal-tab active" id="tab-login" onclick="switchTab('login')">Sign in</div>
-        <div class="modal-tab" id="tab-signup" onclick="switchTab('signup')">Sign up</div>
-      </div>
-
-      <!-- Login Form -->
-      <div id="form-login">
-        <div class="form-group">
-          <label>Username or Email</label>
-          <input type="text" placeholder="you@example.com" />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" placeholder="••••••••" />
-        </div>
-        <a href="feed.php">
-          <button class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">Sign in</button>
-        </a>
-        <p class="modal-footer-text">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></p>
-      </div>
-
-      <!-- Signup Form -->
-      <div id="form-signup" style="display:none;">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" placeholder="cooldev42" />
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" placeholder="you@example.com" />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" placeholder="••••••••" />
-        </div>
-        <a href="feed.php">
-          <button class="btn btn-primary" style="width:100%; justify-content:center; padding:11px;">Create
-            account</button>
-        </a>
-        <p class="modal-footer-text">Already have an account? <a onclick="switchTab('login')">Sign in</a></p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function openModal(tab) {
-      document.getElementById('authModal').classList.add('open');
-      switchTab(tab);
-    }
-
-    function closeModal() {
-      document.getElementById('authModal').classList.remove('open');
-    }
-
-    document.getElementById('authModal').addEventListener('click', function (e) {
-      if (e.target === this) closeModal();
-    });
-
-    function switchTab(tab) {
-      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-      document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
-      document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
-      document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
-    }
-  </script>
 </body>
 
 </html>
