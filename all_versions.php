@@ -50,7 +50,7 @@
       <div class="user-menu">
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
-          <a href="#">👤 My Profile</a>
+          <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
           <a href="index.php" class="danger">🚪 Sign out</a>
@@ -65,9 +65,9 @@
       
       <div class="version-header anim-fadeup">
         <div class="repo-path mb-16">
-          <span class="owner">neeraj_dev</span>
+          <a href="user_profile.php"><span class="owner">neeraj_dev</span></a>
           <span class="sep">/</span>
-          <span class="name">react-dashboard-kit</span>
+          <a href="view_repo.php"><span class="name">react-dashboard-kit</span></a>
         </div>
         <h1>Release History</h1>
         <p class="text-muted mt-8">Browse and download previous versions of this project.</p>
@@ -85,8 +85,8 @@
           </div>
           <p class="frc-desc">Official React 18 support, dark mode components, and bundle size optimizations.</p>
           <div class="frc-footer">
-            <span class="tag">latest</span>
-            <span class="tag">stable</span>
+            <a href="view_tag.php"><span class="tag">latest</span></a>
+            <a href="view_tag.php"><span class="tag">stable</span></a>
             <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Uploaded Oct 24, 2024</div>
           </div>
         </div>
@@ -99,37 +99,11 @@
           </div>
           <p class="frc-desc">Minor bug fixes for grid layout on Safari and updated peer dependencies.</p>
           <div class="frc-footer">
-            <span class="tag">maintenance</span>
+            <a href="view_tag.php"><span class="tag">maintenance</span></a>
             <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Uploaded Sep 12, 2024</div>
           </div>
         </div>
 
-        <!-- Version Card 2 -->
-        <div class="feed-repo-card anim-fadeup" style="animation-delay:0.15s">
-          <div class="frc-top">
-            <div class="version-chip" style="font-size: 14px; padding: 4px 12px; background: var(--bg-3); border-color: var(--border); color: var(--text-dim);">v3.0</div>
-            <button class="btn btn-ghost btn-sm">⬇ Download ZIP</button>
-          </div>
-          <p class="frc-desc">Complete rewrite in TypeScript and migration to CSS Modules for better scoping.</p>
-          <div class="frc-footer">
-            <span class="tag">major-update</span>
-            <span class="tag">typescript</span>
-            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Uploaded July 05, 2024</div>
-          </div>
-        </div>
-
-        <!-- Version Card 1 -->
-        <div class="feed-repo-card anim-fadeup" style="animation-delay:0.2s">
-          <div class="frc-top">
-            <div class="version-chip" style="font-size: 14px; padding: 4px 12px; background: var(--bg-3); border-color: var(--border); color: var(--text-dim);">v1.0</div>
-            <button class="btn btn-ghost btn-sm">⬇ Download ZIP</button>
-          </div>
-          <p class="frc-desc">Initial release including Basic Sidebar, Stats Cards, and Line Charts.</p>
-          <div class="frc-footer">
-            <span class="tag">initial</span>
-            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Uploaded Jan 20, 2024</div>
-          </div>
-        </div>
       </div>
 
     </main>

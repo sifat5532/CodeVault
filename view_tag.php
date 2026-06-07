@@ -118,8 +118,8 @@
                             <div class="frc-meta">
                                 <div class="avatar">NJ</div>
                                 <div>
-                                    <div class="repo-name">neeraj_dev / react-dashboard-kit</div>
-                                    <div class="by">by <strong>neeraj_dev</strong></div>
+                                    <a href="view_repo.php"><div class="repo-name">react-dashboard-kit</div></a>
+                                    <div class="by">by <a href="user_profile.php"><strong>neeraj_dev</strong></a></div>
                                 </div>
                             </div>
                             <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button>
@@ -130,28 +130,6 @@
                             <span class="tag">react</span>
                             <span class="tag">typescript</span>
                             <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 2h ago</div>
-                            <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
-                        </div>
-                    </div>
-
-                    <!-- Tagged Repo 2 -->
-                    <div class="feed-repo-card anim-fadeup" style="animation-delay:0.1s">
-                        <div class="frc-top">
-                            <div class="frc-meta">
-                                <div class="avatar">AM</div>
-                                <div>
-                                    <div class="repo-name">alex_m / admin-panel-react</div>
-                                    <div class="by">by <strong>alex_m</strong></div>
-                                </div>
-                            </div>
-                            <button class="star-btn starred" onclick="toggleStar(this)">★ <span>531</span></button>
-                        </div>
-                        <p class="frc-desc">Professional admin panel template built with React, Tailwind, and Recharts. Highly customizable and responsive.</p>
-                        <div class="frc-footer">
-                            <div class="version-chip">✦ v12</div>
-                            <span class="tag">react</span>
-                            <span class="tag">tailwind</span>
-                            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated Yesterday</div>
                             <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
                         </div>
                     </div>
@@ -175,18 +153,10 @@
                     <div class="suggest-user">
                         <div class="avatar">MZ</div>
                         <div class="info">
-                            <div class="name">man_zhang</div>
+                            <a href="user_profile.php"><div class="name">man_zhang</div></a>
                             <div class="handle">@man_zhang</div>
                         </div>
-                        <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-                    </div>
-                    <div class="suggest-user">
-                        <div class="avatar">NJ</div>
-                        <div class="info">
-                            <div class="name">neeraj_dev</div>
-                            <div class="handle">@neeraj_dev</div>
-                        </div>
-                        <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
+                        <button class="follow-btn" onclick="">Follow</button>
                     </div>
                 </div>
             </aside>

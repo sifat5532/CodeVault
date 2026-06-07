@@ -25,7 +25,7 @@
   </div>
 
   <div class="nav-right">
-    <a href="#"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
+    <a href="new_repository.php"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
 
     <a href="notification.php">
         <div class="notif-btn">
@@ -37,8 +37,8 @@
     <div class="user-menu">
       <div class="avatar" onclick="toggleDropdown()">RK</div>
       <div class="user-dropdown" id="userDropdown">
-        <a href="#">👤 My Profile</a>
-        <a href="#">⚙️ Settings</a>
+        <a href="profile.php">👤 My Profile</a>
+        <a href="settings.php">⚙️ Settings</a>
         <div class="dd-divider"></div>
         <a href="index.php" class="danger">🚪 Sign out</a>
       </div>

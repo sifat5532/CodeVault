@@ -1478,7 +1478,6 @@ footer {
   border-radius: var(--radius-lg);
   padding: 20px 22px;
   transition: border-color 0.2s;
-  cursor: pointer;
 }
 
 .feed-repo-card:hover {

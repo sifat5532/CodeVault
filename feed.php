@@ -39,8 +39,8 @@
       <div class="user-menu">
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
-          <a href="#">👤 My Profile</a>
-          <a href="#">⚙️ Settings</a>
+          <a href="profile.php">👤 My Profile</a>
+          <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
           <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
@@ -76,11 +76,11 @@
 
         <nav class="sidebar-nav">
           <a href="feed.php" class="active"><span class="nav-icon">🏠</span> Home</a>
-          <a href="#"><span class="nav-icon">📦</span> My Repos</a>
-          <a href="#"><span class="nav-icon">⭐</span> Starred</a>
-          <a href="#"><span class="nav-icon">👥</span> Followers</a>
-          <a href="#"><span class="nav-icon">👥</span> Following</a>
-          <a href="#"><span class="nav-icon">⚙️</span> Settings</a>
+          <a href="profile.php"><span class="nav-icon">📦</span> My Repos</a>
+          <a href="starred.php"><span class="nav-icon">⭐</span> Starred</a>
+          <a href="followers.php"><span class="nav-icon">👥</span> Followers</a>
+          <a href="following.php"><span class="nav-icon">👥</span> Following</a>
+          <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>
 
@@ -102,8 +102,8 @@
               <div class="frc-meta">
                 <div class="avatar">NJ</div>
                 <div>
-                  <div class="by"><strong>neeraj_dev</strong> uploaded a new version</div>
-                  <div class="repo-name">neeraj_dev / react-dashboard-kit</div>
+                  <div class="by"><a href="user_profile.php"><strong>neeraj_dev</strong></a> uploaded a new version</div>
+                  <a href="view_repo.php" class="repo-name">neeraj_dev / react-dashboard-kit</a>
                 </div>
               </div>
               <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button>
@@ -112,9 +112,9 @@
               support and improved chart rendering performance in v4.</p>
             <div class="frc-footer">
               <div class="version-chip">✦ v4</div>
-              <span class="tag">react</span>
-              <span class="tag">typescript</span>
-              <span class="tag">dashboard</span>
+              <a href="view_tag.php" class="tag">react</a>
+              <a href="view_tag.php" class="tag">typescript</a>
+              <a href="view_tag.php" class="tag">dashboard</a>
               <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">2h ago</div>
             </div>
           </div>
@@ -125,8 +125,8 @@
               <div class="frc-meta">
                 <div class="avatar">SL</div>
                 <div>
-                  <div class="by"><strong>samon_liu</strong> created a new repo</div>
-                  <div class="repo-name">samon_liu / fastapi-boilerplate</div>
+                  <div class="by"><a href="user_profile.php"><strong>samon_liu</strong></a> created a new repo</div>
+                  <a href="view_repo.php" class="repo-name">samon_liu / fastapi-boilerplate</a>
                 </div>
               </div>
               <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
@@ -135,9 +135,9 @@
               auto-generated Swagger docs. Opinionated, minimal, fast.</p>
             <div class="frc-footer">
               <div class="version-chip">✦ v1</div>
-              <span class="tag">python</span>
-              <span class="tag">fastapi</span>
-              <span class="tag">docker</span>
+              <a href="view_tag.php" class="tag">python</a>
+              <a href="view_tag.php" class="tag">fastapi</a>
+              <a href="view_tag.php" class="tag">docker</a>
               <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">5h ago</div>
             </div>
           </div>

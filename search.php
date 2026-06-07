@@ -39,8 +39,8 @@
       <div class="user-menu">
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
-          <a href="#">👤 My Profile</a>
-          <a href="#">⚙️ Settings</a>
+          <a href="profile.php">👤 My Profile</a>
+          <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
           <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
@@ -94,8 +94,8 @@
               <div class="frc-meta">
                 <div class="avatar">NJ</div>
                 <div>
-                  <div class="repo-name">neeraj_dev / react-dashboard-kit</div>
-                  <div class="by">by <strong>neeraj_dev</strong></div>
+                  <a href="view_repo.php" class="repo-name">neeraj_dev / react-dashboard-kit</a>
+                  <div class="by">by <a href="user_profile.php"><strong>neeraj_dev</strong></a></div>
                 </div>
               </div>
               <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button>
@@ -104,9 +104,9 @@
               support and improved chart rendering.</p>
             <div class="frc-footer">
               <div class="version-chip">✦ v4</div>
-              <span class="tag">react</span>
-              <span class="tag">dashboard</span>
-              <button class="btn btn-ghost btn-sm" style="margin-left: auto;">View Repository</button>
+              <a href="view_tag.php" class="tag">react</a>
+              <a href="view_tag.php" class="tag">dashboard</a>
+              <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: auto;">View Repository</a>
             </div>
           </div>
 

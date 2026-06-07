@@ -39,8 +39,8 @@
       <div class="user-menu">
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
-          <a href="#">👤 My Profile</a>
-          <a href="#">⚙️ Settings</a>
+          <a href="profile.php">👤 My Profile</a>
+          <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
           <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
@@ -83,26 +83,10 @@
         <section id="devs" class="explore-section">
           <div class="section-label">Top Developers</div>
           <div class="follower-list">
-            <div class="follower-card anim-fadeup" style="animation-delay:0.05s">
-              <div class="avatar lg">MZ</div>
-              <div class="follower-info">
-                <div class="follower-name">man_zhang</div>
-                <div class="follower-handle">@man_zhang</div>
-                <div class="flex items-center gap-12 mt-4">
-                  <span class="repo-meta">📦 24 repos</span>
-                  <span class="repo-meta">👥 1.2k followers</span>
-                </div>
-              </div>
-              <div class="flex gap-8">
-                <button class="follow-btn following" onclick="toggleFollow(this)">Following</button>
-                <button class="btn btn-ghost btn-sm">View Profile</button>
-              </div>
-            </div>
-
             <div class="follower-card anim-fadeup" style="animation-delay:0.1s">
               <div class="avatar lg">NJ</div>
               <div class="follower-info">
-                <div class="follower-name">neeraj_dev</div>
+                <a href="user_profile.php"><div class="follower-name">neeraj_dev</div></a>
                 <div class="follower-handle">@neeraj_dev</div>
                 <div class="flex items-center gap-12 mt-4">
                   <span class="repo-meta">📦 18 repos</span>
@@ -111,7 +95,7 @@
               </div>
               <div class="flex gap-8">
                 <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-                <button class="btn btn-ghost btn-sm">View Profile</button>
+                <a href="user_profile.php"><button class="btn btn-ghost btn-sm">View Profile</button></a>
               </div>
             </div>
           </div>
@@ -121,33 +105,14 @@
         <section id="repos" class="explore-section">
           <div class="section-label">Top Repositories</div>
           <div class="feed-list">
-            <div class="feed-repo-card anim-fadeup" style="animation-delay:0.15s">
-              <div class="frc-top">
-                <div class="frc-meta">
-                  <div class="avatar">SL</div>
-                  <div>
-                    <div class="repo-name">samon_liu / fastapi-boilerplate</div>
-                    <div class="by">by <strong>samon_liu</strong></div>
-                  </div>
-                </div>
-                <button class="star-btn starred" onclick="toggleStar(this)">★ <span>892</span></button>
-              </div>
-              <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, and Docker Compose.</p>
-              <div class="frc-footer">
-                <div class="version-chip">✦ v5</div>
-                <span class="tag">python</span>
-                <span class="tag">fastapi</span>
-                <button class="btn btn-ghost btn-sm" style="margin-left: auto;">View Repository</button>
-              </div>
-            </div>
 
             <div class="feed-repo-card anim-fadeup" style="animation-delay:0.2s">
               <div class="frc-top">
                 <div class="frc-meta">
                   <div class="avatar">AM</div>
                   <div>
-                    <div class="repo-name">alex_m / admin-panel-react</div>
-                    <div class="by">by <strong>alex_m</strong></div>
+                    <a href="view_repo.php"><div class="repo-name">admin-panel-react</div></a>
+                    <div class="by">by <a href="user_profile.php"><strong>alex_m</strong></a></div>
                   </div>
                 </div>
                 <button class="star-btn" onclick="toggleStar(this)">☆ <span>531</span></button>
@@ -155,11 +120,12 @@
               <p class="frc-desc">Professional admin panel template built with React, Tailwind, and Recharts.</p>
               <div class="frc-footer">
                 <div class="version-chip">✦ v12</div>
-                <span class="tag">react</span>
-                <span class="tag">tailwind</span>
-                <button class="btn btn-ghost btn-sm" style="margin-left: auto;">View Repository</button>
+                <a href="view_tag.php"><span class="tag">react</span></a>
+                <a href="view_tag.php"><span class="tag">tailwind</span></a>
+                <a href="view_repo.php"><button class="btn btn-ghost btn-sm" style="margin-left: auto;">View Repository</button></a>
               </div>
             </div>
+
           </div>
         </section>
 
@@ -167,24 +133,14 @@
         <section id="tags" class="explore-section">
           <div class="section-label">Top Tags</div>
           <div class="follower-list">
-            <div class="follower-card anim-fadeup" style="animation-delay:0.25s">
-              <div class="tag-icon-box">🏷️</div>
-              <div class="follower-info">
-                <div class="follower-name text-accent mono">#python</div>
-                <p class="text-muted" style="font-size: 13px; margin-top: 4px;">General-purpose programming language. Used for ML, Backends, and Scripting.</p>
-                <div class="repo-meta mt-8">📦 1,240 repos</div>
-              </div>
-              <button class="btn btn-ghost btn-sm">Browse Tag</button>
-            </div>
-
             <div class="follower-card anim-fadeup" style="animation-delay:0.3s">
               <div class="tag-icon-box">🏷️</div>
               <div class="follower-info">
-                <div class="follower-name text-accent mono">#react</div>
+                <a href="view_tag.php"><div class="follower-name text-accent mono">#react</div></a>
                 <p class="text-muted" style="font-size: 13px; margin-top: 4px;">A JavaScript library for building user interfaces.</p>
                 <div class="repo-meta mt-8">📦 980 repos</div>
               </div>
-              <button class="btn btn-ghost btn-sm">Browse Tag</button>
+              <a href="view_tag.php"><button class="btn btn-ghost btn-sm">Browse Tag</button></a>
             </div>
           </div>
         </section>

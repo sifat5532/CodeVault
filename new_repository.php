@@ -39,8 +39,8 @@
       <div class="user-menu">
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
-          <a href="#">👤 My Profile</a>
-          <a href="#">⚙️ Settings</a>
+          <a href="profile.php">👤 My Profile</a>
+          <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
           <a href="index.php" class="danger">🚪 Sign out</a>
         </div>

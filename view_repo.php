@@ -39,7 +39,7 @@
       <div class="user-menu">
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
-          <a href="#">👤 My Profile</a>
+          <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
           <a href="index.php" class="danger">🚪 Sign out</a>
@@ -57,7 +57,7 @@
         <div class="repo-header-main">
           <div>
             <div class="repo-path">
-              <span class="owner">neeraj_dev</span>
+              <a href="user_profile.php" class="owner">neeraj_dev</a>
               <span class="sep">/</span>
               <span class="name">react-dashboard-kit</span>
               <span class="badge badge-gray" style="margin-left: 10px;">Public</span>
@@ -67,9 +67,9 @@
             </div>
             <p class="text-muted mt-8">A lightweight, zero-dependency React dashboard component library.</p>
             <div class="flex gap-8 mt-16">
-              <span class="tag">react</span>
-              <span class="tag">typescript</span>
-              <span class="tag">dashboard</span>
+              <a href="view_tag.php"><span class="tag">react</span></a>
+              <a href="view_tag.php"><span class="tag">typescript</span></a>
+              <a href="view_tag.php"><span class="tag">dashboard</span></a>
             </div>
           </div>
 
@@ -101,7 +101,7 @@
         <div class="flex gap-12 mb-24">
           <button class="btn btn-ghost btn-sm">★ Star</button>
           <button class="btn btn-ghost btn-sm">🔗 Share</button>
-          <button class="btn btn-outline btn-sm">Live Demo ↗</button>
+          <a href="some_link" target="_blank"><button class="btn btn-outline btn-sm">Live Demo ↗</button></a>
         </div>
 
         <!-- File Explorer -->
@@ -150,13 +150,13 @@
       <aside class="sidebar-right">
         <div class="sidebar-widget">
           <div class="widget-header">Creator</div>
-          <div class="suggest-user" style="border: none;">
+          <a href="user_profile.php" class="suggest-user" style="border: none;">
             <div class="avatar">NJ</div>
             <div class="info">
               <div class="name">neeraj_dev</div>
               <div class="handle">@neeraj_dev</div>
             </div>
-          </div>
+          </a>
           <div style="padding: 0 18px 18px; font-size: 13px; color: var(--text-muted);">
             Building open source UI kits since 2022.
             <div class="mt-8">👥 1.2k followers • 📦 24 projects</div>
@@ -164,24 +164,10 @@
         </div>
 
         <div class="sidebar-widget">
-          <div class="widget-header">Languages</div>
-          <div style="padding: 18px;">
-            <div class="lang-bar">
-              <div class="lang-seg" style="width: 70%; background: #3178c6;"></div>
-              <div class="lang-seg" style="width: 25%; background: #f1e05a;"></div>
-              <div class="lang-seg" style="width: 5%; background: #e34c26;"></div>
-            </div>
-            <div class="repo-meta mt-8">🔵 TypeScript (70%)</div>
-            <div class="repo-meta mt-4">🟡 JavaScript (25%)</div>
-            <div class="repo-meta mt-4">🔴 CSS (5%)</div>
-          </div>
-        </div>
-
-        <div class="sidebar-widget">
           <div class="widget-header">Contributors (3)</div>
-          <div class="suggest-user" style="border: none;"><div class="avatar">NJ</div><div class="name">neeraj_dev</div></div>
-          <div class="suggest-user" style="border: none;"><div class="avatar">RK</div><div class="name">rafidkhan</div></div>
-          <div class="suggest-user" style="border-bottom: none;"><div class="avatar">MZ</div><div class="name">man_zhang</div></div>
+          <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">NJ</div><div class="name">neeraj_dev</div></div></a>
+          <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">RK</div><div class="name">rafidkhan</div></div></a>
+          <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">MZ</div><div class="name">man_zhang</div></div></a>
         </div>
       </aside>
     </div>

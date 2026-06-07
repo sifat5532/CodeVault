@@ -39,8 +39,8 @@
       <div class="user-menu">
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
-          <a href="#">👤 My Profile</a>
-          <a href="#">⚙️ Settings</a>
+          <a href="profile.php">👤 My Profile</a>
+          <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
           <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
@@ -75,7 +75,7 @@
                 <div class="n">86</div>
                 <div class="l">Followers</div>
               </a>
-              <a href="followings.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+              <a href="following.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
                 <div class="n">42</div>
                 <div class="l">Following</div>
               </a>

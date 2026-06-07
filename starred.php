@@ -39,8 +39,8 @@
       <div class="user-menu">
         <div class="avatar" onclick="toggleDropdown()">RK</div>
         <div class="user-dropdown" id="userDropdown">
-          <a href="#">👤 My Profile</a>
-          <a href="#">⚙️ Settings</a>
+          <a href="profile.php">👤 My Profile</a>
+          <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
           <a href="index.php" class="danger">🚪 Sign out</a>
         </div>
@@ -76,11 +76,11 @@
 
         <nav class="sidebar-nav">
           <a href="feed.php"><span class="nav-icon">🏠</span> Home</a>
-          <a href="#"><span class="nav-icon">📦</span> My Repos</a>
+          <a href="profile.php"><span class="nav-icon">📦</span> My Repos</a>
           <a href="starred.php" class="active"><span class="nav-icon">⭐</span> Starred</a>
           <a href="followers.php"><span class="nav-icon">👥</span> Followers</a>
-          <a href="#"><span class="nav-icon">👥</span> Following</a>
-          <a href="#"><span class="nav-icon">⚙️</span> Settings</a>
+          <a href="following.php"><span class="nav-icon">👥</span> Following</a>
+          <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>
 

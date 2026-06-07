@@ -66,7 +66,7 @@
                         style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
                         <div class="repo-meta" style="margin-bottom: 8px;">📍 Berlin, Germany</div>
                         <div class="repo-meta" style="margin-bottom: 8px;">📅 Joined May 2022</div>
-                        <div class="repo-meta" style="margin-bottom: 8px;">🔗 <a href="#"
+                        <div class="repo-meta" style="margin-bottom: 8px;">🔗 <a href="some link" target="_blank"
                                 class="text-accent">neeraj.dev</a></div>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
                             <div class="n">1.2k</div>
                             <div class="l">Followers</div>
                         </a>
-                        <a href="followings.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+                        <a href="following.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
                             <div class="n">80</div>
                             <div class="l">Following</div>
                         </a>
@@ -136,8 +136,7 @@
                         </div>
                         <div class="divider" style="margin: 15px 0;"></div>
                         <div class="flex gap-8">
-                            <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;">View
-                                Repositoy</button>
+                            <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;">View Repositoy</button>
                         </div>
                     </div>
                 </div>
