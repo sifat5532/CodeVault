@@ -7,24 +7,27 @@ if (!isset($_SESSION["id"])) {
 $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
-$query1 = "SELECT * FROM user WHERE id='$user_id';";
-$result = mysqli_query($conn, $query1);
+
+$query = "SELECT  user.* ,
+            (SELECT COUNT(*)  FROM follower WHERE follower.who_is_being_followed=user.id)AS followers,
+           
+          
+          (SELECT COUNT(*)  FROM follower WHERE follower.who_is_following=user.id)AS following,
+          
+          (SELECT COUNT(*)  FROM repo WHERE repo.creator=user.id)AS created_repo,
+          
+          (SELECT COUNT(*)  FROM contributor WHERE contributor.user_id=user.id)AS contributed_repo,
+          
+          (SELECT COUNT(*) FROM stars WHERE stars.repo_id  IN (
+          SELECT repo.id FROM repo WHERE repo.creator=user.id))AS starred_repo 
+           FROM user WHERE user.id='$user_id' 
+           LIMIT 1  ";
+$result = mysqli_query($conn, $query);
 if (mysqli_num_rows($result) == 0) {
   header("Location: login.php");
   exit();
 } else $data = mysqli_fetch_assoc($result);
-$query2 = "SELECT (SELECT COUNT(*)  FROM follower WHERE follower.who_is_being_followed='$user_id')AS followers,
-          
-          (SELECT COUNT(*)  FROM follower WHERE follower.who_is_following='$user_id')AS following,
-          
-          (SELECT COUNT(*)  FROM repo WHERE repo.creator='$user_id')AS created_repo,
-          
-          (SELECT COUNT(*)  FROM contributor WHERE contributor.user_id='$user_id')AS contributed_repo,
-          
-          (SELECT COUNT(*) FROM stars WHERE stars.repo_id  IN (
-          SELECT repo.id FROM repo WHERE repo.creator='$user_id'))AS starred_repo ;";
-$result = mysqli_query($conn, $query2);
-$stat_data = mysqli_fetch_assoc($result);
+
 
 ?>
 
@@ -151,7 +154,7 @@ $stat_data = mysqli_fetch_assoc($result);
           $query = "SELECT  repo.*,version.version_number ,version.created_at  AS version_created_at,
                GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
                 FROM repo 
-                JOIN version ON version.repo_id=(
+                JOIN version ON version.id=(
                 SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
                 LEFT JOIN tag ON tag.repo_id=repo.id
                 WHERE repo.creator='$user_id'
@@ -164,7 +167,7 @@ $stat_data = mysqli_fetch_assoc($result);
 
 
 
-                       ?>
+          ?>
               <!-- Card 1 -->
               <div class="feed-repo-card">
                 <div class="frc-top">
@@ -184,15 +187,61 @@ $stat_data = mysqli_fetch_assoc($result);
                 <div class="divider" style="margin: 15px 0;"></div>
                 <div class="flex gap-8">
                   <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php?repo_id=<?php echo $data['id']; ?>'">⚙️ Settings</button>
-                  <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_repo.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
+                  <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
                 </div>
               </div>
             <?php
             }
           } else { ?>
-          <div class="feed-repo-card">
+            <div class="feed-repo-card">
               <div class="frc-top">
                 <p class="frc-desc">No created repositories found.</p>
+              </div>
+            </div>
+          <?php }
+          ?>
+        </div>
+
+
+        <!-- Contributing Projects Grid (Hidden by default) -->
+        <div id="grid-contributing" class="features-grid anim-fadeup" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+          <?php
+          $query = "SELECT   repo.*,version.version_number ,version.created_at  AS version_created_at,
+               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
+                FROM contributor
+                JOIN repo ON repo.id=contributor.repo_id
+                JOIN version ON version.id=(
+                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
+                LEFT JOIN tag ON tag.repo_id=repo.id
+                WHERE contributor.user_id='$user_id'
+                GROUP BY repo.id
+                ORDER BY version.created_at DESC";
+          $result = mysqli_query($conn, $query);
+          if ($result && mysqli_num_rows($result) > 0) {
+            while ($data = mysqli_fetch_assoc($result)) {
+          ?>
+              <div class="feed-repo-card">
+                <div class="frc-top">
+                  <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>" class="repo-name"><?php echo $data["title"]; ?></a>
+                  <div class="version-chip"><?php echo $data["version_number"]; ?></div>
+                </div>
+                <p class="frc-desc"><?php if (isset($data["description"])) echo $data["description"];    ?></p>
+                <div class="frc-footer" style="margin-top: auto;">
+                  <?php $tags = explode(",", $data['tag_name']);
+                  foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag)) echo $tag; ?> </span><?php } ?>
+                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated <?php echo timeAgo($data["version_created_at"]); ?></div>
+                </div>
+                <div class="divider" style="margin: 15px 0;"></div>
+                <div class="flex gap-8">
+                  <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php?repo_id=<?php echo $data['id']; ?>'">⚙️ Settings</button>
+                  <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
+                </div>
+              </div>
+            <?php }
+          } else { ?>
+            <div class="feed-repo-card">
+              <div class="frc-top">
+                <p class="frc-desc">No contributed repositories found.</p>
 
               </div>
             </div>
@@ -200,62 +249,7 @@ $stat_data = mysqli_fetch_assoc($result);
           <?php }
           ?>
 
-
-
-          <!-- Contributing Projects Grid (Hidden by default) -->
-          <div id="grid-contributing" class="features-grid anim-fadeup" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
-            <?php
-            $query = "SELECT   repo.*,version.version_number ,version.created_at  AS version_created_at,
-               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
-                FROM contributor
-                JOIN repo ON repo.id=contributor.repo_id
-                JOIN version ON version.repo_id=(
-                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
-                LEFT JOIN tag ON tag.repo_id=repo.id
-                WHERE contributor.user_id='$user_id'
-                GROUP BY repo.id
-                ORDER BY version.created_at DESC";
-
-            $result = mysqli_query($conn, $query);
-            if ($result && mysqli_num_rows($result) > 0) {
-              while ($data = mysqli_fetch_assoc($result)) {
-
-
-
-            ?>
-                <div class="feed-repo-card">
-                  <div class="frc-top">
-                    <a href="view_repo.php" class="repo-name"><?php echo $data["title"];?></a>
-                    <div class="version-chip"><?php echo $data["version_number"];?></div>
-                  </div>
-                  <p class="frc-desc"><?php  if(isset($data["description"])) echo $data["description"];    ?></p>
-                  <div class="frc-footer">
-                     <?php $tags = explode(",", $data['tag_name']);
-
-                  foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag)) echo $tag; ?> </span><?php } ?>
-
-                    <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated <?php  echo timeAgo($data["version_created_at"]); ?></div>
-                  </div>
-                  <div class="divider" style="margin: 15px 0;"></div>
-                  <div class="flex gap-8">
-                    <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php?repo_id=<?php echo $data['id']; ?>'">⚙️ Settings</button>
-                    <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;"  onclick="location.href='new_repo.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
-                  </div>
-                </div>
-
-              <?php }
-            } else { ?>
-              <div class="feed-repo-card">
-                <div class="frc-top">
-                  <p class="frc-desc">No contributed repositories found.</p>
-
-                </div>
-              </div>
-
-            <?php }
-            ?>
-
-          </div>
+        </div>
       </main>
     </div>
   </div>
@@ -284,7 +278,7 @@ $stat_data = mysqli_fetch_assoc($result);
       }
     });
 
-  
+
 
     // Project toggle logic
     function toggleProjects(type) {
