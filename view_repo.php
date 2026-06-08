@@ -1,10 +1,55 @@
+<?php 
+
+require "php/config.php";
+$repo_id = $_GET["repo_id"];
+$query = "SELECT
+              repo.title,
+              repo.description,
+              repo.created_at,
+              repo.demo,
+              repo.views,
+              repo.downloads,
+              repo.visibility,
+              user.id AS user_id,
+              user.name,
+              user.user_name,
+              user.bio,
+              (SELECT COUNT(*) FROM stars WHERE stars.repo_id = repo.id) AS total_stars,
+              (SELECT COUNT(*) FROM contributor WHERE contributor.repo_id = repo.id) AS total_contributors,
+              (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed = repo.creator) AS total_followers,
+              (SELECT COUNT(*) FROM repo r2 WHERE r2.creator = repo.creator) AS total_repos,
+              v.version_number,
+              v.description AS version_note,
+              v.file_zip AS file_name
+          FROM repo
+            JOIN user
+            ON repo.creator = user.id
+              
+            LEFT JOIN version v
+            ON v.id = (
+              SELECT id
+              FROM version v2
+              WHERE v2.repo_id = repo.id
+              ORDER BY id DESC
+              LIMIT 1
+            )
+          WHERE repo.id = '$repo_id';";
+
+if($result = mysqli_query($conn, $query)){
+  $data = mysqli_fetch_assoc($result);
+}else{
+  header("Location: index.php");
+  exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>neeraj_dev / react-dashboard-kit — CodeVault</title>
+  <title><?php echo $data["title"];?></title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -57,15 +102,15 @@
         <div class="repo-header-main">
           <div>
             <div class="repo-path">
-              <a href="user_profile.php" class="owner">neeraj_dev</a>
+              <a href="user_profile.php?username=<?php echo $data["user_name"];?>" class="owner"><?php echo $data["user_name"];?></a>
               <span class="sep">/</span>
-              <span class="name">react-dashboard-kit</span>
-              <span class="badge badge-gray" style="margin-left: 10px;">Public</span>
+              <span class="name"><?php echo $data["title"];?></span>
+              <span class="badge badge-gray" style="margin-left: 10px;"><?php echo $data["visibility"];?></span>
             </div>
             <div class="repo-path">
-              <span class="repo-meta" style="font-size: 13px;">📅 Jan 20, 2025</span>
+              <span class="repo-meta" style="font-size: 13px;">📅 <?php echo $data["created_at"];?></span>
             </div>
-            <p class="text-muted mt-8">A lightweight, zero-dependency React dashboard component library.</p>
+            <p class="text-muted mt-8"><?php echo $data["description"];?></p>
             <div class="flex gap-8 mt-16">
               <a href="view_tag.php"><span class="tag">react</span></a>
               <a href="view_tag.php"><span class="tag">typescript</span></a>
@@ -74,26 +119,26 @@
           </div>
 
           <div class="gap-12">
-            <button class="btn btn-primary">⬇️ Download ZIP</button>
+            <a class="btn btn-primary" href="repo_files/<?php echo $data["file_name"];?>">⬇️ Download ZIP</a>
           </div>
         </div>
 
         <!-- Stats & Actions Bar -->
         <div class="repo-stats-grid">
           <div class="repo-stat-box">
-            <div class="val">142</div>
+            <div class="val"><?php echo $data["total_stars"];?></div>
             <div class="lbl">Stars</div>
           </div>
           <div class="repo-stat-box">
-            <div class="val">2.4k</div>
+            <div class="val"><?php echo $data["views"];?></div>
             <div class="lbl">Views</div>
           </div>
           <div class="repo-stat-box">
-            <div class="val">892</div>
+            <div class="val"><?php echo $data["downloads"];?></div>
             <div class="lbl">Downloads</div>
           </div>
           <div class="repo-stat-box">
-            <div class="val">3</div>
+            <div class="val"><?php echo $data["total_contributors"];?></div>
             <div class="lbl">Contributors</div>
           </div>
         </div>
@@ -101,16 +146,22 @@
         <div class="flex gap-12 mb-24">
           <button class="btn btn-ghost btn-sm">★ Star</button>
           <button class="btn btn-ghost btn-sm">🔗 Share</button>
-          <a href="some_link" target="_blank"><button class="btn btn-outline btn-sm">Live Demo ↗</button></a>
+          <?php if($data["demo"] != ""){
+            $demo = $data["demo"];
+            echo '<a href="$demo" target="_blank"><button class="btn btn-outline btn-sm">Live Demo ↗</button></a>';
+          }else{
+            echo '<button class="btn btn-outline btn-sm" disabled>Live Demo ↗</button>';
+          }
+            ?>
         </div>
 
         <!-- File Explorer -->
         <div class="file-explorer anim-fadeup" style="margin-top: 20px;">
           <div class="widget-header" style="background: var(--bg-3);">
             <div class="flex items-center gap-8">
-              📦 <span>Latest Files (v4)</span> <span class="text-muted" style="font-weight: 400; font-size: 12px; margin-left: 4px;">— 1.2 MB total</span>
+              📦 <span>Latest Files (v<?php echo $data["version_number"];?>)</span> <span class="text-muted" style="font-weight: 400; font-size: 12px; margin-left: 4px;">— 1.2 MB total</span>
             </div>
-            <a href="all_versions.php">See all versions</a>
+            <a href="all_versions.php?repo_id=<?php echo $repo_id;?>">See all versions</a>
           </div>
           <div class="file-row">
             <div class="icon">📁</div>
@@ -136,11 +187,10 @@
 
         <!-- Version Description Section -->
         <div class="card anim-fadeup" style="animation-delay: 0.1s; margin-bottom: 24px;">
-          <h3 class="mb-16">Version 4.0 Notes</h3>
+          <h3 class="mb-16">Version <?php echo $data["version_number"];?> Notes</h3>
           <div class="divider mb-16"></div>
           <p class="text-dim">
-            This version introduces major performance improvements in chart rendering and official support for React 18. 
-            We've also added a set of new dark-mode optimized components and reduced the final bundle size by 15%.
+            <?php echo $data["version_note"];?>
           </p>
         </div>
 
@@ -150,21 +200,21 @@
       <aside class="sidebar-right">
         <div class="sidebar-widget">
           <div class="widget-header">Creator</div>
-          <a href="user_profile.php" class="suggest-user" style="border: none;">
+          <a href="user_profile.php?username=<?php echo $data["user_name"];?>" class="suggest-user" style="border: none;">
             <div class="avatar">NJ</div>
             <div class="info">
-              <div class="name">neeraj_dev</div>
-              <div class="handle">@neeraj_dev</div>
+              <div class="name"><?php echo $data["name"];?></div>
+              <div class="handle">@<?php echo $data["user_name"];?></div>
             </div>
           </a>
           <div style="padding: 0 18px 18px; font-size: 13px; color: var(--text-muted);">
-            Building open source UI kits since 2022.
-            <div class="mt-8">👥 1.2k followers • 📦 24 projects</div>
+            <?php echo $data["bio"];?>
+            <div class="mt-8">👥 <?php echo $data["total_followers"];?> followers • 📦 <?php echo $data["total_repos"];?> repos</div>
           </div>
         </div>
 
         <div class="sidebar-widget">
-          <div class="widget-header">Contributors (3)</div>
+          <div class="widget-header">Contributors (<?php echo $data["total_contributors"];?>)</div>
           <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">NJ</div><div class="name">neeraj_dev</div></div></a>
           <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">RK</div><div class="name">rafidkhan</div></div></a>
           <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">MZ</div><div class="name">man_zhang</div></div></a>
