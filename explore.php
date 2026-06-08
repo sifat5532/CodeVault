@@ -1,3 +1,50 @@
+<?php
+session_start();
+require "php/config.php";
+require "php/utility.php";
+
+
+// get users
+
+$query = "SELECT 
+              u.name, 
+              u.user_name AS username,
+              (SELECT COUNT(*) FROM `repo` r WHERE r.creator = u.id) AS total_repo,
+              (SELECT COUNT(*) FROM `stars` s JOIN `repo` r ON s.repo_id = r.id WHERE r.creator = u.id) AS total_star, 
+              (SELECT COUNT(*) FROM `follower` f WHERE f.who_is_being_followed = u.id) AS total_follower
+          FROM `user` u
+          ORDER BY total_star DESC, total_repo ASC, total_follower DESC LIMIT 7;";
+
+$dev_result = mysqli_query($conn, $query);
+
+// get repos
+$query = "SELECT
+              DISTINCT(stars.repo_id) AS repo_id,
+              COUNT(*) AS total_star,
+              repo.title AS repo_title,
+              repo.description AS repo_des,
+              user.name AS name,
+              user.user_name AS username
+          FROM stars 
+            LEFT JOIN repo
+              ON stars.repo_id = repo.id
+              LEFT JOIN user
+              ON repo.creator = user.id
+          WHERE repo.visibility = 'public'
+          GROUP BY repo_id
+          ORDER BY total_star DESC LIMIT 7;";
+$repo_result = mysqli_query($conn, $query);
+
+// get tags
+$query = "SELECT
+              tag.tag_name,
+              COUNT(DISTINCT(tag.repo_id)) AS total_repo
+          FROM tag
+          GROUP BY tag.tag_name
+          ORDER BY total_repo DESC LIMIT 7;";
+$tag_result = mysqli_query($conn, $query);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -82,90 +129,69 @@
         <!-- Top Developers Section -->
         <section id="devs" class="explore-section">
           <div class="section-label">Top Developers</div>
-          <div class="follower-list">
+          <?php while($data = mysqli_fetch_assoc($dev_result)){ ?>
+          <div class="follower-list" style="margin-bottom: 30px;">
             <div class="follower-card anim-fadeup" style="animation-delay:0.1s">
-              <div class="avatar lg">NJ</div>
+              <div class="avatar lg"><?php echo get_avatar($data["name"]); ?></div>
               <div class="follower-info">
-                <a href="user_profile.php"><div class="follower-name">neeraj_dev</div></a>
-                <div class="follower-handle">@neeraj_dev</div>
+                <a href="user_profile.php?username=<?php echo $data["username"];?>"><div class="follower-name"><?php echo $data["name"];?></div></a>
+                <div class="follower-handle">@<?php echo $data["username"];?></div>
                 <div class="flex items-center gap-12 mt-4">
-                  <span class="repo-meta">📦 18 repos</span>
-                  <span class="repo-meta">👥 980 followers</span>
+                  <span class="repo-meta">📦 <?php echo $data["total_repo"];?> repos</span>
+                  <span class="repo-meta">👥 <?php echo $data["total_follower"];?> followers</span>
                 </div>
               </div>
               <div class="flex gap-8">
-                <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-                <a href="user_profile.php"><button class="btn btn-ghost btn-sm">View Profile</button></a>
+                <a href="user_profile.php?username=<?php echo $data["username"];?>"><button class="btn btn-ghost btn-sm">View Profile</button></a>
               </div>
             </div>
           </div>
+          <?php }?>
         </section>
 
         <!-- Top Repositories Section -->
         <section id="repos" class="explore-section">
           <div class="section-label">Top Repositories</div>
           <div class="feed-list">
-
+            <?php while($data = mysqli_fetch_assoc($repo_result)){ ?>
             <div class="feed-repo-card anim-fadeup" style="animation-delay:0.2s">
               <div class="frc-top">
                 <div class="frc-meta">
-                  <div class="avatar">AM</div>
+                  <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
                   <div>
-                    <a href="view_repo.php"><div class="repo-name">admin-panel-react</div></a>
-                    <div class="by">by <a href="user_profile.php"><strong>alex_m</strong></a></div>
+                    <a href="view_repo.php?repo_id=<?php echo $data["repo_id"]; ?>"><div class="repo-name"><?php echo $data["repo_title"];?></div></a>
+                    <div class="by">by <a href="user_profile.php?username=<?php echo $data["username"];?>"><strong><?php echo $data["username"];?></strong></a></div>
                   </div>
                 </div>
-                <button class="star-btn" onclick="toggleStar(this)">☆ <span>531</span></button>
+                <button class="star-btn">☆ <span><?php echo $data["total_star"];?></span></button>
               </div>
-              <p class="frc-desc">Professional admin panel template built with React, Tailwind, and Recharts.</p>
-              <div class="frc-footer">
-                <div class="version-chip">✦ v12</div>
-                <a href="view_tag.php"><span class="tag">react</span></a>
-                <a href="view_tag.php"><span class="tag">tailwind</span></a>
-                <a href="view_repo.php"><button class="btn btn-ghost btn-sm" style="margin-left: auto;">View Repository</button></a>
-              </div>
+              <p class="frc-desc"><?php echo substr($data["repo_des"], 0, 150);?>...</p>
+              
             </div>
-
+            <?php }?>
           </div>
         </section>
 
         <!-- Top Tags Section -->
         <section id="tags" class="explore-section">
           <div class="section-label">Top Tags</div>
-          <div class="follower-list">
-            <div class="follower-card anim-fadeup" style="animation-delay:0.3s">
-              <div class="tag-icon-box">🏷️</div>
-              <div class="follower-info">
-                <a href="view_tag.php"><div class="follower-name text-accent mono">#react</div></a>
-                <p class="text-muted" style="font-size: 13px; margin-top: 4px;">A JavaScript library for building user interfaces.</p>
-                <div class="repo-meta mt-8">📦 980 repos</div>
+            <?php while($data = mysqli_fetch_assoc($tag_result)){ ?>
+            <div class="follower-list" style="margin-bottom: 20px;">
+              <div class="follower-card anim-fadeup" style="animation-delay:0.3s">
+                <div class="tag-icon-box">🏷️</div>
+                <div class="follower-info">
+                  <a href="view_tag.php?tag=<?php echo $data["tag_name"]; ?>"><div class="follower-name text-accent mono">#<?php echo $data["tag_name"]; ?></div></a>
+                  <p class="text-muted" style="font-size: 13px; margin-top: 4px;"></p>
+                  <div class="repo-meta mt-8">📦 <?php echo $data["total_repo"]; ?> repos</div>
+                </div>
+                <a href="view_tag.php?tag=<?php echo $data["tag_name"]; ?>"><button class="btn btn-ghost btn-sm">Browse Tag</button></a>
               </div>
-              <a href="view_tag.php"><button class="btn btn-ghost btn-sm">Browse Tag</button></a>
             </div>
-          </div>
+            <?php } ?>
         </section>
       </main>
 
-      <!-- ===== RIGHT SIDEBAR (Statistics) ===== -->
-      <aside class="sidebar-right">
-        <div class="sidebar-widget">
-          <div class="widget-header">Global Statistics</div>
-          <div class="profile-stats" style="border: none; padding: 20px;">
-            <div class="profile-stat">
-              <div class="n">4k+</div>
-              <div class="l">Devs</div>
-            </div>
-            <div class="profile-stat">
-              <div class="n">12k+</div>
-              <div class="l">Repos</div>
-            </div>
-            <div class="profile-stat">
-              <div class="n">500+</div>
-              <div class="l">Tags</div>
-            </div>
-          </div>
-        </div>
-      </aside>
+
     </div>
 
     <!-- ===== FOOTER (Strictly from index.php) ===== -->

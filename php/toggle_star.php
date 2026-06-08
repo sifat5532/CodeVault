@@ -11,7 +11,9 @@ require "config.php";
 $user_id = $_SESSION["id"];
 
 $input = json_decode(file_get_contents('php://input'), true);
-
+if(!isset( $input['repo_id'])){
+    echo json_encode(["status" => false, "is_logged_in" => true]);
+}
 $repo_id = $input['repo_id'];
 
 $query = "SELECT COUNT(*) AS starred FROM stars WHERE user_id = '$user_id' AND repo_id = '$repo_id';";

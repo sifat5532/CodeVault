@@ -2,7 +2,10 @@
 
 require "config.php";
 // return true if username exists, otherwise false
-
+if(!isset($_GET["username"])){
+    header("Location: ../index.php");
+    exit();
+}
 $user_name = $_GET["username"];
 
 $sql = "SELECT * FROM user WHERE user_name = '$user_name'";
