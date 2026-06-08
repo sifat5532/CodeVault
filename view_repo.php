@@ -9,7 +9,6 @@ $repo_id = $_GET["repo_id"];
 $query = "SELECT
               repo.title,
               repo.description,
-              repo.created_at,
               repo.demo,
               repo.visibility,
               user.id AS user_id,
@@ -24,7 +23,8 @@ $query = "SELECT
               (SELECT COUNT(*) FROM stars WHERE user_id = '$logged_in_user_id' AND stars.repo_id = repo.id) AS is_starred,
               v.version_number,
               v.description AS version_note,
-              v.file_zip AS file_name
+              v.file_zip AS file_name,
+              v.created_at
           FROM repo
             JOIN user
             ON repo.creator = user.id
