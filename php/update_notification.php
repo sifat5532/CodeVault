@@ -10,11 +10,16 @@ require "config.php";
 $user_id = $_SESSION["id"];
 
 $input = json_decode(file_get_contents('php://input'), true);
+if(!isset($input["string"]) || !isset($input["vis"])){
+    echo json_encode(["status" => false]);
+    exit();
+}
 
 $str = $input["string"];
+$vis = $input["vis"];
 
 
-$query = "UPDATE `user` SET notification_settings = '$str' WHERE id = '$user_id';";
+$query = "UPDATE `user` SET notification_settings = '$str', default_repo_visibility = '$vis' WHERE id = '$user_id';";
 
 
 if(mysqli_query($conn, $query)){

@@ -17,6 +17,8 @@ if($result = mysqli_query($conn, $query)){
   exit();
 }
 $notif_settings = explode('$', $data["notification_settings"]);
+$public_selected = $data["default_repo_visibility"] == "public" ? "selected" : "";
+$private_selected = $data["default_repo_visibility"] == "private" ? "selected" : "";
 ?>
 
 <!DOCTYPE html>
@@ -134,28 +136,28 @@ $notif_settings = explode('$', $data["notification_settings"]);
             <div class="setting-item">
               <label for="notif-stars">Repository stars notifications</label>
               <label class="switch">
-                <input type="checkbox" id="notif-0" onclick="update_notif_settings(0)" <?php if(isset($notif_settings)){echo $notif_settings[0] == "1" ? "checked" : "";} ?>>
+                <input type="checkbox" id="notif-0" onclick="update_notif_settings()" <?php if(isset($notif_settings)){echo $notif_settings[0] == "1" ? "checked" : "";} ?>>
                 <span class="slider round"></span>
               </label>
             </div>
             <div class="setting-item">
               <label for="notif-followers">New follower notifications</label>
               <label class="switch">
-                <input type="checkbox" id="notif-1"  onclick="update_notif_settings(1)" <?php if(isset($notif_settings)){echo $notif_settings[1] == "1" ? "checked" : "";} ?>>
+                <input type="checkbox" id="notif-1"  onclick="update_notif_settings()" <?php if(isset($notif_settings)){echo $notif_settings[1] == "1" ? "checked" : "";} ?>>
                 <span class="slider round"></span>
               </label>
             </div>
             <div class="setting-item">
               <label for="notif-versions">Version update notifications</label>
               <label class="switch">
-                <input type="checkbox" id="notif-2"  onclick="update_notif_settings(2)" <?php if(isset($notif_settings)){echo $notif_settings[2] == "1" ? "checked" : "";} ?>>
+                <input type="checkbox" id="notif-2"  onclick="update_notif_settings()" <?php if(isset($notif_settings)){echo $notif_settings[2] == "1" ? "checked" : "";} ?>>
                 <span class="slider round"></span>
               </label>
             </div>
             <div class="setting-item">
               <label for="notif-system">System alert notifications</label>
               <label class="switch">
-                <input type="checkbox" id="notif-3"  onclick="update_notif_settings(3)" <?php if(isset($notif_settings)){echo $notif_settings[3] == "1" ? "checked" : "";} ?>>
+                <input type="checkbox" id="notif-3"  onclick="update_notif_settings()" <?php if(isset($notif_settings)){echo $notif_settings[3] == "1" ? "checked" : "";} ?>>
                 <span class="slider round"></span>
               </label>
             </div>
@@ -171,8 +173,8 @@ $notif_settings = explode('$', $data["notification_settings"]);
             <div class="form-group">
               <label for="default-visibility">Default repository visibility</label>
               <select id="default-visibility">
-                <option value="public">Public</option>
-                <option value="private">Private</option>
+                <option value="public" <?php echo $public_selected; ?>>Public</option>
+                <option value="private" <?php echo $private_selected; ?>>Private</option>
               </select>
             </div>
           </div>
@@ -334,12 +336,17 @@ $notif_settings = explode('$', $data["notification_settings"]);
     }
 
 
-    // update notification settings
+    // update notification & visibility settings
+    
     let notif_id_nums = 4;
     let arr = [];
     for (let i = 0; i < notif_id_nums; i++) {
       arr.push(`notif-${i}`);
     }
+
+    let visibility_option = document.getElementById("default-visibility");
+    visibility_option.addEventListener("change", update_notif_settings);
+
     async function update_notif_settings() {
       // preparing array
       let str = [];
@@ -363,7 +370,8 @@ $notif_settings = explode('$', $data["notification_settings"]);
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            string: settings
+            string: settings,
+            vis: visibility_option.value
           })
         });
         let data = await response.json();
