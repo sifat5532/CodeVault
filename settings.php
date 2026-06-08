@@ -19,6 +19,14 @@ if($result = mysqli_query($conn, $query)){
 $notif_settings = explode('$', $data["notification_settings"]);
 $public_selected = $data["default_repo_visibility"] == "public" ? "selected" : "";
 $private_selected = $data["default_repo_visibility"] == "private" ? "selected" : "";
+
+if(isset($_POST["dlt_btn"])){
+  $query = "DELETE FROM `user` WHERE id='$user_id';";
+  if(mysqli_query($conn, $query)){
+    header("Location: php/logout.php");
+    exit();
+  }
+}
 ?>
 
 <!DOCTYPE html>
@@ -196,7 +204,7 @@ $private_selected = $data["default_repo_visibility"] == "private" ? "selected" :
                 <h3>Delete Account</h3>
                 <p class="text-muted">Permanently delete your account and all associated data.</p>
               </div>
-              <button class="btn btn-red">Delete Account</button>
+              <form method="POST"><input type="submit" name="dlt_btn" class="btn btn-red" value="Delete Account"></form>
             </div>
           </div>
         </section>
@@ -329,7 +337,7 @@ $private_selected = $data["default_repo_visibility"] == "private" ? "selected" :
         });
         let data = await response.json();
         if(data.status == true){
-          notyf.success('Operation completed successfully!');
+          updateSession(uname_input.value);         
         }else{
           notyf.error('Something went wrong!');
         }
@@ -380,6 +388,27 @@ $private_selected = $data["default_repo_visibility"] == "private" ? "selected" :
         }
     }
 
+
+  async function updateSession(username) {
+    try {
+      const response = await fetch("php/update_session.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username })
+      });
+
+      const data = await response.json();
+      if(data.status == true){
+        notyf.success('Operation completed successfully!');
+      }else{
+        notyf.success('Operation completed successfully! But please login again!');
+      }
+    } catch (error) {
+      console.error("Error updating session:", error);
+    }
+  }
   </script>
 </body>
 
