@@ -17,6 +17,7 @@ if($type != "Followers" && $type != "Followings"){
 }
 
 require "php/config.php";
+require "php/utility.php";
 // $id = $_SESSION["id"];
 $id = 1;
 if($type === "Followers"){
@@ -53,14 +54,6 @@ if($type === "Followers"){
 $count = ($result = mysqli_query($conn, $query)) ? mysqli_fetch_assoc($result)["total"] : 0;
 $result = mysqli_query($conn, $query_user_list);
 
-function get_avatar($string){
-  $words = explode(' ', $string);
-  $initials = '';
-  foreach ($words as $word) {
-      $initials .= strtoupper($word[0]);
-  }
-  return $initials;
-}
 ?>
 
 <!DOCTYPE html>

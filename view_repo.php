@@ -1,6 +1,8 @@
 <?php 
-
+session_start();
 require "php/config.php";
+require "php/utility.php";
+
 $repo_id = $_GET["repo_id"];
 $query = "SELECT
               repo.title,
@@ -36,11 +38,72 @@ $query = "SELECT
           WHERE repo.id = '$repo_id';";
 
 if($result = mysqli_query($conn, $query)){
+  if(mysqli_num_rows($result) < 1){
+    header("Location: index.php");
+    exit();
+  }
   $data = mysqli_fetch_assoc($result);
+  if($data["visibility"] != "public"){
+    if(!isset($_SESSION["id"])){
+      header("Location: index.php");
+      exit();
+    }else{
+      if($data["user_id"] != $_SESSION["id"]){
+        header("Location: index.php");
+        exit();
+      }
+    }
+  }
 }else{
   header("Location: index.php");
   exit();
 }
+
+// get tag names
+$query = "SELECT tag_name FROM tag WHERE repo_id = '$repo_id';";
+$tag_result = mysqli_query($conn, $query);
+
+// get contributors
+$query = "SELECT user.user_name, user.name FROM user WHERE user.id IN (SELECT contributor.user_id FROM contributor WHERE repo_id = '$repo_id');";
+$contributor_result = mysqli_query($conn, $query);
+
+// get the contents of zip file (folders and files)
+
+$zip = new ZipArchive();
+$folders = [];
+$files = [];
+$zipFileName = "repo_files/" . $data["file_name"];
+$zipSizeMB = round(filesize($zipFileName) / (1024 * 1024), 2);
+if ($zip->open($zipFileName) === TRUE) {
+  for ($i = 0; $i < $zip->numFiles; $i++) {
+    $name = $zip->getNameIndex($i);
+    $stat = $zip->statIndex($i);
+    $sizeMB = round($stat['size'] / (1024 * 1024), 2);
+    // Remove trailing slash for easier checking
+    $trimmed = rtrim($name, '/');
+    // Keep only root-level entries
+    if (substr_count($trimmed, '/') > 0) {
+      continue;
+    }
+    if (str_ends_with($name, '/')) {
+      $folders[] = [rtrim($name, '/'), $sizeMB];
+    } else {
+      $files[] = [$name, $sizeMB];
+    }
+  }
+  $zip->close();
+}
+
+// Sort by name ascending
+usort($folders, function ($a, $b) {
+    return strcmp($a[0], $b[0]);
+});
+
+usort($files, function ($a, $b) {
+    return strcmp($a[0], $b[0]);
+});
+
+
 ?>
 
 <!DOCTYPE html>
@@ -112,9 +175,9 @@ if($result = mysqli_query($conn, $query)){
             </div>
             <p class="text-muted mt-8"><?php echo $data["description"];?></p>
             <div class="flex gap-8 mt-16">
-              <a href="view_tag.php"><span class="tag">react</span></a>
-              <a href="view_tag.php"><span class="tag">typescript</span></a>
-              <a href="view_tag.php"><span class="tag">dashboard</span></a>
+              <?php while($tags = mysqli_fetch_assoc($tag_result)){?>
+              <a href="view_tag.php?tag=<?php echo $tags["tag_name"];?>"><span class="tag"><?php echo $tags["tag_name"];?></span></a>
+              <?php }?>
             </div>
           </div>
 
@@ -145,7 +208,7 @@ if($result = mysqli_query($conn, $query)){
 
         <div class="flex gap-12 mb-24">
           <button class="btn btn-ghost btn-sm">★ Star</button>
-          <button class="btn btn-ghost btn-sm">🔗 Share</button>
+          <button class="btn btn-ghost btn-sm" id="share">🔗 Share</button>
           <?php if($data["demo"] != ""){
             $demo = $data["demo"];
             echo '<a href="$demo" target="_blank"><button class="btn btn-outline btn-sm">Live Demo ↗</button></a>';
@@ -159,30 +222,24 @@ if($result = mysqli_query($conn, $query)){
         <div class="file-explorer anim-fadeup" style="margin-top: 20px;">
           <div class="widget-header" style="background: var(--bg-3);">
             <div class="flex items-center gap-8">
-              📦 <span>Latest Files (v<?php echo $data["version_number"];?>)</span> <span class="text-muted" style="font-weight: 400; font-size: 12px; margin-left: 4px;">— 1.2 MB total</span>
+              📦 <span>Latest Files (v<?php echo $data["version_number"];?>)</span> <span class="text-muted" style="font-weight: 400; font-size: 12px; margin-left: 4px;">— <?php echo $zipSizeMB; ?> MB total</span>
             </div>
             <a href="all_versions.php?repo_id=<?php echo $repo_id;?>">See all versions</a>
           </div>
+          <?php foreach ($folders as $folder) {?>
           <div class="file-row">
             <div class="icon">📁</div>
-            <div class="name">src</div>
-            <div class="meta">480 KB</div>
+            <div class="name"><?php echo $folder[0]; ?></div>
+            <div class="meta"><?php echo $folder[1]; ?> MB</div>
           </div>
-          <div class="file-row">
-            <div class="icon">📁</div>
-            <div class="name">components</div>
-            <div class="meta">620 KB</div>
-          </div>
+          <?php }?>
+          <?php foreach ($files as $file) {?>
           <div class="file-row">
             <div class="icon">📄</div>
-            <div class="name">README.md</div>
-            <div class="meta">12 KB</div>
+            <div class="name"><?php echo $file[0]; ?></div>
+            <div class="meta"><?php echo $file[1]; ?> MB</div>
           </div>
-          <div class="file-row">
-            <div class="icon">📄</div>
-            <div class="name">package.json</div>
-            <div class="meta">2 KB</div>
-          </div>
+          <?php } ?>
         </div>
 
         <!-- Version Description Section -->
@@ -201,7 +258,7 @@ if($result = mysqli_query($conn, $query)){
         <div class="sidebar-widget">
           <div class="widget-header">Creator</div>
           <a href="user_profile.php?username=<?php echo $data["user_name"];?>" class="suggest-user" style="border: none;">
-            <div class="avatar">NJ</div>
+            <div class="avatar"><?php echo get_avatar($data["name"]);?></div>
             <div class="info">
               <div class="name"><?php echo $data["name"];?></div>
               <div class="handle">@<?php echo $data["user_name"];?></div>
@@ -215,9 +272,9 @@ if($result = mysqli_query($conn, $query)){
 
         <div class="sidebar-widget">
           <div class="widget-header">Contributors (<?php echo $data["total_contributors"];?>)</div>
-          <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">NJ</div><div class="name">neeraj_dev</div></div></a>
-          <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">RK</div><div class="name">rafidkhan</div></div></a>
-          <a href="user_profile.php"><div class="suggest-user" style="border: none;"><div class="avatar">MZ</div><div class="name">man_zhang</div></div></a>
+          <?php while($contributors = mysqli_fetch_assoc($contributor_result)){ ?>
+          <a href="user_profile.php?username=<?php echo $contributors["user_name"];?>"><div class="suggest-user" style="border: none;"><div class="avatar"><?php echo get_avatar($contributors["name"]); ?></div><div class="name"><?php echo $contributors["user_name"];?></div></div></a>
+          <?php }?>
         </div>
       </aside>
     </div>
@@ -258,6 +315,16 @@ if($result = mysqli_query($conn, $query)){
 
     function openImgModal() { document.getElementById('imgModal').classList.add('open'); }
     function closeImgModal() { document.getElementById('imgModal').classList.remove('open'); }
+
+    // Share functionality: Copy current URL to clipboard
+    const shareBtn = document.getElementById('share');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', function() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          alert('Link copied to clipboard!');
+        });
+      });
+    }
   </script>
 </body>
 
