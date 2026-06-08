@@ -5,21 +5,8 @@ if(!isset($_SESSION["id"])){
   exit();
 }
   $user_id= $_SESSION["id"];
-  require  "php/config.php";
-
-  function timeAgo($datetime){
-    date_default_timezone_set("Asia/Dhaka");
-    $time=new DateTime($datetime);
-    $now=new DateTime();
-    $diff=$time->diff($now);
-    if($diff->y) return $diff->y.'y ago';
-    if($diff->m) return $diff->m.'mon ago';
-    if($diff->d) return $diff->d.'d ago';
-    if($diff->h) return $diff->h.'h ago';
-    if($diff->i) return $diff->i.'min ago';
-    return 'Just now';
-
-  }
+  require "php/config.php";
+  require "php/utility.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -115,7 +102,7 @@ if(!isset($_SESSION["id"])){
 
         <div class="feed-list">
           <?php  
-            $query="SELECT repo.*,user.user_name,version.version_number ,version.created_at  AS version_created_at
+            $query="SELECT repo.*,user.user_name, user.name,version.version_number ,version.created_at  AS version_created_at
             FROM stars
             JOIN repo ON repo.id=stars.repo_id
             JOIN version ON version.id=(
@@ -134,9 +121,9 @@ if(!isset($_SESSION["id"])){
             <div class="frc-top">
               <div class="frc-meta">
 
-                  <div class="avatar">NJ</div>
+                  <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
                   <div>
-                 <a href="view_repo.php" > 
+                 <a href="view_repo.php?repo_id=<?php echo $data["id"];?>" > 
                   <div class="repo-name"><?php   if(isset($data["title"]))  echo $data["title"]; ?></div>
                   </a>
                   <div class="by">by <strong><?php  if(isset($data["user_name"]))  echo $data["user_name"];  ?></strong></div>

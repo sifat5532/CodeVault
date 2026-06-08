@@ -1,14 +1,40 @@
 <?php
 session_start();
-if (!isset($_SESSION["id"])) {
-  header("Location: login.php");
+
+
+// checking if repo id is set in get method i.e. in the link
+$repo_id = -1;
+if(isset($_GET["repo_id"])){
+  $repo_id = $_GET["repo_id"];
+}else{
+  header("Location: feed.php");
   exit();
 }
+
 require "php/config.php";
-$repo_id = 10;
+require "php/utility.php";
+
 $query = "SELECT * FROM repo WHERE id='$repo_id'";
 if ($result = mysqli_query($conn, $query)) {
+  // someone might input a repo id that does not even exit. so check the num of rows of $result
+  if(mysqli_num_rows($result) == 0){
+    header("Location: feed.php");
+    exit();
+  }
   $data1 = mysqli_fetch_assoc($result);
+  // repo public na private check kora lagbe
+  if($data1["visibility"] == "private"){
+    if(!isset($_SESSION["id"])){
+      header("Location: login.php");
+      exit();
+    }else{
+      if($data1["user_id"] != $_SESSION["id"]){
+        header("Location: feed.php");
+        exit();
+      }
+    }
+  }
+  
   $repo_title=$data1["title"];
   $creator_id = $data1["creator"];
   $query = "SELECT * FROM user WHERE id='$creator_id'";
@@ -98,13 +124,13 @@ if ($result = mysqli_query($conn, $query)) {
           <a href="user_profile.php"><span class="owner"><?php if(isset($creator_name))
             {echo $creator_name;} ?></span></a>
           <span class="sep">/</span>
-          <a href="view_repo.php"><span class="name"><?php if(isset($repo_name)){
-            echo $repo_name;} ?></span></a>
+          <a href="view_repo.php"><span class="name"><?php if(isset($repo_title)){
+            echo $repo_title;} ?></span></a>
         </div>
         <h1>Release History</h1>
         <p class="text-muted mt-8">Browse and download previous versions of this project.</p>
         <div class="mt-16">
-          <a href="view_repo.php" class="text-accent">← Back to latest version</a>
+          <a href="view_repo.php?repo_id=<?php echo $repo_id;?>" class="text-accent">← Back to latest version</a>
         </div>
       </div>
 
@@ -125,7 +151,7 @@ if ($result = mysqli_query($conn, $query)) {
           <p class="frc-desc"><?php if(isset($data["description"])){ echo $data["description"];}?> </p>
           <div class="frc-footer">
          
-            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php echo $data["created_at"]; ?></div>
+            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Added <?php echo timeAgo($data["created_at"]); ?></div>
           </div>
         </div>
 

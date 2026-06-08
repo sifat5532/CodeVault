@@ -5,11 +5,17 @@ require "php/utility.php";
 $logged_in_user_id = -1;
 if(isset($_SESSION["id"])) $logged_in_user_id = $_SESSION["id"];
 
-$repo_id = $_GET["repo_id"];
+if(isset($_GET["repo_id"])){
+  $repo_id = $_GET["repo_id"];
+}else{
+  header("Location: feed.php");
+  exit();
+}
 $query = "SELECT
               repo.title,
               repo.description,
               repo.demo,
+              repo.created_at,
               repo.visibility,
               user.id AS user_id,
               user.name,
@@ -24,7 +30,7 @@ $query = "SELECT
               v.version_number,
               v.description AS version_note,
               v.file_zip AS file_name,
-              v.created_at
+              v.created_at AS last_updated
           FROM repo
             JOIN user
             ON repo.creator = user.id
@@ -41,7 +47,7 @@ $query = "SELECT
 
 if($result = mysqli_query($conn, $query)){
   if(mysqli_num_rows($result) < 1){
-    header("Location: index.php");
+    header("Location: feed.php");
     exit();
   }
   $data = mysqli_fetch_assoc($result);
@@ -185,8 +191,9 @@ usort($files, function ($a, $b) {
               <span class="name"><?php echo $data["title"];?></span>
               <span class="badge badge-gray" style="margin-left: 10px;"><?php echo $data["visibility"];?></span>
             </div>
-            <div class="repo-path">
-              <span class="repo-meta" style="font-size: 13px;">📅 <?php echo $data["created_at"];?></span>
+            <div class="">
+              <span class="repo-meta" style="font-size: 13px;">📅 Created <?php echo timeAgo($data["created_at"]);?></span>
+              <span class="repo-meta" style="font-size: 13px;">Last updated <?php echo timeAgo($data["last_updated"]);?></span>
             </div>
             <p class="text-muted mt-8"><?php echo $data["description"];?></p>
             <div class="flex gap-8 mt-16">
