@@ -1,10 +1,34 @@
+<?php 
+session_start();
+$tag_name=$_GET["tag_name"];
+// $tag_name="css";
+require "php/config.php";
+require "php/utility.php";
+$query="SELECT COUNT(tag.repo_id) AS repo_count,
+ COUNT(DISTINCT repo.creator) AS creator_count,
+ COUNT(DISTINCT contributor.user_id) AS contributor_count,
+ MIN(repo.created_at) AS created_at FROM tag
+  JOIN repo ON repo.id=tag.repo_id
+  LEFT JOIN contributor ON contributor.repo_id=repo.id
+  WHERE tag.tag_name='$tag_name' ";
+  $result = mysqli_query($conn, $query);
+  if(mysqli_num_rows($result)==0){
+    header("Location: feed.php");
+    exit();
+  }
+  $data=mysqli_fetch_assoc($result);
+
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>#react — Technology Tag — CodeVault</title>
+    <title><?php echo $data["tag_name"]; ?> — CodeVault</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -56,46 +80,15 @@
             <aside class="sidebar-left">
                 <div class="sidebar-profile">
                     <div class="tag-icon-box" style="margin: 0 auto 12px; width: 72px; height: 72px; font-size: 32px;">🏷️</div>
-                    <div class="profile-name" style="font-size: 24px; margin-top: 12px;">#react</div>
-                    <div class="profile-handle">Technology Tag</div>
-                    <p class="text-dim" style="font-size: 13.5px; margin: 12px 0;">A JavaScript library for building user interfaces. Maintained by Meta and a community of individual developers and companies.</p>
+                    <div class="profile-name" style="font-size: 24px; margin-top: 12px;">#<?php  echo $tag_name;?></div>
+                    
+
 
                     <div class="profile-info-list"
                         style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
-                        <div class="repo-meta" style="margin-bottom: 8px;">📁 980 Repositories</div>
-                        <div class="repo-meta" style="margin-bottom: 8px;">👥 450 Developers</div>
-                        <div class="repo-meta" style="margin-bottom: 8px;">📅 Popularized in 2013</div>
-                    </div>
-                </div>
-
-                <!-- Tag Statistics Widget (Style from user_profile.php) -->
-                <div class="sidebar-widget">
-                    <div class="widget-header">Global Impact</div>
-                    <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
-                        <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-                            <div class="n">980</div>
-                            <div class="l">Repos</div>
-                        </div>
-                        <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-                            <div class="n">150k</div>
-                            <div class="l">Stars</div>
-                        </div>
-                        <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-                            <div class="n">450</div>
-                            <div class="l">Devs</div>
-                        </div>
-                        <div class="profile-stat" style="width: 33%;">
-                            <div class="n">2.4M</div>
-                            <div class="l">Downloads</div>
-                        </div>
-                        <div class="profile-stat" style="width: 33%;">
-                            <div class="n">12M</div>
-                            <div class="l">Views</div>
-                        </div>
-                        <div class="profile-stat" style="width: 33%;">
-                            <div class="n">98%</div>
-                            <div class="l">Growth</div>
-                        </div>
+                        <div class="repo-meta" style="margin-bottom: 8px;">📁 <?php echo $data["repo_count"]; ?> Repositories</div>
+                        <div class="repo-meta" style="margin-bottom: 8px;">👥 <?php echo $data["creator_count"]+$data["contributor_count"];?> Developers</div>
+                        <div class="repo-meta" style="margin-bottom: 8px;"><?php if(isset($data['created_at'])){  ?>📅 Created in <?php  echo date("Y",strtotime($data['created_at']));}?></div>
                     </div>
                 </div>
 
@@ -106,34 +99,45 @@
             <main class="feed-main">
                 <div class="feed-header">
                     <div>
-                        <h2 style="font-size: 20px;">Repositories tagged with <span class="text-accent">#react</span></h2>
-                        <p class="text-muted" style="font-size: 14px; margin-top: 4px;">Showing 980 total repositories using this technology</p>
+                        <h2 style="font-size: 20px;">Repositories tagged with <span class="text-accent">#<?php echo $tag_name;   ?></span></h2>
+                      <?php if($data["repo_count"]>0) {?>  <p class="text-muted" style="font-size: 14px; margin-top: 4px;">Showing <?php echo $data["repo_count"];  ?> total repositories using this tag</p><?php }
+                               else{?>  <p class="text-muted" style="font-size: 14px; margin-top: 4px;">No repositorie found using this tag</p><?php } ?>
                     </div>
                 </div>
 
                 <div class="feed-list">
+
+                <?php  
+                    $query="SELECT  repo.*,user.user_name
+                            FROM tag
+                            JOIN repo ON repo.id=tag.repo_id
+                            JOIN user ON user.id=repo.creator
+                            WHERE tag.tag_name='$tag_name' AND repo.visibility='public'
+                            ORDER BY repo.created_at DESC";
+                    $result=mysqli_query($conn,$query);
+                    while($data=mysqli_fetch_assoc($result)){
+
+                ?>
                     <!-- Tagged Repo 1 -->
                     <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
                         <div class="frc-top">
                             <div class="frc-meta">
-                                <div class="avatar">NJ</div>
+                                <div class="avatar"><?php echo get_avatar($data["user_name"]);?></div>
                                 <div>
-                                    <a href="view_repo.php"><div class="repo-name">react-dashboard-kit</div></a>
-                                    <div class="by">by <a href="user_profile.php"><strong>neeraj_dev</strong></a></div>
+                                    <a href="view_repo.php?repo_id=<?php echo $data["id"];?>"><div class="repo-name"><?php  echo $data['title']; ?></div></a>
+                                    <div class="by">by <strong><?php     echo $data["user_name"];    ?></strong></a></div>
                                 </div>
                             </div>
-                            <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button>
+                            
                         </div>
-                        <p class="frc-desc">A lightweight, zero-dependency React dashboard component library. Now with dark mode support and improved chart rendering performance in v4.</p>
+                        <p class="frc-desc"><?php  if(isset($data["description"])) echo $data["description"];    ?></p>
                         <div class="frc-footer">
-                            <div class="version-chip">✦ v4</div>
-                            <span class="tag">react</span>
-                            <span class="tag">typescript</span>
-                            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 2h ago</div>
-                            <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
-                        </div>
+                          
+                            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated <?php echo timeAgo($data["created_at"]);     ?> ago</div>
+                            
                     </div>
                 </div>
+                 <?php }?>
             </main>
 
             <!-- ===== RIGHT SIDEBAR ===== -->
@@ -141,24 +145,19 @@
                 <!-- Related Tags -->
                 <div class="sidebar-widget">
                     <div class="widget-header">Related Tags</div>
-                    <a href="#" class="trending-tag"><span class="t-name">#javascript</span><span class="t-count">1.2k repos</span></a>
-                    <a href="#" class="trending-tag"><span class="t-name">#typescript</span><span class="t-count">843 repos</span></a>
-                    <a href="#" class="trending-tag"><span class="t-name">#frontend</span><span class="t-count">2.1k repos</span></a>
-                    <a href="#" class="trending-tag"><span class="t-name">#nextjs</span><span class="t-count">412 repos</span></a>
+                     <?php  
+                    //  $query="SELECT tag.tag_name,repo.id,COUNT(tag.repo_id) AS repo_count
+                    //  FROM tag
+                    //  JOIN repo ON repo.id IN tag.repo_id
+                    //  JOIN tag ON   tag.repo_id=repo.id
+                    //  WHERE tag.tag_name='$tag_name'";
+                    //  $result=
+                       //<a href="#" class="trending-tag"><span class="t-name">#javascript</span><span class="t-count">1.2k repos</span></a>
+                       ?>
+                  
                 </div>
 
-                <!-- Popular Contributors Widget -->
-                <div class="sidebar-widget">
-                    <div class="widget-header">Top Contributors</div>
-                    <div class="suggest-user">
-                        <div class="avatar">MZ</div>
-                        <div class="info">
-                            <a href="user_profile.php"><div class="name">man_zhang</div></a>
-                            <div class="handle">@man_zhang</div>
-                        </div>
-                        <button class="follow-btn" onclick="">Follow</button>
-                    </div>
-                </div>
+            
             </aside>
         </div>
     </div>
