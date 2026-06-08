@@ -2,6 +2,8 @@
 session_start();
 require "php/config.php";
 require "php/utility.php";
+$logged_in_user_id = -1;
+if(isset($_SESSION["id"])) $logged_in_user_id = $_SESSION["id"];
 
 $repo_id = $_GET["repo_id"];
 $query = "SELECT
@@ -9,8 +11,6 @@ $query = "SELECT
               repo.description,
               repo.created_at,
               repo.demo,
-              repo.views,
-              repo.downloads,
               repo.visibility,
               user.id AS user_id,
               user.name,
@@ -20,6 +20,8 @@ $query = "SELECT
               (SELECT COUNT(*) FROM contributor WHERE contributor.repo_id = repo.id) AS total_contributors,
               (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed = repo.creator) AS total_followers,
               (SELECT COUNT(*) FROM repo r2 WHERE r2.creator = repo.creator) AS total_repos,
+              (SELECt COUNT(*) FROM version v3 WHERE v3.repo_id = repo.id) AS total_versions,
+              (SELECT COUNT(*) FROM stars WHERE user_id = '$logged_in_user_id' AND stars.repo_id = repo.id) AS is_starred,
               v.version_number,
               v.description AS version_note,
               v.file_zip AS file_name
@@ -62,6 +64,7 @@ if($result = mysqli_query($conn, $query)){
 // get tag names
 $query = "SELECT tag_name FROM tag WHERE repo_id = '$repo_id';";
 $tag_result = mysqli_query($conn, $query);
+$total_tags = mysqli_num_rows($tag_result);
 
 // get contributors
 $query = "SELECT user.user_name, user.name FROM user WHERE user.id IN (SELECT contributor.user_id FROM contributor WHERE repo_id = '$repo_id');";
@@ -114,6 +117,18 @@ usort($files, function ($a, $b) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?php echo $data["title"];?></title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .starred {
+      color: var(--yellow);
+      background: rgba(251, 191, 36, 0.08);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+
+    .starred:hover {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: var(--yellow);
+    }
+  </style>
 </head>
 
 <body>
@@ -193,12 +208,12 @@ usort($files, function ($a, $b) {
             <div class="lbl">Stars</div>
           </div>
           <div class="repo-stat-box">
-            <div class="val"><?php echo $data["views"];?></div>
-            <div class="lbl">Views</div>
+            <div class="val"><?php echo $data["total_versions"];?></div>
+            <div class="lbl">Versions</div>
           </div>
           <div class="repo-stat-box">
-            <div class="val"><?php echo $data["downloads"];?></div>
-            <div class="lbl">Downloads</div>
+            <div class="val"><?php echo $total_tags;?></div>
+            <div class="lbl">Tags</div>
           </div>
           <div class="repo-stat-box">
             <div class="val"><?php echo $data["total_contributors"];?></div>
@@ -207,7 +222,11 @@ usort($files, function ($a, $b) {
         </div>
 
         <div class="flex gap-12 mb-24">
-          <button class="btn btn-ghost btn-sm">★ Star</button>
+          <?php if($data["is_starred"] == 1){
+            echo "<button class='btn btn-ghost btn-sm starred' id='star_btn'>★ Starred</button>";
+          }else{
+            echo "<button class='btn btn-ghost btn-sm' id='star_btn'>☆ Star</button>";
+          } ?></button>
           <button class="btn btn-ghost btn-sm" id="share">🔗 Share</button>
           <?php if($data["demo"] != ""){
             $demo = $data["demo"];
@@ -324,6 +343,38 @@ usort($files, function ($a, $b) {
           alert('Link copied to clipboard!');
         });
       });
+    }
+
+    // add or remove from starred repos
+
+    const const_repo_id = <?php echo $repo_id; ?>;
+    let star_btn = document.getElementById("star_btn");
+    star_btn.addEventListener("click", change_star);
+    
+    async function change_star() {
+        let response = await fetch("php/toggle_star.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            repo_id: const_repo_id
+          })
+        });
+        let data = await response.json();
+        if(data.status == true){
+          if(data.is_starred == true){
+            star_btn.classList.add("starred");
+            star_btn.innerHTML = "★ Starred";
+          }else{
+            star_btn.classList.remove("starred");
+            star_btn.innerHTML = "☆ Star";
+          }
+        }else{
+          if(data.is_logged_in == false){
+            window.location.href = "login.php";
+          }
+        }
     }
   </script>
 </body>
