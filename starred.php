@@ -8,14 +8,15 @@ if(!isset($_SESSION["id"])){
   require  "php/config.php";
 
   function timeAgo($datetime){
+    date_default_timezone_set("Asia/Dhaka");
     $time=new DateTime($datetime);
     $now=new DateTime();
     $diff=$time->diff($now);
     if($diff->y) return $diff->y.'y ago';
-    if($diff->m) return $diff->m.'m ago';
+    if($diff->m) return $diff->m.'mon ago';
     if($diff->d) return $diff->d.'d ago';
     if($diff->h) return $diff->h.'h ago';
-    if($diff->m) return $diff->m.'m ago';
+    if($diff->i) return $diff->i.'min ago';
     return 'Just now';
 
   }
@@ -114,7 +115,7 @@ if(!isset($_SESSION["id"])){
 
         <div class="feed-list">
           <?php  
-            $query="SELECT repo.*,user.user_name,version.version_number ,version.created_at
+            $query="SELECT repo.*,user.user_name,version.version_number ,version.created_at  AS version_created_at
             FROM stars
             JOIN repo ON repo.id=stars.repo_id
             JOIN version ON version.id=(
@@ -132,29 +133,27 @@ if(!isset($_SESSION["id"])){
           <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
             <div class="frc-top">
               <div class="frc-meta">
-          
-                <div>
+
+                  <div class="avatar">NJ</div>
+                  <div>
+                 <a href="view_repo.php" > 
                   <div class="repo-name"><?php   if(isset($data["title"]))  echo $data["title"]; ?></div>
-                  <div class="by">by <strong><?php  if(isset($data["username"]))  echo $data["username"];  ?></strong></div>
+                  </a>
+                  <div class="by">by <strong><?php  if(isset($data["user_name"]))  echo $data["user_name"];  ?></strong></div>
                 </div>
               </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span><?php 
-              $repoID=$data["id"];
-              $query= "SELECT COUNT(*) FROM stars WHERE repo_id='$repoID'";
-              $result=mysqli_query($conn,$query);
-              $star_data=mysqli_fetch_assoc($result);
-              echo $star_data["COUNT(*)"];
-              
-              ?></span></button>
+             
             </div>
             <p class="frc-desc"><?php if(isset($data["description"])) echo $data["description"];?></p>
             <div class="frc-footer">
             
-              <div class="version-chip"><?php  if(isset($data["version_number"])) echo '✦ '.$data["version_number"]  ; ?></div>
+              <div class="version-chip"><?php  if(isset($data["version_number"])) echo '✦ v'.$data["version_number"]  ; ?></div>
     
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php  echo "Updated ".timeAgo($data["created_at"]); ?></div>
+              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php  
+              $date=$data["version_created_at"];
+               echo    "Updated " . timeAgo($date); ?></div>
              
-              <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
+              
             </div>
           </div>
                  <?php   } }
@@ -222,30 +221,6 @@ if(!isset($_SESSION["id"])){
       }
     });
 
-    // // Star toggle
-    // function toggleStar(btn) {
-    //   const starred = btn.classList.contains('starred');
-    //   const countEl = btn.querySelector('span');
-    //   let count = parseInt(countEl.textContent);
-    //   if (starred) {
-    //     btn.classList.remove('starred');
-    //     btn.innerHTML = '☆ <span>' + (count - 1) + '</span>';
-    //   } else {
-    //     btn.classList.add('starred');
-    //     btn.innerHTML = '★ <span>' + (count + 1) + '</span>';
-    //   }
-    // }
-
-    // // Follow toggle
-    // function toggleFollow(btn) {
-    //   if (btn.classList.contains('following')) {
-    //     btn.classList.remove('following');
-    //     btn.textContent = 'Follow';
-    //   } else {
-    //     btn.classList.add('following');
-    //     btn.textContent = 'Following';
-    //   }
-    // }
   </script>
 </body>
 
