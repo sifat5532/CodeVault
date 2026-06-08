@@ -1,10 +1,43 @@
+<?php
+session_start();
+if (!isset($_SESSION["id"])) {
+  header("Location: login.php");
+  exit();
+}
+$user_id = $_SESSION["id"];
+require "php/config.php";
+require "php/utility.php";
+$query1 = "SELECT * FROM user WHERE id='$user_id';";
+$result = mysqli_query($conn, $query1);
+if (mysqli_num_rows($result) == 0) {
+  header("Location: login.php");
+  exit();
+} else $data = mysqli_fetch_assoc($result);
+$query2 = "SELECT (SELECT COUNT(*)  FROM follower WHERE follower.who_is_being_followed='$user_id')AS followers,
+          
+          (SELECT COUNT(*)  FROM follower WHERE follower.who_is_following='$user_id')AS following,
+          
+          (SELECT COUNT(*)  FROM repo WHERE repo.creator='$user_id')AS created_repo,
+          
+          (SELECT COUNT(*)  FROM contributor WHERE contributor.user_id='$user_id')AS contributed_repo,
+          
+          (SELECT COUNT(*) FROM stars WHERE stars.repo_id  IN (
+          SELECT repo.id FROM repo WHERE repo.creator='$user_id'))AS starred_repo ;";
+$result = mysqli_query($conn, $query2);
+$stat_data = mysqli_fetch_assoc($result);
+
+?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rafid Khan (@rafidkhan) — CodeVault</title>
+  <title><?php echo $data["name"] . "(" . $data["user_name"] . ")"; ?> — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -55,47 +88,51 @@
       <!-- ===== PROFILE SIDEBAR ===== -->
       <aside class="sidebar-left">
         <div class="sidebar-profile">
-          <div class="avatar xl">RK</div>
-          <div class="profile-name" style="font-size: 20px; margin-top: 12px;">Rafid Khan</div>
-          <div class="profile-handle">@rafidkhan</div>
-          <p class="text-dim" style="font-size: 13.5px; margin: 12px 0;">Frontend Architect building React dashboards and data viz tools. Passionate about DX.</p>
-          
+          <div class="avatar xl"><?php echo get_avatar($data["name"]); ?></div>
+          <div class="profile-name" style="font-size: 20px; margin-top: 12px;">@<?php echo $data["name"]; ?></div>
+          <div class="profile-handle"><?php echo $data["user_name"]; ?></div>
+          <p class="text-dim" style="font-size: 13.5px; margin: 12px 0;">
+            <?php if (isset($data["bio"])) {
+              echo $data["bio"];
+            } ?></p>
+
           <div class="profile-info-list" style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
-            <div class="repo-meta" style="margin-bottom: 8px;">📍 Dhaka, Bangladesh</div>
-            <div class="repo-meta" style="margin-bottom: 8px;">📅 Joined Jan 2024</div>
-            <div class="repo-meta" style="margin-bottom: 8px;">🔗 <a href="#" class="text-accent">rafidkhan.dev</a></div>
+            <div class="repo-meta" style="margin-bottom: 8px;">📍 <?php if (isset($data["location"]))  echo $data["location"]; ?></div>
+            <div class="repo-meta" style="margin-bottom: 8px;">📅 Joined <?php echo date("F j,y", strtotime($data["created_at"]));   ?></div>
+            <div class="repo-meta" style="margin-bottom: 8px;"><?php if (isset($data["web"]) && $data["web"] != "") { ?>🔗 <a href=<?php echo $data["web"]; ?> class="text-accent"><?php echo $data["web"]; ?></a><?php } ?></div>
           </div>
         </div>
 
         <!-- Profile Stats -->
         <div class="sidebar-widget">
-            <div class="widget-header">Statistics</div>
-            <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
-              <a href="followers.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-                <div class="n">86</div>
-                <div class="l">Followers</div>
-              </a>
-              <a href="following.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-                <div class="n">42</div>
-                <div class="l">Following</div>
-              </a>
-              <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-                <div class="n">14</div>
-                <div class="l">Projects</div>
-              </div>
-              <div class="profile-stat" style="width: 33%;">
-                <div class="n">531</div>
-                <div class="l">Stars</div>
-              </div>
-              <div class="profile-stat" style="width: 33%;">
-                <div class="n">2.4k</div>
-                <div class="l">Downloads</div>
-              </div>
-              <div class="profile-stat" style="width: 33%;">
-                <div class="n">12k</div>
-                <div class="l">Views</div>
-              </div>
+          <div class="widget-header">Statistics</div>
+          <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
+            <a href="followers.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+              <div class="n"><?php if (isset($stat_data["followers"])) {
+                                echo $stat_data["followers"];
+                              }  ?></div>
+              <div class="l">Followers</div>
+            </a>
+            <a href="following.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+              <div class="n"><?php if (isset($stat_data["following"])) {
+                                echo $stat_data["following"];
+                              }  ?></div>
+              <div class="l">Following</div>
+            </a>
+            <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+              <div class="n"><?php if (isset($stat_data["created_repo"]) || isset($stat_data["contributed_repo"])) {
+                                echo $stat_data["created_repo"] + $stat_data["contributed_repo"];
+                              }  ?></div>
+              <div class="l">Projects</div>
             </div>
+            <div class="profile-stat" style="width: 33%;">
+              <div class="n"><?php if (isset($stat_data["starred_repo"])) {
+                                echo $stat_data["starred_repo"];
+                              }   ?></div>
+              <div class="l">Stars</div>
+            </div>
+
+          </div>
         </div>
       </aside>
 
@@ -110,65 +147,115 @@
 
         <!-- Created Projects Grid -->
         <div id="grid-created" class="features-grid anim-fadeup" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
-          <!-- Card 1 -->
-          <div class="feed-repo-card">
-            <div class="frc-top">
-              <a href="view_repo.php" class="repo-name">react-dashboard-kit</a>
-              <div class="version-chip">v4.0</div>
-            </div>
-            <p class="frc-desc">A lightweight, zero-dependency React dashboard component library. Now with dark mode support.</p>
-            <div class="frc-footer" style="margin-top: auto;">
-              <span class="tag">react</span>
-              <span class="tag">typescript</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 2h ago</div>
-            </div>
-            <div class="divider" style="margin: 15px 0;"></div>
-            <div class="flex gap-8">
-              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php'">⚙️ Settings</button>
-              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php'">+ New Version</button>
-            </div>
-          </div>
+          <?php
+          $query = "SELECT  repo.*,version.version_number ,version.created_at  AS version_created_at,
+               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
+                FROM repo 
+                JOIN version ON version.repo_id=(
+                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
+                LEFT JOIN tag ON tag.repo_id=repo.id
+                WHERE repo.creator='$user_id'
+                GROUP BY repo.id
+                ORDER BY version.created_at DESC";
 
-          <!-- Card 2 -->
-          <div class="feed-repo-card">
-            <div class="frc-top">
-              <a href="view_repo.php" class="repo-name">vault-cli-tool</a>
-              <div class="version-chip">v1.2</div>
-            </div>
-            <p class="frc-desc">Command line interface for interacting with the CodeVault API directly from your terminal.</p>
-            <div class="frc-footer">
-              <span class="tag">nodejs</span>
-              <span class="tag">cli</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated Yesterday</div>
-            </div>
-            <div class="divider" style="margin: 15px 0;"></div>
-            <div class="flex gap-8">
-              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php'">⚙️ Settings</button>
-              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php'">+ New Version</button>
-            </div>
-          </div>
-        </div>
+          $result = mysqli_query($conn, $query);
+          if ($result && mysqli_num_rows($result) > 0) {
+            while ($data = mysqli_fetch_assoc($result)) {
 
-        <!-- Contributing Projects Grid (Hidden by default) -->
-        <div id="grid-contributing" class="features-grid anim-fadeup" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+
+
+                       ?>
+              <!-- Card 1 -->
+              <div class="feed-repo-card">
+                <div class="frc-top">
+                  <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>" class="repo-name"><?php echo $data["title"]; ?></a>
+                  <div class="version-chip">v<?php if (isset($data["version_number"])) {
+                                                echo $data["version_number"];
+                                              }  ?></div>
+                </div>
+                <p class="frc-desc"><?php if (isset($data["description"])) echo $data["description"]; ?></p>
+                <div class="frc-footer" style="margin-top: auto;">
+                  <?php $tags = explode(",", $data['tag_name']);
+
+                  foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag)) echo $tag; ?> </span><?php } ?>
+
+                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated <?php echo timeAgo($data["version_created_at"]); ?></div>
+                </div>
+                <div class="divider" style="margin: 15px 0;"></div>
+                <div class="flex gap-8">
+                  <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php?repo_id=<?php echo $data['id']; ?>'">⚙️ Settings</button>
+                  <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_repo.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
+                </div>
+              </div>
+            <?php
+            }
+          } else { ?>
           <div class="feed-repo-card">
-            <div class="frc-top">
-              <a href="view_repo.php" class="repo-name">neeraj_dev / ui-core</a>
-              <div class="version-chip">v2.1</div>
+              <div class="frc-top">
+                <p class="frc-desc">No created repositories found.</p>
+
+              </div>
             </div>
-            <p class="frc-desc">The core UI components used across all Neeraj projects. Contributing to chart modules.</p>
-            <div class="frc-footer">
-              <span class="tag">css</span>
-              <span class="tag">framework</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 3 days ago</div>
-            </div>
-            <div class="divider" style="margin: 15px 0;"></div>
-            <div class="flex gap-8">
-              <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php'">⚙️ Settings</button>
-              <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php'">+ New Version</button>
-            </div>
+
+          <?php }
+          ?>
+
+
+
+          <!-- Contributing Projects Grid (Hidden by default) -->
+          <div id="grid-contributing" class="features-grid anim-fadeup" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <?php
+            $query = "SELECT   repo.*,version.version_number ,version.created_at  AS version_created_at,
+               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
+                FROM contributor
+                JOIN repo ON repo.id=contributor.repo_id
+                JOIN version ON version.repo_id=(
+                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
+                LEFT JOIN tag ON tag.repo_id=repo.id
+                WHERE contributor.user_id='$user_id'
+                GROUP BY repo.id
+                ORDER BY version.created_at DESC";
+
+            $result = mysqli_query($conn, $query);
+            if ($result && mysqli_num_rows($result) > 0) {
+              while ($data = mysqli_fetch_assoc($result)) {
+
+
+
+            ?>
+                <div class="feed-repo-card">
+                  <div class="frc-top">
+                    <a href="view_repo.php" class="repo-name"><?php echo $data["title"];?></a>
+                    <div class="version-chip"><?php echo $data["version_number"];?></div>
+                  </div>
+                  <p class="frc-desc"><?php  if(isset($data["description"])) echo $data["description"];    ?></p>
+                  <div class="frc-footer">
+                     <?php $tags = explode(",", $data['tag_name']);
+
+                  foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag)) echo $tag; ?> </span><?php } ?>
+
+                    <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated <?php  echo timeAgo($data["version_created_at"]); ?></div>
+                  </div>
+                  <div class="divider" style="margin: 15px 0;"></div>
+                  <div class="flex gap-8">
+                    <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php?repo_id=<?php echo $data['id']; ?>'">⚙️ Settings</button>
+                    <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;"  onclick="location.href='new_repo.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
+                  </div>
+                </div>
+
+              <?php }
+            } else { ?>
+              <div class="feed-repo-card">
+                <div class="frc-top">
+                  <p class="frc-desc">No contributed repositories found.</p>
+
+                </div>
+              </div>
+
+            <?php }
+            ?>
+
           </div>
-        </div>
       </main>
     </div>
   </div>
@@ -190,37 +277,14 @@
     function toggleDropdown() {
       document.getElementById('userDropdown').classList.toggle('open');
     }
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
       const menu = document.querySelector('.user-menu');
       if (!menu.contains(e.target)) {
         document.getElementById('userDropdown').classList.remove('open');
       }
     });
 
-    // // Star toggle
-    // function toggleStar(btn) {
-    //   const starred = btn.classList.contains('starred');
-    //   const countEl = btn.querySelector('span');
-    //   let count = parseInt(countEl.textContent);
-    //   if (starred) {
-    //     btn.classList.remove('starred');
-    //     btn.innerHTML = '☆ <span>' + (count - 1) + '</span>';
-    //   } else {
-    //     btn.classList.add('starred');
-    //     btn.innerHTML = '★ <span>' + (count + 1) + '</span>';
-    //   }
-    // }
-
-    // // Follow toggle
-    // function toggleFollow(btn) {
-    //   if (btn.classList.contains('following')) {
-    //     btn.classList.remove('following');
-    //     btn.textContent = 'Follow';
-    //   } else {
-    //     btn.classList.add('following');
-    //     btn.textContent = 'Following';
-    //   }
-    // }
+  
 
     // Project toggle logic
     function toggleProjects(type) {
@@ -231,5 +295,3 @@
     }
   </script>
 </body>
-
-</html>
