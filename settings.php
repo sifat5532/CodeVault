@@ -1,3 +1,24 @@
+<?php 
+session_start();
+if(!isset($_SESSION["id"])){
+  header("Location: login.php");
+  exit();
+}
+
+require "php/config.php";
+require "php/utility.php";
+
+$user_id = $_SESSION["id"];
+$query = "SELECT * FROM user WHERE id = '$user_id' LIMIT 1;";
+if($result = mysqli_query($conn, $query)){
+  $data = mysqli_fetch_assoc($result);
+}else{
+  header("Location: feed.php");
+  exit();
+}
+$notif_settings = explode('$', $data["notification_settings"]);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,8 +27,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Settings — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Assuming Font Awesome is linked globally if icons are to be used -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+  <script src="script.js"></script>
+
 </head>
 
 <body>
@@ -58,7 +81,6 @@
       <aside class="sidebar-left">
         <nav class="sidebar-nav">
           <a href="#profile-settings" class="active"><span class="nav-icon">👤</span> Profile</a>
-          <a href="#account-settings"><span class="nav-icon">⚙️</span> Account</a>
           <a href="#notification-preferences"><span class="nav-icon">🔔</span> Notifications</a>
           <a href="#repository-defaults"><span class="nav-icon">📦</span> Repositories</a>
           <a href="#danger-zone"><span class="nav-icon">⚠️</span> Danger Zone</a>
@@ -75,57 +97,31 @@
 
           <div class="settings-card">
             <div class="form-group profile-avatar-upload">
-              <label for="profile-picture">Profile Picture</label>
-              <div class="avatar xl" style="margin-bottom: 10px;">RK</div>
-              <input type="file" id="profile-picture" accept="image/*" aria-label="Upload new profile picture">
+              <label for="profile-picture">Profile Avatar</label>
+              <div class="avatar xl" style="margin-bottom: 10px;"><?php if(isset($data)){echo get_avatar($data["name"]);} ?></div>
             </div>
             <div class="form-group">
               <label for="full-name">Full Name</label>
-              <input type="text" id="full-name" placeholder="Rafid Khan" value="Rafid Khan" />
+              <input type="text" id="name" placeholder="Rafid Khan" value="<?php if(isset($data)){echo $data["name"];} ?>" required/>
             </div>
             <div class="form-group">
-              <label for="username">Username</label>
-              <input type="text" id="username" placeholder="rafidkhan" value="rafidkhan" />
+              <label for="username" id="usernameLabel">Username</label>
+              <input type="text" id="username" placeholder="john_doe" value="<?php if(isset($data)){echo $data["user_name"];} ?>" required/>
             </div>
             <div class="form-group">
               <label for="bio">Bio</label>
-              <textarea id="bio" rows="4" placeholder="A passionate developer building awesome things.">Frontend Architect building React dashboards and data viz tools. Passionate about DX.</textarea>
+              <textarea id="bio" rows="4"
+                placeholder="A passionate developer building awesome things." required><?php if(isset($data)){echo $data["bio"];} ?></textarea>
             </div>
             <div class="form-group">
               <label for="location">Location</label>
-              <input type="text" id="location" placeholder="e.g. Dhaka, Bangladesh" value="Dhaka, Bangladesh" />
+              <input type="text" id="location" placeholder="e.g. Dhaka, Bangladesh" value="<?php if(isset($data)){echo $data["location"];} ?>" required/>
             </div>
             <div class="form-group">
-              <label for="website">Website</label>
-              <input type="text" id="website" placeholder="e.g. rafidkhan.dev" value="rafidkhan.dev" />
+              <label for="web">Website</label>
+              <input type="text" id="web" placeholder="e.g. rafidkhan.dev" value="<?php if(isset($data)){echo $data["web"];} ?>" />
             </div>
-            <button class="btn btn-primary">Save Profile</button>
-          </div>
-        </section>
-
-        <!-- Account Settings -->
-        <section id="account-settings" class="settings-section anim-fadeup" style="animation-delay:0.1s">
-          <h2 class="section-title">Account Settings</h2>
-          <p class="section-sub">Manage your email and password.</p>
-
-          <div class="settings-card">
-            <div class="form-group">
-              <label for="email">Email Address</label>
-              <input type="email" id="email" placeholder="you@example.com" value="rafid@example.com" />
-            </div>
-            <div class="form-group">
-              <label for="current-password">Current Password</label>
-              <input type="password" id="current-password" placeholder="••••••••" />
-            </div>
-            <div class="form-group">
-              <label for="new-password">New Password</label>
-              <input type="password" id="new-password" placeholder="••••••••" />
-            </div>
-            <div class="form-group">
-              <label for="confirm-password">Confirm New Password</label>
-              <input type="password" id="confirm-password" placeholder="••••••••" />
-            </div>
-            <button class="btn btn-primary">Update Account</button>
+            <button id="save_btn" class="btn btn-primary" style="text-align: center;">Save Profile</button>
           </div>
         </section>
 
@@ -138,28 +134,28 @@
             <div class="setting-item">
               <label for="notif-stars">Repository stars notifications</label>
               <label class="switch">
-                <input type="checkbox" id="notif-stars" checked>
+                <input type="checkbox" id="notif-0" onclick="update_notif_settings(0)" <?php if(isset($notif_settings)){echo $notif_settings[0] == "1" ? "checked" : "";} ?>>
                 <span class="slider round"></span>
               </label>
             </div>
             <div class="setting-item">
               <label for="notif-followers">New follower notifications</label>
               <label class="switch">
-                <input type="checkbox" id="notif-followers" checked>
+                <input type="checkbox" id="notif-1"  onclick="update_notif_settings(1)" <?php if(isset($notif_settings)){echo $notif_settings[1] == "1" ? "checked" : "";} ?>>
                 <span class="slider round"></span>
               </label>
             </div>
             <div class="setting-item">
               <label for="notif-versions">Version update notifications</label>
               <label class="switch">
-                <input type="checkbox" id="notif-versions">
+                <input type="checkbox" id="notif-2"  onclick="update_notif_settings(2)" <?php if(isset($notif_settings)){echo $notif_settings[2] == "1" ? "checked" : "";} ?>>
                 <span class="slider round"></span>
               </label>
             </div>
             <div class="setting-item">
               <label for="notif-system">System alert notifications</label>
               <label class="switch">
-                <input type="checkbox" id="notif-system" checked>
+                <input type="checkbox" id="notif-3"  onclick="update_notif_settings(3)" <?php if(isset($notif_settings)){echo $notif_settings[3] == "1" ? "checked" : "";} ?>>
                 <span class="slider round"></span>
               </label>
             </div>
@@ -192,7 +188,8 @@
               <span class="nav-icon">⚠️</span> Be careful! These actions cannot be undone.
             </p>
 
-            <div class="setting-item" style="border-top: 1px solid var(--border-soft); padding-top: 10px; margin-top: 0px;">
+            <div class="setting-item"
+              style="border-top: 1px solid var(--border-soft); padding-top: 10px; margin-top: 0px;">
               <div>
                 <h3>Delete Account</h3>
                 <p class="text-muted">Permanently delete your account and all associated data.</p>
@@ -258,7 +255,7 @@
 
     // Settings sidebar navigation active state
     document.querySelectorAll('.sidebar-nav a').forEach(link => {
-      link.addEventListener('click', function(e) {
+      link.addEventListener('click', function (e) {
         e.preventDefault();
         document.querySelectorAll('.sidebar-nav a').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
@@ -292,6 +289,88 @@
         }
       });
     });
+
+
+    
+
+    // validate username
+    const uname_input = document.getElementById("username");
+    const uname_label = document.getElementById("usernameLabel");
+    const save_btn = document.getElementById("save_btn");
+    uname_input.addEventListener("input", (e) => {
+      validate_username(uname_input, uname_label, save_btn);
+    });
+
+
+    // update profile info
+    const notyf = new Notyf();
+
+    const name_input = document.getElementById("name");
+    const bio_input = document.getElementById("bio");
+    const location_input = document.getElementById("location");
+    const web_input = document.getElementById("web");
+    save_btn.addEventListener("click", update_profile);
+    
+    async function update_profile() {
+        let response = await fetch("php/update_profile.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: name_input.value,
+            username: uname_input.value,
+            bio: bio_input.value,
+            location: location_input.value,
+            web: web_input.value
+          })
+        });
+        let data = await response.json();
+        if(data.status == true){
+          notyf.success('Operation completed successfully!');
+        }else{
+          notyf.error('Something went wrong!');
+        }
+    }
+
+
+    // update notification settings
+    let notif_id_nums = 4;
+    let arr = [];
+    for (let i = 0; i < notif_id_nums; i++) {
+      arr.push(`notif-${i}`);
+    }
+    async function update_notif_settings() {
+      // preparing array
+      let str = [];
+      for(let i = 0; i < notif_id_nums; i++){
+        if(document.getElementById(arr[i]).checked){
+          str.push(`1`);
+        }else{
+          str.push(`0`);
+        }
+
+        if(i != notif_id_nums - 1)
+          str.push(`$`);
+      }
+      // preparing string
+      let settings = str.join("");
+
+      // async call
+      let response = await fetch("php/update_notification.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            string: settings
+          })
+        });
+        let data = await response.json();
+        if(data.status != true){
+          notyf.error('Something went wrong!');
+        }
+    }
 
   </script>
 </body>

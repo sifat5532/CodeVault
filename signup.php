@@ -64,6 +64,7 @@ if(isset($_POST["sign_in_btn"])){
         border: !important 1px solid #dc3545;
     }
   </style>
+  <script src="script.js" defer></script>
 </head>
 <body>
   <nav class="navbar">
@@ -113,39 +114,9 @@ if(isset($_POST["sign_in_btn"])){
     const uname_input = document.getElementById("username");
     const uname_label = document.getElementById("usernameLabel");
     const signup_btn = document.getElementById("sign_in_btn");
-    uname_input.addEventListener("input", validate_username);
-
-    async function validate_username() {
-        let input_data = uname_input.value;
-        if(input_data != ""){
-            if(isValid(input_data) && input_data.length >= 3){
-                let url = "php/validate_username.php?username=" + encodeURIComponent(input_data);
-                let response = await fetch(url);
-                let data = await response.json();
-
-                if(data.status == true){
-                    signup_btn.disabled = true;
-                    uname_label.innerHTML = "Username: <span style='color: #dc3545;'>This username is already taken</span>";
-                }else{
-                    signup_btn.disabled = false;
-                    uname_label.innerHTML = "Username: <span style='color: #00de76;'>It's available</span>";
-                }
-            }else if(isValid(input_data) && input_data.length < 3){
-                signup_btn.disabled = true;
-                uname_label.innerHTML = "Username: <span style='color: #dc3545;'>Too small</span>";
-            }else{
-                signup_btn.disabled = true;
-                uname_label.innerHTML = "Username: <span style='color: #dc3545;'>Invalid format. Allowed [a-z,A-Z,0-9,_]</span>";
-            }
-        }else{
-            uname_label.innerHTML = "Username";
-            signup_btn.disabled = true;
-        }
-    }
-
-    function isValid(username) {
-      return /^[a-zA-Z0-9_]+$/.test(username);
-    }
+    uname_input.addEventListener("input", (e) =>{
+      validate_username(uname_input, uname_label, signup_btn);
+    });
   </script>
 </body>
 </html>
