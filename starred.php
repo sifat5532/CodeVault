@@ -1,3 +1,25 @@
+<?php 
+session_start();
+if(!isset($_SESSION["id"])){
+  header("Location: login.php");
+  exit();
+}
+  $user_id= $_SESSION["id"];
+  require  "php/config.php";
+
+  function timeAgo($datetime){
+    $time=new DateTime($datetime);
+    $now=new DateTime();
+    $diff=$time->diff($now);
+    if($diff->y) return $diff->y.'y ago';
+    if($diff->m) return $diff->m.'m ago';
+    if($diff->d) return $diff->d.'d ago';
+    if($diff->h) return $diff->h.'h ago';
+    if($diff->m) return $diff->m.'m ago';
+    return 'Just now';
+
+  }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -91,194 +113,68 @@
         </div>
 
         <div class="feed-list">
+          <?php  
+            $query="SELECT repo.*,user.user_name,version.version_number ,version.created_at
+            FROM stars
+            JOIN repo ON repo.id=stars.repo_id
+            JOIN version ON version.id=(
+            SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
+            JOIN user ON repo.creator=user.id
+         
+            WHERE stars.user_id='$user_id'";
+             $result=mysqli_query($conn,$query);
+             if($result && mysqli_num_rows($result)>0){
+              while($data=mysqli_fetch_assoc($result)){
 
+
+          ?>
           <!-- Starred Repo 1 -->
           <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
             <div class="frc-top">
               <div class="frc-meta">
-                <div class="avatar">SL</div>
+          
                 <div>
-                  <div class="repo-name">samon_liu / fastapi-boilerplate</div>
-                  <div class="by">by <strong>samon_liu</strong></div>
+                  <div class="repo-name"><?php   if(isset($data["title"]))  echo $data["title"]; ?></div>
+                  <div class="by">by <strong><?php  if(isset($data["username"]))  echo $data["username"];  ?></strong></div>
                 </div>
               </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
+              <button class="star-btn starred" onclick="toggleStar(this)">★ <span><?php 
+              $repoID=$data["id"];
+              $query= "SELECT COUNT(*) FROM stars WHERE repo_id='$repoID'";
+              $result=mysqli_query($conn,$query);
+              $star_data=mysqli_fetch_assoc($result);
+              echo $star_data["COUNT(*)"];
+              
+              ?></span></button>
             </div>
-            <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, Docker Compose, and
-              auto-generated Swagger docs. Opinionated, minimal, fast.</p>
+            <p class="frc-desc"><?php if(isset($data["description"])) echo $data["description"];?></p>
             <div class="frc-footer">
-              <div class="version-chip">✦ v1</div>
-              <span class="tag">python</span>
-              <span class="tag">fastapi</span>
-              <span class="tag">docker</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 5h ago</div>
+            
+              <div class="version-chip"><?php  if(isset($data["version_number"])) echo '✦ '.$data["version_number"]  ; ?></div>
+    
+              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php  echo "Updated ".timeAgo($data["created_at"]); ?></div>
+             
+              <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: 12px;">View Repository</a>
             </div>
           </div>
-
-          <!-- Starred Repo 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
+                 <?php   } }
+                 
+                 
+                 else       {?>
+                    <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
             <div class="frc-top">
               <div class="frc-meta">
-                <div class="avatar">SL</div>
+          
                 <div>
-                  <div class="repo-name">samon_liu / fastapi-boilerplate</div>
-                  <div class="by">by <strong>samon_liu</strong></div>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
-            </div>
-            <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, Docker Compose, and
-              auto-generated Swagger docs. Opinionated, minimal, fast.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v1</div>
-              <span class="tag">python</span>
-              <span class="tag">fastapi</span>
-              <span class="tag">docker</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 5h ago</div>
-            </div>
-          </div>
-
-
-          <!-- Starred Repo 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
+                        <div class="frc-top" style="align-content: center";>
               <div class="frc-meta">
-                <div class="avatar">SL</div>
-                <div>
-                  <div class="repo-name">samon_liu / fastapi-boilerplate</div>
-                  <div class="by">by <strong>samon_liu</strong></div>
+               
+                 <p class="frc-desc" ><?php    echo "You have no starred repositories yet.";?></p>
                 </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
-            </div>
-            <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, Docker Compose, and
-              auto-generated Swagger docs. Opinionated, minimal, fast.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v1</div>
-              <span class="tag">python</span>
-              <span class="tag">fastapi</span>
-              <span class="tag">docker</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 5h ago</div>
-            </div>
-          </div>
-
-
-          <!-- Starred Repo 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">SL</div>
-                <div>
-                  <div class="repo-name">samon_liu / fastapi-boilerplate</div>
-                  <div class="by">by <strong>samon_liu</strong></div>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
-            </div>
-            <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, Docker Compose, and
-              auto-generated Swagger docs. Opinionated, minimal, fast.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v1</div>
-              <span class="tag">python</span>
-              <span class="tag">fastapi</span>
-              <span class="tag">docker</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 5h ago</div>
-            </div>
-          </div>
-
-
-          <!-- Starred Repo 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">SL</div>
-                <div>
-                  <div class="repo-name">samon_liu / fastapi-boilerplate</div>
-                  <div class="by">by <strong>samon_liu</strong></div>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
-            </div>
-            <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, Docker Compose, and
-              auto-generated Swagger docs. Opinionated, minimal, fast.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v1</div>
-              <span class="tag">python</span>
-              <span class="tag">fastapi</span>
-              <span class="tag">docker</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 5h ago</div>
-            </div>
-          </div>
-
-          <!-- Starred Repo 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">SL</div>
-                <div>
-                  <div class="repo-name">samon_liu / fastapi-boilerplate</div>
-                  <div class="by">by <strong>samon_liu</strong></div>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
-            </div>
-            <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, Docker Compose, and
-              auto-generated Swagger docs. Opinionated, minimal, fast.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v1</div>
-              <span class="tag">python</span>
-              <span class="tag">fastapi</span>
-              <span class="tag">docker</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 5h ago</div>
-            </div>
-          </div>
-
-          <!-- Starred Repo 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">SL</div>
-                <div>
-                  <div class="repo-name">samon_liu / fastapi-boilerplate</div>
-                  <div class="by">by <strong>samon_liu</strong></div>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
-            </div>
-            <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, Docker Compose, and
-              auto-generated Swagger docs. Opinionated, minimal, fast.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v1</div>
-              <span class="tag">python</span>
-              <span class="tag">fastapi</span>
-              <span class="tag">docker</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 5h ago</div>
-            </div>
-          </div>
-
-          <!-- Starred Repo 2 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.1s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">PR</div>
-                <div>
-                  <div class="repo-name">priya_r / markdown-to-pdf</div>
-                  <div class="by">by <strong>priya_r</strong></div>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>67</span></button>
-            </div>
-            <p class="frc-desc">Convert any Markdown file to a beautifully styled PDF with custom CSS themes. Supports
-              tables, code blocks, and syntax highlighting out of the box.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v3</div>
-              <span class="tag">nodejs</span>
-              <span class="tag">markdown</span>
-              <span class="tag">pdf</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated 3 days ago</div>
-            </div>
-          </div>
-
+                    </div>  
+                    </div>
+                <?php  } ?>
+         
         </div>
       </main>
 
