@@ -7,6 +7,7 @@ if (!isset($_SESSION["id"])) {
 $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
+require "php/send_notification.php";
 
 // remove contribution
 $notif = null;
@@ -15,6 +16,14 @@ if (isset($_POST["rmv_contribution_btn"]) && isset($_POST["rmv_contribution_repo
   $query = "DELETE FROM contributor WHERE user_id='$user_id' AND repo_id='$repo_id'";
   if (mysqli_query($conn, $query)) {
     $notif = ["type" => "success", "msg" => "Contribution removed successfully!"];
+    // send notification to repo creator
+    $query = "SELECT creator FROM repo WHERE id='$repo_id' LIMIT 1";
+    $result = mysqli_query($conn, $query);
+    if ($result && mysqli_num_rows($result) > 0) {
+      $repo_creator = mysqli_fetch_assoc($result)["creator"];
+      // code to send notification to repo creator
+      send_notification($conn, $repo_id, "rmv_contri_own", $user_id, $repo_creator);
+    }
   } else {
     $notif = ["type" => "error", "msg" => "Failed to remove contribution."];
   }

@@ -27,14 +27,17 @@ function get_notification_element($notification_id, $username, $user_id, $type, 
         $icon = "🚫";
     } else if($type == "added_as_contri"){
         $txt = "<strong>$username</strong> added you as a contributor to <span class='repo-link'>$repo_title</span>";
-        $icon = "➕";
+        $icon = "🎉";
     } else if($type == "new_version"){
         if($repo_id == null){  $repo_title = "{deleted repository}"; $repo_version = "{unknown}"; }else{ $url = "view_repo.php?repo_id=$repo_id"; }
         $txt = "<strong>$username</strong> released a new version of <span class='repo-link'>$repo_title</span>";
-        $icon = "📦";
+        $icon = "🚀";
     } else if($type == "new_repo"){
         $txt = "<strong>$username</strong> created a new repository <span class='repo-link'>$repo_title</span>";
-        $icon = "📁";
+        $icon = "📦";
+    } else if($type == "rmv_contri_own"){
+        $txt = "<strong>$username</strong> removed themselves as a contributor from <span class='repo-link'>$repo_title</span>";
+        $icon = "⛔";
     }
 
     return  "
