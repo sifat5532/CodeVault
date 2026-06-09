@@ -7,6 +7,8 @@ if (!isset($_SESSION["id"])) {
 $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
+require "php/user_info.php";
+$logged_in_user = new User($_SESSION["id"], $conn);
 
 //top tags
 $query = "SELECT tag.tag_name,
@@ -25,7 +27,11 @@ $result_tag = mysqli_query($conn, $query);
   <title>Starred — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 <body>
 
   <!-- ===== NAVBAR ===== -->
@@ -52,12 +58,16 @@ $result_tag = mysqli_query($conn, $query);
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
@@ -75,20 +85,20 @@ $result_tag = mysqli_query($conn, $query);
       <!-- ===== LEFT SIDEBAR ===== -->
       <aside class="sidebar-left">
         <div class="sidebar-profile">
-          <div class="avatar xl">RK</div>
-          <div class="profile-name">Rafid Khan</div>
-          <div class="profile-handle">@rafidkhan</div>
+          <div class="avatar xl"><?php echo get_avatar($logged_in_user->getName()); ?></div>
+          <div class="profile-name"><?php echo $logged_in_user->getName(); ?></div>
+          <div class="profile-handle">@<?php echo $logged_in_user->getUsername(); ?></div>
           <div class="profile-stats">
             <div class="profile-stat">
-              <div class="n">14</div>
+              <div class="n"><?php echo $logged_in_user->getTotalRepo(); ?></div>
               <div class="l">Repos</div>
             </div>
             <div class="profile-stat">
-              <div class="n">86</div>
+              <div class="n"><?php echo $logged_in_user->getTotalFollowers(); ?></div>
               <div class="l">Followers</div>
             </div>
             <div class="profile-stat">
-              <div class="n">53</div>
+              <div class="n"><?php echo $logged_in_user->getTotalStars(); ?></div>
               <div class="l">Stars</div>
             </div>
           </div>

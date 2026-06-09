@@ -2,7 +2,11 @@
 session_start();
 require "php/config.php";
 require "php/utility.php";
-
+require "php/user_info.php";
+$logged_in_user = null;
+if (isset($_SESSION["id"])) {
+  $logged_in_user = new User($_SESSION["id"], $conn);
+}
 
 // get users
 
@@ -81,12 +85,22 @@ $tag_result = mysqli_query($conn, $query);
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if (isset($logged_in_user) && $logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge">
+              <?php echo $logged_in_user->getTotalUnread(); ?>
+            </div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php if (isset($logged_in_user)) {
+            echo get_avatar($logged_in_user->getName());
+          } else {
+            echo "null";
+          } ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
@@ -120,7 +134,7 @@ $tag_result = mysqli_query($conn, $query);
             <p class="text-muted" style="max-width: 500px;">Discover the most popular creators, projects, and
               technologies trending across the vault today.</p>
           </div>
-        
+
           <nav class="mobile-search-filters" style="margin-top: 24px;">
             <a href="#devs" class="active"><span class="nav-icon">👥</span> Top Developers</a>
             <a href="#repos"><span class="nav-icon">📦</span> Top Repositories</a>
@@ -131,65 +145,75 @@ $tag_result = mysqli_query($conn, $query);
         <!-- Top Developers Section -->
         <section id="devs" class="explore-section">
           <div class="section-label">Top Developers</div>
-          <?php while($data = mysqli_fetch_assoc($dev_result)){ ?>
-          <div class="follower-list" style="margin-bottom: 30px;">
-            <div class="follower-card anim-fadeup" style="animation-delay:0.1s">
-              <div class="avatar lg"><?php echo get_avatar($data["name"]); ?></div>
-              <div class="follower-info">
-                <a href="user_profile.php?username=<?php echo $data["username"];?>"><div class="follower-name"><?php echo $data["name"];?></div></a>
-                <div class="follower-handle">@<?php echo $data["username"];?></div>
-                <div class="flex items-center gap-12 mt-4">
-                  <span class="repo-meta">📦 <?php echo $data["total_repo"];?> repos</span>
-                  <span class="repo-meta">👥 <?php echo $data["total_follower"];?> followers</span>
+          <?php while ($data = mysqli_fetch_assoc($dev_result)) { ?>
+            <div class="follower-list" style="margin-bottom: 30px;">
+              <div class="follower-card anim-fadeup" style="animation-delay:0.1s">
+                <div class="avatar lg"><?php echo get_avatar($data["name"]); ?></div>
+                <div class="follower-info">
+                  <a href="user_profile.php?username=<?php echo $data["username"]; ?>">
+                    <div class="follower-name"><?php echo $data["name"]; ?></div>
+                  </a>
+                  <div class="follower-handle">@<?php echo $data["username"]; ?></div>
+                  <div class="flex items-center gap-12 mt-4">
+                    <span class="repo-meta">📦 <?php echo $data["total_repo"]; ?> repos</span>
+                    <span class="repo-meta">👥 <?php echo $data["total_follower"]; ?> followers</span>
+                  </div>
+                </div>
+                <div class="flex gap-8">
+                  <a href="user_profile.php?username=<?php echo $data["username"]; ?>"><button
+                      class="btn btn-ghost btn-sm">View Profile</button></a>
                 </div>
               </div>
-              <div class="flex gap-8">
-                <a href="user_profile.php?username=<?php echo $data["username"];?>"><button class="btn btn-ghost btn-sm">View Profile</button></a>
-              </div>
             </div>
-          </div>
-          <?php }?>
+          <?php } ?>
         </section>
 
         <!-- Top Repositories Section -->
         <section id="repos" class="explore-section">
           <div class="section-label">Top Repositories</div>
           <div class="feed-list">
-            <?php while($data = mysqli_fetch_assoc($repo_result)){ ?>
-            <div class="feed-repo-card anim-fadeup" style="animation-delay:0.2s">
-              <div class="frc-top">
-                <div class="frc-meta">
-                  <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
-                  <div>
-                    <a href="view_repo.php?repo_id=<?php echo $data["repo_id"]; ?>"><div class="repo-name"><?php echo $data["repo_title"];?></div></a>
-                    <div class="by">by <a href="user_profile.php?username=<?php echo $data["username"];?>"><strong><?php echo $data["username"];?></strong></a></div>
+            <?php while ($data = mysqli_fetch_assoc($repo_result)) { ?>
+              <div class="feed-repo-card anim-fadeup" style="animation-delay:0.2s">
+                <div class="frc-top">
+                  <div class="frc-meta">
+                    <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
+                    <div>
+                      <a href="view_repo.php?repo_id=<?php echo $data["repo_id"]; ?>">
+                        <div class="repo-name"><?php echo $data["repo_title"]; ?></div>
+                      </a>
+                      <div class="by">by <a
+                          href="user_profile.php?username=<?php echo $data["username"]; ?>"><strong><?php echo $data["username"]; ?></strong></a>
+                      </div>
+                    </div>
                   </div>
+                  <button class="star-btn">☆ <span><?php echo $data["total_star"]; ?></span></button>
                 </div>
-                <button class="star-btn">☆ <span><?php echo $data["total_star"];?></span></button>
+                <p class="frc-desc"><?php echo substr($data["repo_des"], 0, 150); ?>...</p>
+
               </div>
-              <p class="frc-desc"><?php echo substr($data["repo_des"], 0, 150);?>...</p>
-              
-            </div>
-            <?php }?>
+            <?php } ?>
           </div>
         </section>
 
         <!-- Top Tags Section -->
         <section id="tags" class="explore-section">
           <div class="section-label">Top Tags</div>
-            <?php while($data = mysqli_fetch_assoc($tag_result)){ ?>
+          <?php while ($data = mysqli_fetch_assoc($tag_result)) { ?>
             <div class="follower-list" style="margin-bottom: 20px;">
               <div class="follower-card anim-fadeup" style="animation-delay:0.3s">
                 <div class="tag-icon-box">🏷️</div>
                 <div class="follower-info">
-                  <a href="view_tag.php?tag=<?php echo $data["tag_name"]; ?>"><div class="follower-name text-accent mono">#<?php echo $data["tag_name"]; ?></div></a>
+                  <a href="view_tag.php?tag=<?php echo $data["tag_name"]; ?>">
+                    <div class="follower-name text-accent mono">#<?php echo $data["tag_name"]; ?></div>
+                  </a>
                   <p class="text-muted" style="font-size: 13px; margin-top: 4px;"></p>
                   <div class="repo-meta mt-8">📦 <?php echo $data["total_repo"]; ?> repos</div>
                 </div>
-                <a href="view_tag.php?tag=<?php echo $data["tag_name"]; ?>"><button class="btn btn-ghost btn-sm">Browse Tag</button></a>
+                <a href="view_tag.php?tag=<?php echo $data["tag_name"]; ?>"><button class="btn btn-ghost btn-sm">Browse
+                    Tag</button></a>
               </div>
             </div>
-            <?php } ?>
+          <?php } ?>
         </section>
       </main>
 
@@ -231,7 +255,7 @@ $tag_result = mysqli_query($conn, $query);
       });
     });
 
-    
+
     // // Star toggle
     // function toggleStar(btn) {
     //   const starred = btn.classList.contains('starred');

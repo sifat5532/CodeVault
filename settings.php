@@ -7,6 +7,8 @@ if(!isset($_SESSION["id"])){
 
 require "php/config.php";
 require "php/utility.php";
+require "php/user_info.php";
+$logged_in_user = new User($_SESSION["id"], $conn);
 
 $user_id = $_SESSION["id"];
 $query = "SELECT * FROM user WHERE id = '$user_id' LIMIT 1;";
@@ -42,7 +44,11 @@ if(isset($_POST["dlt_btn"])){
   <script src="script.js"></script>
 
 </head>
-
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 <body>
 
   <!-- ===== NAVBAR ===== -->
@@ -69,12 +75,16 @@ if(isset($_POST["dlt_btn"])){
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="#">⚙️ Settings</a>

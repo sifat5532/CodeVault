@@ -5,6 +5,11 @@ $search_for=$_GET["search"];
 //developers
 require "php/config.php";
 require "php/utility.php";
+require "php/user_info.php";
+$logged_in_user = null;
+if (isset($_SESSION["id"])) {
+  $logged_in_user = new User($_SESSION["id"], $conn);
+}
 if($search_for != "")
 {
 $query="SELECT user.name,user.user_name,user.bio,
@@ -52,7 +57,11 @@ $total=$dev_count+$repo_count+$tag_count;
   <title>Search Results — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 <body>
 
   <!-- ===== NAVBAR ===== -->
@@ -79,12 +88,14 @@ $total=$dev_count+$repo_count+$tag_count;
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user && $logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()"><?php if(isset($logged_in_user)){ echo get_avatar($logged_in_user->getName()); } else { echo "null"; } ?></div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>

@@ -12,6 +12,8 @@ if (!isset($_GET["repo_id"])) {
 require "php/config.php";
 require "php/utility.php";
 require 'php/send_notification.php';
+require "php/user_info.php";
+$logged_in_user = new User($_SESSION["id"], $conn);
 
 $repo_id = $_GET["repo_id"];
 
@@ -227,7 +229,7 @@ $contributor_result = mysqli_query($conn, $query);
       <form method="get" action="search.php">
         <input type="text" name="search" placeholder="Search repos, developers…" />
       </form>
-  </nav>
+    </div>
 
   <div class="nav-right">
     <a href="new_repository.php"><button class="btn btn-primary btn-sm new-repo-btn">+ New Repo</button></a>
@@ -235,12 +237,16 @@ $contributor_result = mysqli_query($conn, $query);
     <a href="notification.php">
       <div class="notif-btn">
         🔔
-        <div class="notif-dot"></div>
+        <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+          <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+        <?php endif; ?>
       </div>
     </a>
 
     <div class="user-menu">
-      <div class="avatar" onclick="toggleDropdown()">RK</div>
+      <div class="avatar" onclick="toggleDropdown()">
+        <?php echo get_avatar($logged_in_user->getName()); ?>
+      </div>
       <div class="user-dropdown" id="userDropdown">
         <a href="profile.php">👤 My Profile</a>
         <a href="settings.php">⚙️ Settings</a>

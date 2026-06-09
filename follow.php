@@ -1,9 +1,9 @@
 <?php
-// session_start();
-// if(!isset($_SESSION["id"])){
-//   header("Location: login.php");
-//   exit();
-// }
+session_start();
+if(!isset($_SESSION["id"])){
+  header("Location: login.php");
+  exit();
+}
 
 if(isset($_GET["type"])){
   $type = $_GET["type"];
@@ -18,8 +18,9 @@ if($type != "Followers" && $type != "Followings"){
 
 require "php/config.php";
 require "php/utility.php";
-// $id = $_SESSION["id"];
-$id = 1;
+require "php/user_info.php";
+$id = $_SESSION["id"];
+$logged_in_user = new User($id, $conn);
 if($type === "Followers"){
   $query = "SELECT COUNT(follower.who_is_being_followed) as total FROM follower WHERE follower.who_is_being_followed = $id;";
   $query_user_list = "
@@ -99,12 +100,16 @@ $result_follow=mysqli_query($conn,$query);
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
@@ -122,20 +127,20 @@ $result_follow=mysqli_query($conn,$query);
       <!-- ===== LEFT SIDEBAR ===== -->
       <aside class="sidebar-left">
         <div class="sidebar-profile">
-          <div class="avatar xl">RK</div>
-          <div class="profile-name">Rafid Khan</div>
-          <div class="profile-handle">@rafidkhan</div>
+          <div class="avatar xl"><?php echo get_avatar($logged_in_user->getName()); ?></div>
+          <div class="profile-name"><?php echo $logged_in_user->getName(); ?></div>
+          <div class="profile-handle">@<?php echo $logged_in_user->getUsername(); ?></div>
           <div class="profile-stats">
             <div class="profile-stat">
-              <div class="n">14</div>
+              <div class="n"><?php echo $logged_in_user->getTotalRepo(); ?></div>
               <div class="l">Repos</div>
             </div>
             <div class="profile-stat">
-              <div class="n">86</div>
+              <div class="n"><?php echo $logged_in_user->getTotalFollowers(); ?></div>
               <div class="l">Followers</div>
             </div>
             <div class="profile-stat">
-              <div class="n">53</div>
+              <div class="n"><?php echo $logged_in_user->getTotalStars(); ?></div>
               <div class="l">Stars</div>
             </div>
           </div>

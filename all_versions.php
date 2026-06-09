@@ -11,6 +11,11 @@ if (isset($_GET["repo_id"])) {
 
 require "php/config.php";
 require "php/utility.php";
+require "php/user_info.php";
+$logged_in_user = null;
+if (isset($_SESSION["id"])) {
+  $logged_in_user = new User($_SESSION["id"], $conn);
+}
 
 $query = "SELECT * FROM repo WHERE id='$repo_id'";
 if ($result = mysqli_query($conn, $query)) {
@@ -110,13 +115,14 @@ function is_a_contributor($user_id, $repo_id, $conn)
 
       <a href="notification.php">
         <div class="notif-btn">
-          🔔
-          <div class="notif-dot"></div>
+          🔔<?php if (isset($logged_in_user) && $logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()"><?php if(isset($logged_in_user)){ echo get_avatar($logged_in_user->getName()); } else { echo "null"; } ?></div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>

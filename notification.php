@@ -7,8 +7,9 @@ if (!isset($_SESSION['id'])) {
 require "php/config.php";
 require "php/get_notification_element.php";
 require "php/utility.php";
-
+require "php/user_info.php";
 $id = $_SESSION['id'];
+$logged_in_user = new User($id, $conn);
 $query = "SELECT 
               notification.*,
               user.user_name AS username,
@@ -46,7 +47,11 @@ $result = mysqli_query($conn, $query);
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
   <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 </head>
-
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 <body>
 
   <!-- ===== NAVBAR (Shared from feed.php) ===== -->
@@ -73,12 +78,16 @@ $result = mysqli_query($conn, $query);
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
@@ -159,6 +168,7 @@ $result = mysqli_query($conn, $query);
           element.classList.remove('unread');
         });
         notyf.success('All notifications marked as read');
+        document.getElementsByClassName("notif-badge")[0].style.display = "none";
       }else{
         notyf.error("Error! Please try again later.");
       }

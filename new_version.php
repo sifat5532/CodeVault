@@ -10,6 +10,9 @@ if (!isset($_GET['repo_id'])) {
   exit();
 }
 require "php/config.php";
+require "php/user_info.php";
+require "php/utility.php";
+$logged_in_user = new User($_SESSION['id'], $conn);
 
 $repo_id = $_GET['repo_id'];
 $query = "SELECT
@@ -199,12 +202,16 @@ function insert_notifications($conn, $type, $repo_id, $sender_id)
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="#">⚙️ Settings</a>

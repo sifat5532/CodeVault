@@ -8,7 +8,8 @@ $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
 require "php/send_notification.php";
-
+require "php/user_info.php";
+$logged_in_user = new User($user_id, $conn);
 // remove contribution
 $notif = null;
 if (isset($_POST["rmv_contribution_btn"]) && isset($_POST["rmv_contribution_repo"])) {
@@ -123,12 +124,16 @@ $total_contributed = mysqli_num_rows($contributed_result);
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>

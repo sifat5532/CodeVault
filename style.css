@@ -1726,6 +1726,27 @@ footer {
 }
 
 /* ---- Notification bell ---- */
+
+.notif-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 8px rgba(79, 142, 247, 0.5);
+  line-height: 1;
+}
 .notif-btn {
   position: relative;
   width: 34px;
