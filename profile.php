@@ -111,26 +111,26 @@ if (mysqli_num_rows($result) == 0) {
           <div class="widget-header">Statistics</div>
           <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
             <a href="followers.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-              <div class="n"><?php if (isset($stat_data["followers"])) {
-                                echo $stat_data["followers"];
+              <div class="n"><?php if (isset($data["followers"])) {
+                                echo $data["followers"];
                               }  ?></div>
               <div class="l">Followers</div>
             </a>
             <a href="following.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-              <div class="n"><?php if (isset($stat_data["following"])) {
-                                echo $stat_data["following"];
+              <div class="n"><?php if (isset($data["following"])) {
+                                echo $data["following"];
                               }  ?></div>
               <div class="l">Following</div>
             </a>
             <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
-              <div class="n"><?php if (isset($stat_data["created_repo"]) || isset($stat_data["contributed_repo"])) {
-                                echo $stat_data["created_repo"] + $stat_data["contributed_repo"];
+              <div class="n"><?php if (isset($data["created_repo"]) || isset($data["contributed_repo"])) {
+                                echo $data["created_repo"] + $data["contributed_repo"];
                               }  ?></div>
               <div class="l">Projects</div>
             </div>
             <div class="profile-stat" style="width: 33%;">
-              <div class="n"><?php if (isset($stat_data["starred_repo"])) {
-                                echo $stat_data["starred_repo"];
+              <div class="n"><?php if (isset($data["starred_repo"])) {
+                                echo $data["starred_repo"];
                               }   ?></div>
               <div class="l">Stars</div>
             </div>

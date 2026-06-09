@@ -1,7 +1,7 @@
 <?php
 session_start();
 $user_id = $_SESSION["id"];
-$profile_name = "fhm";
+$profile_name = $_GET["username"];
 $user_name = $_SESSION["username"];
 
 require "php/config.php";
@@ -239,7 +239,7 @@ if ($profile_name === $user_name) {
                     ?>
                             <div class="feed-repo-card" style="margin-bottom: 20px;">
                                 <div class="frc-top">
-                                    <a href="view_repo.php" class="repo-name"><?php echo $data["title"]; ?></a>
+                                    <p class="repo-name"><?php echo $data["title"]; ?></p>
                                     <div>
                                         <button class="star-btn starred">★ <span><?php echo $data["stars"]; ?></span></button>
                                         <div class="version-chip">v<?php echo $data["version_number"]; ?></div>
