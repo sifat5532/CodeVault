@@ -1,8 +1,18 @@
 <?php
 session_start();
-$user_id = $_SESSION["id"];
-$profile_name = $_GET["username"];
-$user_name = $_SESSION["username"];
+$user_id = null;
+$user_name = null;
+if (isset($_SESSION["id"]) && isset($_SESSION["username"])) {
+    $user_id = $_SESSION["id"];
+    $user_name = $_SESSION["username"];
+}
+$profile_name = null;
+if(isset($_GET["username"])) {
+    $profile_name = $_GET["username"];
+} else {
+    header("Location: index.php");
+    exit();
+}
 
 require "php/config.php";
 require "php/utility.php";
@@ -131,7 +141,9 @@ $total_contributed = mysqli_num_rows($contributed_result);
 
         <div class="nav-search">
             <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search repos, developers…" />
+            <form method="get" action="search.php">
+                <input type="text" name="search" placeholder="Search repos, developers…" />
+            </form>
         </div>
 
         <div class="nav-right">
@@ -150,7 +162,7 @@ $total_contributed = mysqli_num_rows($contributed_result);
                     <a href="profile.php">👤 My Profile</a>
                     <a href="settings.php">⚙️ Settings</a>
                     <div class="dd-divider"></div>
-                    <a href="index.php" class="danger">🚪 Sign out</a>
+                    <a href="php/logout.php" class="danger">🚪 Sign out</a>
                 </div>
             </div>
         </div>
@@ -226,7 +238,8 @@ $total_contributed = mysqli_num_rows($contributed_result);
                         <button class="filter-btn active" id="btn-created" onclick="toggleProjects('created')">Created
                             Repositories(<?php echo $total_created; ?>)</button>
                         <button class="filter-btn" id="btn-contributing"
-                            onclick="toggleProjects('contributing')">Contributing Repositories(<?php echo $total_contributed; ?>)</button>
+                            onclick="toggleProjects('contributing')">Contributing
+                            Repositories(<?php echo $total_contributed; ?>)</button>
                     </div>
                 </div>
 
@@ -292,7 +305,7 @@ $total_contributed = mysqli_num_rows($contributed_result);
                     <!-- Card 2 -->
                     <?php
                     if ($contributed_result && mysqli_num_rows($contributed_result) > 0) {
-                        while ($data = mysqli_fetch_assoc($contributed_result)) {?>
+                        while ($data = mysqli_fetch_assoc($contributed_result)) { ?>
                             <div class="feed-repo-card" style="margin-bottom: 20px;">
                                 <div class="frc-top">
                                     <p class="repo-name"><?php echo $data["title"]; ?></p>

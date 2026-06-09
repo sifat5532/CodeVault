@@ -224,7 +224,9 @@ $contributor_result = mysqli_query($conn, $query);
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" />
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search repos, developers…" />
+      </form>
   </nav>
 
   <div class="nav-right">
@@ -243,7 +245,7 @@ $contributor_result = mysqli_query($conn, $query);
         <a href="profile.php">👤 My Profile</a>
         <a href="settings.php">⚙️ Settings</a>
         <div class="dd-divider"></div>
-        <a href="index.php" class="danger">🚪 Sign out</a>
+        <a href="php/logout.php" class="danger">🚪 Sign out</a>
       </div>
     </div>
   </div>

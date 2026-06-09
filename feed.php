@@ -125,7 +125,9 @@ $result_tag = mysqli_query($conn, $query);
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" />
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search repos, developers…" />
+      </form>
     </div>
 
     <div class="nav-right">
@@ -144,7 +146,7 @@ $result_tag = mysqli_query($conn, $query);
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.php" class="danger">🚪 Sign out</a>
+          <a href="php/logout.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -217,7 +219,7 @@ $result_tag = mysqli_query($conn, $query);
                   <!-- <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button> -->
                 </div>
                 <p class="frc-desc"><?php if (isset($data['description']))
-                  echo $data['description']; ?></p>
+                  echo substr($data['description'], 0, 150) . '...'; ?></p>
                 <div class="frc-footer">
                   <div class="version-chip">✦ v<?php echo $data['version_number']; ?></div>
                   <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">

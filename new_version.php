@@ -188,7 +188,9 @@ function insert_notifications($conn, $type, $repo_id, $sender_id)
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" />
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search repos, developers…" />
+      </form>
     </div>
 
     <div class="nav-right">
@@ -207,7 +209,7 @@ function insert_notifications($conn, $type, $repo_id, $sender_id)
           <a href="profile.php">👤 My Profile</a>
           <a href="#">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.php" class="danger">🚪 Sign out</a>
+          <a href="php/logout.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>

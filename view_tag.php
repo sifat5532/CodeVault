@@ -26,7 +26,7 @@ $data = mysqli_fetch_assoc($result);
 if ($data['repo_count'] == 0) {
     header("Location: feed.php");
     exit();
-}?>
+} ?>
 
 ?>
 
@@ -55,7 +55,9 @@ if ($data['repo_count'] == 0) {
 
         <div class="nav-search">
             <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search repos, developers…" />
+            <form method="get" action="search.php">
+                <input type="text" name="search" placeholder="Search repos, developers…" />
+            </form>
         </div>
 
         <div class="nav-right">
@@ -74,7 +76,7 @@ if ($data['repo_count'] == 0) {
                     <a href="profile.php">👤 My Profile</a>
                     <a href="settings.php">⚙️ Settings</a>
                     <div class="dd-divider"></div>
-                    <a href="index.php" class="danger">🚪 Sign out</a>
+                    <a href="php/logout.php" class="danger">🚪 Sign out</a>
                 </div>
             </div>
         </div>
@@ -87,17 +89,23 @@ if ($data['repo_count'] == 0) {
             <!-- ===== TAG PROFILE SIDEBAR ===== -->
             <aside class="sidebar-left">
                 <div class="sidebar-profile">
-                    <div class="tag-icon-box" style="margin: 0 auto 12px; width: 72px; height: 72px; font-size: 32px;">🏷️</div>
+                    <div class="tag-icon-box" style="margin: 0 auto 12px; width: 72px; height: 72px; font-size: 32px;">
+                        🏷️</div>
                     <div class="profile-name" style="font-size: 24px; margin-top: 12px;">#<?php echo $tag_name; ?></div>
 
 
 
                     <div class="profile-info-list"
                         style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
-                        <div class="repo-meta" style="margin-bottom: 8px;">📁 <?php echo $data["repo_count"]; ?> Repositories</div>
-                        <div class="repo-meta" style="margin-bottom: 8px;">👥 <?php echo $data["dev_count"]; ?> Developers</div>
-                        <div class="repo-meta" style="margin-bottom: 8px;"><?php if (isset($data['created_at'])) {  ?>📅 Created in <?php echo date("Y", strtotime($data['created_at']));
-                                                                                                                                } ?></div>
+                        <div class="repo-meta" style="margin-bottom: 8px;">📁 <?php echo $data["repo_count"]; ?>
+                            Repositories</div>
+                        <div class="repo-meta" style="margin-bottom: 8px;">👥 <?php echo $data["dev_count"]; ?>
+                            Developers</div>
+                        <div class="repo-meta" style="margin-bottom: 8px;"><?php if (isset($data['created_at'])) { ?>📅
+                                Created in
+                                <?php echo date("Y", strtotime($data['created_at']));
+                        } ?>
+                        </div>
                     </div>
                 </div>
 
@@ -108,8 +116,13 @@ if ($data['repo_count'] == 0) {
             <main class="feed-main">
                 <div class="feed-header">
                     <div>
-                        <h2 style="font-size: 20px;">Repositories tagged with <span class="text-accent">#<?php echo $tag_name;   ?></span></h2>
-                        <?php if ($data["repo_count"] > 0) { ?> <p class="text-muted" style="font-size: 14px; margin-top: 4px;">Showing <?php echo $data["repo_count"];  ?> total repositories using this tag</p><?php } else { ?> <p class="text-muted" style="font-size: 14px; margin-top: 4px;">No repositorie found using this tag</p><?php } ?>
+                        <h2 style="font-size: 20px;">Repositories tagged with <span
+                                class="text-accent">#<?php echo $tag_name; ?></span></h2>
+                        <?php if ($data["repo_count"] > 0) { ?>
+                            <p class="text-muted" style="font-size: 14px; margin-top: 4px;">Showing
+                                <?php echo $data["repo_count"]; ?> total repositories using this tag</p><?php } else { ?>
+                            <p class="text-muted" style="font-size: 14px; margin-top: 4px;">No repositorie found using this
+                                tag</p><?php } ?>
                     </div>
                 </div>
 
@@ -124,9 +137,9 @@ if ($data['repo_count'] == 0) {
                             ORDER BY repo.created_at DESC";
                     $result = mysqli_query($conn, $query);
                     while ($data = mysqli_fetch_assoc($result)) {
-                       
 
-                    ?>
+
+                        ?>
                         <!-- Tagged Repo 1 -->
                         <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
                             <div class="frc-top">
@@ -136,20 +149,22 @@ if ($data['repo_count'] == 0) {
                                         <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>">
                                             <div class="repo-name"><?php echo $data['title']; ?></div>
                                         </a>
-                                        <div class="by">by <strong><?php echo $data["user_name"];    ?></strong></a></div>
+                                        <div class="by">by <strong><?php echo $data["user_name"]; ?></strong></a></div>
                                     </div>
                                 </div>
 
                             </div>
-                            <p class="frc-desc"><?php if (isset($data["description"])) echo $data["description"];    ?></p>
+                            <p class="frc-desc"><?php if (isset($data["description"]))
+                                echo $data["description"]; ?></p>
                             <div class="frc-footer">
 
-                                <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated <?php echo timeAgo($data["created_at"]);     ?> ago</div>
+                                <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated
+                                    <?php echo timeAgo($data["created_at"]); ?> ago</div>
 
                             </div>
                         </div>
-                    <?php } 
-                        ?>
+                    <?php }
+                    ?>
             </main>
 
             <!-- ===== RIGHT SIDEBAR ===== -->
@@ -192,7 +207,7 @@ if ($data['repo_count'] == 0) {
         function toggleDropdown() {
             document.getElementById('userDropdown').classList.toggle('open');
         }
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const menu = document.querySelector('.user-menu');
             if (!menu.contains(e.target)) {
                 document.getElementById('userDropdown').classList.remove('open');
