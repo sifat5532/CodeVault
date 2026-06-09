@@ -20,6 +20,7 @@ $query = "SELECT
               user.id AS user_id,
               user.name,
               user.user_name,
+              user.notification_settings,
               user.bio,
               (SELECT COUNT(*) FROM stars WHERE stars.repo_id = repo.id) AS total_stars,
               (SELECT COUNT(*) FROM contributor WHERE contributor.repo_id = repo.id) AS total_contributors,
@@ -211,7 +212,7 @@ usort($files, function ($a, $b) {
         <!-- Stats & Actions Bar -->
         <div class="repo-stats-grid">
           <div class="repo-stat-box">
-            <div class="val"><?php echo $data["total_stars"];?></div>
+            <div class="val" id="star_count"><?php echo $data["total_stars"];?></div>
             <div class="lbl">Stars</div>
           </div>
           <div class="repo-stat-box">
@@ -355,17 +356,21 @@ usort($files, function ($a, $b) {
     // add or remove from starred repos
 
     const const_repo_id = <?php echo $repo_id; ?>;
+    const star_count_elem = document.getElementById("star_count");
     let star_btn = document.getElementById("star_btn");
     star_btn.addEventListener("click", change_star);
     
     async function change_star() {
+        let settings = "<?php echo $data["notification_settings"]; ?>";
         let response = await fetch("php/toggle_star.php", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            repo_id: const_repo_id
+            repo_id: const_repo_id,
+            author_id: <?php echo $data["user_id"]; ?>,
+            notification_settings: settings
           })
         });
         let data = await response.json();
@@ -373,9 +378,11 @@ usort($files, function ($a, $b) {
           if(data.is_starred == true){
             star_btn.classList.add("starred");
             star_btn.innerHTML = "★ Starred";
+            star_count_elem.innerHTML = parseInt(star_count_elem.innerHTML) + 1;
           }else{
             star_btn.classList.remove("starred");
             star_btn.innerHTML = "☆ Star";
+            star_count_elem.innerHTML = parseInt(star_count_elem.innerHTML) - 1;
           }
         }else{
           if(data.is_logged_in == false){
