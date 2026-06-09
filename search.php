@@ -1,3 +1,51 @@
+<?php 
+session_start();
+$searh_for=$_GET[""];
+$search_for='little star';
+//developers
+require "php/config.php";
+require "php/utility.php";
+$query="SELECT user.user_name,user.bio,
+        (SELECT COUNT(*) FROM repo WHERE repo.creator=user.id)AS total_repo,
+        (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed=user.id)AS total_follower
+        FROM user
+        WHERE user.user_name='$search_for'
+        UNION
+        SELECT  user.user_name,user.bio,
+        (SELECT COUNT(*) FROM repo WHERE repo.creator=user.id),
+        (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed=user.id)
+        FROM user
+        WHERE user.name='$search_for'";
+ $dev=mysqli_query($conn,$query);
+ $dev_count=mysqli_num_rows($dev);
+ //repo
+  $query="SELECT user.id,user.user_name,repo.id,repo.title,repo.description,
+            (SELECT COUNT(*) FROM stars  WHERE stars.repo_id=repo.id)
+            FROM repo
+             JOIN user ON user.id=repo.creator
+             WHERE repo.title='$search_for'
+             GROUP BY repo.id
+            ORDER BY repo.created_at DESC";
+$repo=mysqli_query($conn,$query);
+$repo_count=mysqli_num_rows($repo);
+
+
+//tag
+$query="SELECT tag.tag_name,COUNT(DISTINCT tag.repo_id)AS total_repo
+        FROM tag WHERE tag.tag_name='$search_for'";
+$tag=mysqli_query($conn,$query);
+$tag_count=mysqli_num_rows($tag);
+$total=$dev_count+$repo_count+$tag_count;
+
+
+
+
+
+?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -57,13 +105,13 @@
         <div class="section-label" style="margin-left: 16px; margin-bottom: 8px;">Filter by</div>
         <nav class="sidebar-nav">
           <a href="#" class="active all_results_btn" onclick="filterResult(0)"><span class="nav-icon">📁</span>
-            All Results <span class="nav-badge">124</span></a>
+            All Results <span class="nav-badge"><?php     echo $total;   ?></span></a>
           <a href="#" class="repo_results_btn" onclick="filterResult(1)"><span class="nav-icon">📦</span> Repositories
-            <span class="nav-badge">86</span></a>
+            <span class="nav-badge"><?php     echo $repo_count;     ?></span></a>
           <a href="#" class="dev_results_btn" onclick="filterResult(2)"><span class="nav-icon">👥</span> Developers
-            <span class="nav-badge">32</span></a>
+            <span class="nav-badge"><?php echo $dev_count;  ?></span></a>
           <a href="#" class="tags_results_btn" onclick="filterResult(3)"><span class="nav-icon">🏷️</span> Tags <span
-              class="nav-badge">6</span></a>
+              class="nav-badge"><?php echo $tag_count; ?></span></a>
 
         </nav>
       </aside>
@@ -72,102 +120,88 @@
       <main class="feed-main">
         <div class="feed-header">
           <div>
-            <h2 style="font-size: 18px;">Results for <span class="text-accent">"react dashboard"</span></h2>
-            <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Found 124 results across the vault</p>
+            <h2 style="font-size: 18px;">Results for <span class="text-accent"> <?php echo '  "'.$search_for.'"'; ?></span></h2>
+            <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Found <?php $total ?> results across the vault</p>
           </div>
           <nav class="mobile-search-filters">
             <a href="#" class="active all_results_btn" onclick="filterResult(0)"><span class="nav-icon">📁</span> All
-              Results <span class="nav-badge">124</span></a>
+              Results <span class="nav-badge"><?php     echo $total;   ?></span></a>
             <a href="#" class="repo_results_btn" onclick="filterResult(1)"><span class="nav-icon">📦</span> Repositories
-              <span class="nav-badge">86</span></a>
+              <span class="nav-badge"><?php     echo $repo_count;     ?></span></a>
             <a href="#" class="dev_results_btn" onclick="filterResult(2)"><span class="nav-icon">👥</span> Developers
-              <span class="nav-badge">32</span></a>
+              <span class="nav-badge"><?php echo $dev_count;  ?></span></a>
             <a href="#" class="tags_results_btn" onclick="filterResult(3)"><span class="nav-icon">🏷️</span> Tags <span
-                class="nav-badge">6</span></a>
+                class="nav-badge"><?php echo $tag_count; ?></span></a>
         </div>
 
         <div class="feed-list">
-
+          <?php  
+          while($data=mysqli_fetch_assoc($repo)){      ?>
           <!-- Repository Result -->
           <div class="repo_result_card feed-repo-card anim-fadeup" style="animation-delay:0.05s">
             <div class="frc-top">
               <div class="frc-meta">
-                <div class="avatar">NJ</div>
+                <div class="avatar"><?php    echo get_avatar($data["user_name"]);     ?></div>
                 <div>
-                  <a href="view_repo.php" class="repo-name">neeraj_dev / react-dashboard-kit</a>
-                  <div class="by">by <a href="user_profile.php"><strong>neeraj_dev</strong></a></div>
+                  <a href="view_repo.php?repo_id=<?php echo $data['id'] ?>" class="repo-name"><?php echo $data["title"];       ?></a>
+                  <div class="by">by <a href="user_profile.php?username=<?php   echo $data['user_name'];      ?>"><strong><?php echo  $data["user_name"]; ?></strong></a></div>
                 </div>
               </div>
-              <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button>
+
             </div>
-            <p class="frc-desc">A lightweight, zero-dependency React dashboard component library. Now with dark mode
-              support and improved chart rendering.</p>
+            <p class="frc-desc"><?php  if(isset($data["description"])) echo $data["description"];        ?></p>
             <div class="frc-footer">
-              <div class="version-chip">✦ v4</div>
-              <a href="view_tag.php" class="tag">react</a>
-              <a href="view_tag.php" class="tag">dashboard</a>
-              <a href="view_repo.php" class="btn btn-ghost btn-sm" style="margin-left: auto;">View Repository</a>
+          
+            
             </div>
           </div>
+          <?php   }  ?>
 
           <!-- Developer Result -->
+
+          <?php     
+          while($data=mysqli_fetch_assoc($dev)){      ?>
           <div class="dev_result_card follower-card anim-fadeup" style="animation-delay:0.1s">
-            <div class="avatar lg">MZ</div>
+            <div class="avatar lg"><?php echo get_avatar($data["user_name"]);    ?></div>
             <div class="follower-info">
-              <div class="follower-name">man_zhang</div>
-              <div class="follower-handle">@man_zhang</div>
-              <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Frontend Architect building React
-                dashboards and data viz tools.</p>
+              <a href="user_profile.php?username=<?php $data['user_name'];  ?>" class="follower-name"><?php   echo $data["user_name"];      ?></div>
+              <div class="follower-handle">@<?php  echo $data['user_name'] ?></div>
+              <p class="text-muted" style="font-size: 13px; margin-top: 4px;">
+                      <?php    if(isset($data["bio"]))   echo $data["bio"];            ?></p>
               <div class="flex items-center gap-12 mt-8">
-                <span class="repo-meta">📦 24 repos</span>
-                <span class="repo-meta">👥 1.2k followers</span>
+                <span class="repo-meta">📦 <?php echo $data["total_repo"];  ?> repos</span>
+                <span class="repo-meta">👥 <?php echo $data["total_follower"]; ?> followers</span>
               </div>
             </div>
             <div class="flex flex-col gap-8">
 
-              <button class="btn btn-ghost btn-sm">View Profile</button>
+             
             </div>
-          </div>
+         
+          <?php  }?>
 
-          <!-- Repository Result 2 -->
-          <div class="repo_result_card feed-repo-card anim-fadeup" style="animation-delay:0.15s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">AM</div>
-                <div>
-                  <div class="repo-name">alex_m / admin-panel-react</div>
-                  <div class="by">by <strong>alex_m</strong></div>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>531</span></button>
-            </div>
-            <p class="frc-desc">Professional admin panel template built with React, Tailwind, and Recharts. Highly
-              customizable and responsive.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v12</div>
-              <span class="tag">tailwind</span>
-              <span class="tag">admin</span>
-              <button class="btn btn-ghost btn-sm" style="margin-left: auto;">View Repository</button>
-            </div>
-          </div>
+         <?php  
+         while($data=mysqli_fetch_assoc($tag) )
+         { ?>
 
           <!-- Tag Result -->
           <div class="tag_result_card follower-card anim-fadeup" style="animation-delay:0.2s">
             <div class="tag-icon-box">🏷️</div>
             <div class="follower-info">
-              <div class="follower-name text-accent mono">#react</div>
-              <div class="follower-handle">Technology Tag</div>
-              <p class="text-muted" style="font-size: 13px; margin-top: 4px;">The most popular UI library. Includes
-                results for React components, hooks, and frameworks like Next.js.</p>
+              <a href="view_tag.php?tag=<?php echo $data["tag_name"];   ?> " class="follower-name text-accent mono">#<?php echo $data["tag_name"]  ; ?></div>
+            
+            
               <div class="flex items-center gap-12 mt-8">
-                <span class="repo-meta">📦 980 repos</span>
-                <span class="repo-meta">🔥 12 uploads today</span>
-              </div>
-            </div>
+                <span class="repo-meta">📦 <?php echo $data["total_repo"];   ?> repos</span>
+               </div>
+              
+       
+            
             <div class="flex flex-col gap-8">
-              <button class="btn btn-ghost btn-sm">Browse Tag</button>
+
             </div>
           </div>
+          <?php  }?>
 
           <!-- Empty State (Hidden by default, used when no results found) -->
           <div class="notif-empty anim-fadein" style="display: none;">
