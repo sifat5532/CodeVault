@@ -63,7 +63,7 @@ if (isset($_POST["create_btn"])) {
             insert_tag_names($conn, $repo_id, $destinition);
 
             // adding the notifciations to database
-            insert_notifications($conn, $repo_id, $creator, $title);
+            insert_notifications($conn, "new_repo", $repo_id, $creator);
           } else
             $msg = "<div style='color: #dc3545'>Error! Please Try Again .</div>";
         } else
@@ -116,7 +116,7 @@ function insert_tag_names($conn, $repo_id, $zipFileName)
 }
 
 
-function insert_notifications($conn, $repo_id, $creator, $title)
+function insert_notifications($conn, $type, $repo_id, $creator)
 {
   $result = mysqli_query(
     $conn,
@@ -137,9 +137,9 @@ function insert_notifications($conn, $repo_id, $creator, $title)
   for ($i = 0; $i < $count; $i++) {
     $follower_id = $followers[$i];
     if ($i == $count - 1) {
-      $query .= "('$creator', '$follower_id', '$repo_id', 0, 'new_repo')";
+      $query .= "('$creator', '$follower_id', '$repo_id', 0, '$type')";
     } else {
-      $query .= "('$creator', '$follower_id', '$repo_id', 0, 'new_repo'), ";
+      $query .= "('$creator', '$follower_id', '$repo_id', 0, '$type'), ";
     }
   }
   $query .= ";";
