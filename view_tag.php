@@ -5,11 +5,17 @@ $tag_name = $_GET["tag"];
 require "php/config.php";
 require "php/utility.php";
 $query = "SELECT COUNT(DISTINCT tag.repo_id) AS repo_count,
- COUNT(DISTINCT repo.creator) AS creator_count,
- COUNT(DISTINCT contributor.user_id) AS contributor_count,
+  (SELECT COUNT(DISTINCT user.id)
+  FROM(
+  SELECT repo.creator from repo 
+  JOIN tag ON tag.repo_id=repo.id
+  UNiON
+  SELECT contributor.user_id from contributor
+  JOIN tag ON tag.repo_id=contributor.repo_id
+  WHERE tag.tag_name='$tag_name'
+    )AS dev_count,
  MIN(repo.created_at) AS created_at FROM tag
  JOIN repo ON repo.id=tag.repo_id
- LEFT JOIN contributor ON contributor.repo_id=repo.id
  WHERE tag.tag_name='$tag_name' ";
 $result = mysqli_query($conn, $query);
 if (mysqli_num_rows($result) == 0) {
@@ -87,7 +93,7 @@ $data = mysqli_fetch_assoc($result);
                     <div class="profile-info-list"
                         style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
                         <div class="repo-meta" style="margin-bottom: 8px;">📁 <?php echo $data["repo_count"]; ?> Repositories</div>
-                        <div class="repo-meta" style="margin-bottom: 8px;">👥 <?php echo $data["creator_count"] + $data["contributor_count"]; ?> Developers</div>
+                        <div class="repo-meta" style="margin-bottom: 8px;">👥 <?php echo $data["dev_count"]; ?> Developers</div>
                         <div class="repo-meta" style="margin-bottom: 8px;"><?php if (isset($data['created_at'])) {  ?>📅 Created in <?php echo date("Y", strtotime($data['created_at']));
                                                                                                                                 } ?></div>
                     </div>
