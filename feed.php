@@ -1,3 +1,39 @@
+<?php
+session_start();
+if (!isset($_SESSION["id"])) {
+  header("Location: login.php");
+  exit();
+}
+$user_id = $_SESSION["id"];
+require "php/config.php";
+require "php/utility.php";
+
+//  $query="SELECT follower.who_is_being_followed,user.user_name,
+//          repo.id,repo.title,repo.creator,version.version_number,version.created_at
+//         FROM follower
+//          LEFT  JOIN repo  ON repo.creator=follower.who_is_being_followed 
+//          JOIN user ON user.id=repo.creator
+//          JOIN version ON version.id IN
+//           ( SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id
+//           ) 
+//           WHERE follower.who_is_following='$user_id' AND  repo.visibility='public'
+//           UNION
+$query = "SELECT user.name, user.user_name,
+         repo.id,repo.title,repo.creator,version.version_number,version.created_at
+        FROM stars
+         JOIN  repo ON stars.repo_id=repo.id
+         JOIN user ON user.id=repo.creator
+          JOIN version ON version.id IN
+          ( SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id
+          ) 
+          WHERE stars.user_id='$user_id' 
+          ";
+$result = mysqli_query($conn, $query);
+
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -89,127 +125,37 @@
         <div class="feed-header">
           <h2>Feed</h2>
           <div class="feed-filters">
-            <button class="filter-btn active">All</button>
-            <button class="filter-btn">Following</button>
+
           </div>
         </div>
 
         <div class="feed-list">
+          <?php
+          if ($result && mysqli_num_rows($result) > 0) {
+            while ($data = mysqli_fetch_assoc(($result))) {
+          ?>
+              <!-- Card 1 -->
+              <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
+                <div class="frc-top">
+                  <div class="frc-meta">
+                    <div class="avatar"><?php echo get_avatar($data["user_name"]); ?></div>
+                    <div>
+                      <div class="by"><a href="user_profile.php?username=<?php echo $data['user_name']; ?>"><strong><?php echo $data['user_name'];    ?></strong></a> </div>
+                      <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>" class="repo-name"><?php echo  $data['user_name'] .'/'.$data['title']; ?></a>
+                    </div>
+                  </div>
+                  <!-- <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button> -->
+                </div>
+                <p class="frc-desc"><?php if (isset($data['description']))  echo $data['description'];      ?></p>
+                <div class="frc-footer">
 
-          <!-- Card 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">NJ</div>
-                <div>
-                  <div class="by"><a href="user_profile.php"><strong>neeraj_dev</strong></a> uploaded a new version</div>
-                  <a href="view_repo.php" class="repo-name">neeraj_dev / react-dashboard-kit</a>
+                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php echo timeAgo($data['created_at']);            ?></div>
                 </div>
               </div>
-              <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button>
-            </div>
-            <p class="frc-desc">A lightweight, zero-dependency React dashboard component library. Now with dark mode
-              support and improved chart rendering performance in v4.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v4</div>
-              <a href="view_tag.php" class="tag">react</a>
-              <a href="view_tag.php" class="tag">typescript</a>
-              <a href="view_tag.php" class="tag">dashboard</a>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">2h ago</div>
-            </div>
-          </div>
+          <?php
+            }
+          } ?>
 
-          <!-- Card 2 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.1s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">SL</div>
-                <div>
-                  <div class="by"><a href="user_profile.php"><strong>samon_liu</strong></a> created a new repo</div>
-                  <a href="view_repo.php" class="repo-name">samon_liu / fastapi-boilerplate</a>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>89</span></button>
-            </div>
-            <p class="frc-desc">Production-ready FastAPI starter with JWT auth, PostgreSQL, Docker Compose, and
-              auto-generated Swagger docs. Opinionated, minimal, fast.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v1</div>
-              <a href="view_tag.php" class="tag">python</a>
-              <a href="view_tag.php" class="tag">fastapi</a>
-              <a href="view_tag.php" class="tag">docker</a>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">5h ago</div>
-            </div>
-          </div>
-
-          <!-- Card 3 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.15s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">AM</div>
-                <div>
-                  <div class="by"><strong>alex_m</strong> uploaded a new version</div>
-                  <div class="repo-name">alex_m / cli-toolbelt</div>
-                </div>
-              </div>
-              <button class="star-btn" onclick="toggleStar(this)">☆ <span>34</span></button>
-            </div>
-            <p class="frc-desc">A collection of useful shell utilities for developers — directory cleaner, git alias
-              manager, port killer, and bulk renamer. Now with Windows support.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v7</div>
-              <span class="tag">bash</span>
-              <span class="tag">cli</span>
-              <span class="tag">tools</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Yesterday</div>
-            </div>
-          </div>
-
-          <!-- Card 4 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.2s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">TK</div>
-                <div>
-                  <div class="by"><strong>tomas_k</strong> uploaded a new version</div>
-                  <div class="repo-name">tomas_k / neural-style-lite</div>
-                </div>
-              </div>
-              <button class="star-btn" onclick="toggleStar(this)">☆ <span>211</span></button>
-            </div>
-            <p class="frc-desc">Lightweight neural style transfer in pure PyTorch. Runs on CPU with acceptable speed. No
-              CUDA required. Great for learning how NST works under the hood.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v2</div>
-              <span class="tag">python</span>
-              <span class="tag">ml</span>
-              <span class="tag">pytorch</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">2 days ago</div>
-            </div>
-          </div>
-
-          <!-- Card 5 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.25s">
-            <div class="frc-top">
-              <div class="frc-meta">
-                <div class="avatar">PR</div>
-                <div>
-                  <div class="by"><strong>priya_r</strong> uploaded a new version</div>
-                  <div class="repo-name">priya_r / markdown-to-pdf</div>
-                </div>
-              </div>
-              <button class="star-btn starred" onclick="toggleStar(this)">★ <span>67</span></button>
-            </div>
-            <p class="frc-desc">Convert any Markdown file to a beautifully styled PDF with custom CSS themes. Supports
-              tables, code blocks, and syntax highlighting out of the box.</p>
-            <div class="frc-footer">
-              <div class="version-chip">✦ v3</div>
-              <span class="tag">nodejs</span>
-              <span class="tag">markdown</span>
-              <span class="tag">pdf</span>
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">3 days ago</div>
-            </div>
-          </div>
 
         </div>
       </main>
@@ -286,7 +232,7 @@
     function toggleDropdown() {
       document.getElementById('userDropdown').classList.toggle('open');
     }
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
       const menu = document.querySelector('.user-menu');
       if (!menu.contains(e.target)) {
         document.getElementById('userDropdown').classList.remove('open');
@@ -320,7 +266,7 @@
 
     // Feed filter
     document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
       });
