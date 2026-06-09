@@ -1,5 +1,6 @@
 <?php 
 function get_avatar($string){
+  if($string == null) return "null";
   $words = explode(' ', $string);
   $initials = '';
   foreach ($words as $word) {
