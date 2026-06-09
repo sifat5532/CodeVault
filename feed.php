@@ -180,8 +180,8 @@ $result_tag = mysqli_query($conn, $query);
           <a href="feed.php" class="active"><span class="nav-icon">🏠</span> Home</a>
           <a href="profile.php"><span class="nav-icon">📦</span> My Repos</a>
           <a href="starred.php"><span class="nav-icon">⭐</span> Starred</a>
-          <a href="followers.php"><span class="nav-icon">👥</span> Followers</a>
-          <a href="following.php"><span class="nav-icon">👥</span> Following</a>
+          <a href="follow.php?type=Followers"><span class="nav-icon">👥</span> Followers</a>
+          <a href="follow.php?type=Followings"><span class="nav-icon">👥</span> Following</a>
           <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>
@@ -207,7 +207,8 @@ $result_tag = mysqli_query($conn, $query);
                     <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
                     <div>
                       <div class="by"><a
-                          href="user_profile.php?username=<?php echo $data['user_name']; ?>"><strong><?php echo $data['name']; ?></strong></a> <?php echo $data['in_feed_des']; ?>
+                          href="user_profile.php?username=<?php echo $data['user_name']; ?>"><strong><?php echo $data['name']; ?></strong></a>
+                        <?php echo $data['in_feed_des']; ?>
                       </div>
                       <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>"
                         class="repo-name"><?php echo $data['user_name'] . '/' . $data['title']; ?></a>

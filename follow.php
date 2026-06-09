@@ -143,8 +143,8 @@ $result_follow=mysqli_query($conn,$query);
           <a href="feed.php"><span class="nav-icon">🏠</span> Home</a>
           <a href="profile.php"><span class="nav-icon">📦</span> My Repos</a>
           <a href="starred.php"><span class="nav-icon">⭐</span> Starred</a>
-          <a href="followers.php" class="active"><span class="nav-icon">👥</span> Followers</a>
-          <a href="following.php"><span class="nav-icon">👥</span> Following</a>
+          <a href="follow.php?type=Followers" <?php if(isset($_GET['type']) && $_GET['type'] == 'Followers'): ?>class="active"<?php endif; ?>><span class="nav-icon">👥</span> Followers</a>
+          <a href="follow.php?type=Followings" <?php if(isset($_GET['type']) && $_GET['type'] == 'Followings'): ?>class="active"<?php endif; ?>><span class="nav-icon">👥</span> Following</a>
           <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>

@@ -96,8 +96,8 @@ $result_tag = mysqli_query($conn, $query);
           <a href="feed.php"><span class="nav-icon">🏠</span> Home</a>
           <a href="profile.php"><span class="nav-icon">📦</span> My Repos</a>
           <a href="starred.php" class="active"><span class="nav-icon">⭐</span> Starred</a>
-          <a href="followers.php"><span class="nav-icon">👥</span> Followers</a>
-          <a href="following.php"><span class="nav-icon">👥</span> Following</a>
+          <a href="follow.php?type=Followers"><span class="nav-icon">👥</span> Followers</a>
+          <a href="follow.php?type=Followings"><span class="nav-icon">👥</span> Following</a>
           <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>
