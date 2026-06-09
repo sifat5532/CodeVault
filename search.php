@@ -15,15 +15,15 @@ $query="SELECT user.name,user.user_name,user.bio,
         (SELECT COUNT(*) FROM repo WHERE repo.creator=user.id),
         (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed=user.id)
         FROM user
-        WHERE user.name='$search_for'";
+        WHERE user.name LIKE '%$search_for%' OR user.user_name LIKE '%$search_for%'";
  $dev=mysqli_query($conn,$query);
  $dev_count=mysqli_num_rows($dev);
  //repo
-  $query="SELECT user.id,user.user_name,repo.id,repo.title,repo.description,
+  $query="SELECT user.id, user.name,user.user_name,repo.id,repo.title,repo.description,
             (SELECT COUNT(*) FROM stars  WHERE stars.repo_id=repo.id)AS total_stars
             FROM repo
              JOIN user ON user.id=repo.creator
-             WHERE repo.title='$search_for'
+             WHERE repo.title LIKE '%$search_for%' OR repo.description LIKE '%$search_for%' OR user.user_name LIKE '%$search_for%' OR user.name LIKE '%$search_for%'
              GROUP BY repo.id
             ORDER BY repo.created_at DESC";
 $repo=mysqli_query($conn,$query);
@@ -32,7 +32,7 @@ $repo_count=mysqli_num_rows($repo);
 
 //tag
 $query="SELECT tag.tag_name,COUNT(DISTINCT tag.repo_id)AS total_repo
-        FROM tag WHERE tag.tag_name='$search_for'
+        FROM tag WHERE tag.tag_name LIKE '%$search_for%'
         GROUP BY tag.tag_name";
 $tag=mysqli_query($conn,$query);
 $tag_count=mysqli_num_rows($tag);
@@ -122,7 +122,7 @@ $total=$dev_count+$repo_count+$tag_count;
         <div class="feed-header">
           <div>
             <h2 style="font-size: 18px;">Results for <span class="text-accent"> <?php echo '  "'.$search_for.'"'; ?></span></h2>
-            <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Found <?php $total ?> results across the vault</p>
+            <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Found <?php echo $total ?> results across the vault</p>
           </div>
           <nav class="mobile-search-filters">
             <a href="#" class="active all_results_btn" onclick="filterResult(0)"><span class="nav-icon">📁</span> All
@@ -142,7 +142,7 @@ $total=$dev_count+$repo_count+$tag_count;
           <div class="repo_result_card feed-repo-card anim-fadeup" style="animation-delay:0.05s">
             <div class="frc-top">
               <div class="frc-meta">
-                <div class="avatar"><?php    echo get_avatar($data["user_name"]);     ?></div>
+                <div class="avatar"><?php    echo get_avatar($data["name"]);     ?></div>
                 <div>
                   <a href="view_repo.php?repo_id=<?php echo $data['id'] ?>" class="repo-name"><?php echo $data["title"];       ?></a>
                   <div class="by">by <a href="user_profile.php?username=<?php   echo $data['user_name'];      ?>"><strong><?php echo  $data["user_name"]; ?></strong></a></div>
@@ -163,9 +163,9 @@ $total=$dev_count+$repo_count+$tag_count;
           <?php     
           while($data=mysqli_fetch_assoc($dev)){      ?>
     
-                <div class="follower-list" style="margin-bottom: 30px;">
+          <div class="dev_result_card follower-list">
             <div class="follower-card anim-fadeup" style="animation-delay:0.1s">
-              <div class="avatar lg"><?php echo get_avatar($data["user_name"]);    ?></div>
+              <div class="avatar lg"><?php echo get_avatar($data["name"]);    ?></div>
               <div class="follower-info">
                 <a href="user_profile.php?username=<?php echo $data["user_name"];?>"><div class="follower-name"><?php   echo $data["name"];      ?></div></a>
                 <div class="follower-handle">@<?php echo $data["user_name"];?></div>
@@ -191,15 +191,10 @@ $total=$dev_count+$repo_count+$tag_count;
           <div class="tag_result_card follower-card anim-fadeup" style="animation-delay:0.2s">
             <div class="tag-icon-box">🏷️</div>
             <div class="follower-info">
-              <a href="view_tag.php?tag=<?php echo $data["tag_name"];   ?> " class="follower-name text-accent mono">#<?php echo $data["tag_name"]  ; ?></div>
-            
-            
+              <a href="view_tag.php?tag=<?php echo $data["tag_name"];   ?> " class="follower-name text-accent mono">#<?php echo $data["tag_name"]  ; ?></div></a>
               <div class="flex items-center gap-12 mt-8">
                 <span class="repo-meta">📦 <?php echo $data["total_repo"];   ?> repos</span>
-               </div>
-              
-       
-            
+              </div>
             <div class="flex flex-col gap-8">
 
             </div>
