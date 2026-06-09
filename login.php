@@ -5,6 +5,7 @@ if (isset($_SESSION["id"])) {
   exit();
 }
 require "php/config.php";
+$notif = null;
 if (isset($_POST["login_btn"])) {
   $username_email = $_POST["username_email"];
   $password = $_POST["password"];
@@ -16,17 +17,14 @@ if (isset($_POST["login_btn"])) {
         $_SESSION["id"] = $data["id"];
         $_SESSION["username"] = $data["user_name"];
 
-        $msg = "<div style='color: #28a745'>Login Successfully!</div>";
-
         header("Location: feed.php");
         exit();
-
       } else
-        $msg = "<div style='color: #dc3545'>Invalid username or password</div>";
+        $notif = ["type" => "error", "msg" => "Invalid username or password"];
     } else
-      $msg = "<div style='color: #dc3545'>Invalid username or password</div>";
+      $notif = ["type" => "error", "msg" => "Invalid username or password"];
   } else
-    $msg = "<div style='color: #dc3545'>Invalid username or password</div>";
+    $notif = ["type" => "error", "msg" => "Invalid username or password"];
 
 }
 
@@ -39,6 +37,8 @@ if (isset($_POST["login_btn"])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign in — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
   <style>
     .auth-container {
       display: flex;
@@ -57,7 +57,11 @@ if (isset($_POST["login_btn"])) {
     }
   </style>
 </head>
-
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 <body>
   <nav class="navbar">
     <a href="index.php" class="nav-logo">
@@ -69,9 +73,7 @@ if (isset($_POST["login_btn"])) {
   <main class="page-wrap auth-container">
     <form method="POST" action="" class="auth-card">
       <h2 style="margin-bottom: 24px; text-align: center;">Login to CodeVault</h2>
-      <?php if (isset($msg)) {
-        echo $msg;
-      } ?>
+      
       <div class="form-group">
         <label>Username or Email</label>
         <input type="text" name="username_email" placeholder="you@example.com" />
@@ -96,6 +98,14 @@ if (isset($_POST["login_btn"])) {
     </div>
     <div class="footer-copy">© 2025 CodeVault</div>
   </footer>
+  <?php if ($notif): ?>
+    <script>
+      window.addEventListener('load', function () {
+        let notyf = new Notyf();
+        notyf.<?php echo $notif["type"]; ?>('<?php echo $notif["msg"]; ?>');
+      });
+    </script>
+  <?php endif; ?>
 </body>
 
 </html>

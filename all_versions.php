@@ -1,12 +1,10 @@
 <?php
 session_start();
 
-
-// checking if repo id is set in get method i.e. in the link
 $repo_id = -1;
-if(isset($_GET["repo_id"])){
+if (isset($_GET["repo_id"])) {
   $repo_id = $_GET["repo_id"];
-}else{
+} else {
   header("Location: feed.php");
   exit();
 }
@@ -17,35 +15,47 @@ require "php/utility.php";
 $query = "SELECT * FROM repo WHERE id='$repo_id'";
 if ($result = mysqli_query($conn, $query)) {
   // someone might input a repo id that does not even exit. so check the num of rows of $result
-  if(mysqli_num_rows($result) == 0){
+  if (mysqli_num_rows($result) == 0) {
     header("Location: feed.php");
     exit();
   }
   $data1 = mysqli_fetch_assoc($result);
   // repo public na private check kora lagbe
-  if($data1["visibility"] == "private"){
-    if(!isset($_SESSION["id"])){
-      header("Location: login.php");
+  if ($data1["visibility"] == "private") {
+    if (!isset($_SESSION["id"])) {
+      header("Location: index.php");
       exit();
-    }else{
-      if($data1["user_id"] != $_SESSION["id"]){
-        header("Location: feed.php");
-        exit();
+    } else {
+      if ($data1["creator"] != $_SESSION["id"]) {
+        if (!is_a_contributor($_SESSION["id"], $repo_id, $conn)) {
+          header("Location: index.php");
+          exit();
+        }
       }
     }
   }
-  
-  $repo_title=$data1["title"];
+
+  $repo_title = $data1["title"];
   $creator_id = $data1["creator"];
   $query = "SELECT * FROM user WHERE id='$creator_id'";
 
   if ($result = mysqli_query($conn, $query)) {
-    $data2 =mysqli_fetch_assoc($result);
+    $data2 = mysqli_fetch_assoc($result);
     $creator_name = $data2["user_name"];
-     
+
   }
 }
 
+
+function is_a_contributor($user_id, $repo_id, $conn)
+{
+  $query = "SELECT * FROM contributor WHERE user_id = '$user_id' AND repo_id = '$repo_id';";
+  $result = mysqli_query($conn, $query);
+  if (mysqli_num_rows($result) > 0) {
+    return true;
+  }
+  return false;
+}
 
 ?>
 
@@ -56,7 +66,7 @@ if ($result = mysqli_query($conn, $query)) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Versions — neeraj_dev / react-dashboard-kit — CodeVault</title>
+  <title>Versions — <?php echo isset($repo_title) ? $repo_title : 'Unknown Repo'; ?></title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .versions-container {
@@ -121,41 +131,50 @@ if ($result = mysqli_query($conn, $query)) {
 
       <div class="version-header anim-fadeup">
         <div class="repo-path mb-16">
-          <a href="user_profile.php"><span class="owner"><?php if(isset($creator_name))
-            {echo $creator_name;} ?></span></a>
+          <a href="user_profile.php"><span class="owner"><?php if (isset($creator_name)) {
+            echo $creator_name;
+          } ?></span></a>
           <span class="sep">/</span>
-          <a href="view_repo.php"><span class="name"><?php if(isset($repo_title)){
-            echo $repo_title;} ?></span></a>
+          <a href="view_repo.php"><span class="name"><?php if (isset($repo_title)) {
+            echo $repo_title;
+          } ?></span></a>
         </div>
         <h1>Release History</h1>
         <p class="text-muted mt-8">Browse and download previous versions of this project.</p>
         <div class="mt-16">
-          <a href="view_repo.php?repo_id=<?php echo $repo_id;?>" class="text-accent">← Back to latest version</a>
+          <a href="view_repo.php?repo_id=<?php echo $repo_id; ?>" class="text-accent">← Back to latest version</a>
         </div>
       </div>
 
       <div class="feed-list">
-        <?php   
-              $query="SELECT * FROM version WHERE repo_id='$repo_id' ORDER BY id DESC";
-              if($result=mysqli_query($conn,$query)){
-                   $latest=-1;
-                while($data=mysqli_fetch_assoc($result)){
-                  if($latest==-1)  $latest=$data["id"];
-              ?>
-        <!-- Version Card 4 -->
-        <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-          <div class="frc-top">
-            <div class="version-chip" style="font-size: 14px; padding: 4px 12px;"><?php if(isset($data["version_number"])){ echo "v".$data["version_number"];} ?></div>
-            <button class="btn btn-primary btn-sm">⬇ Download ZIP</button>
-          </div>
-          <p class="frc-desc"><?php if(isset($data["description"])){ echo $data["description"];}?> </p>
-          <div class="frc-footer">
-         
-            <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Added <?php echo timeAgo($data["created_at"]); ?></div>
-          </div>
-        </div>
+        <?php
+        $query = "SELECT * FROM version WHERE repo_id='$repo_id' ORDER BY id DESC";
+        if ($result = mysqli_query($conn, $query)) {
+          $not_latest = false;
+          while ($data = mysqli_fetch_assoc($result)) { ?>
+            <!-- Version Card 4 -->
+            <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
+              <div class="frc-top">
+                <div class="version-chip" <?php if ($not_latest) {
+                  echo 'style="background: var(--bg-3); border-color: var(--border); color: var(--text-dim);"';
+                } $not_latest = true;?>>
+                  <?php if (isset($data["version_number"])) {
+                    echo "v" . $data["version_number"];
+                  } ?></div>
+                <button class="btn btn-primary btn-sm">⬇ Download ZIP</button>
+              </div>
+              <p class="frc-desc"><?php if (isset($data["description"])) {
+                echo $data["description"];
+              } ?> </p>
+              <div class="frc-footer">
 
-               <?php  }} ?>
+                <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Added
+                  <?php echo timeAgo($data["created_at"]); ?></div>
+              </div>
+            </div>
+
+          <?php }
+        } ?>
 
 
 
@@ -181,7 +200,7 @@ if ($result = mysqli_query($conn, $query)) {
     function toggleDropdown() {
       document.getElementById('userDropdown').classList.toggle('open');
     }
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       const menu = document.querySelector('.user-menu');
       if (menu && !menu.contains(e.target)) {
         document.getElementById('userDropdown').classList.remove('open');

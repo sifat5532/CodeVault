@@ -7,6 +7,27 @@ if (!isset($_SESSION["id"])) {
 $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
+require "php/send_notification.php";
+
+// remove contribution
+$notif = null;
+if (isset($_POST["rmv_contribution_btn"]) && isset($_POST["rmv_contribution_repo"])) {
+  $repo_id = $_POST["rmv_contribution_repo"];
+  $query = "DELETE FROM contributor WHERE user_id='$user_id' AND repo_id='$repo_id'";
+  if (mysqli_query($conn, $query)) {
+    $notif = ["type" => "success", "msg" => "Contribution removed successfully!"];
+    // send notification to repo creator
+    $query = "SELECT creator FROM repo WHERE id='$repo_id' LIMIT 1";
+    $result = mysqli_query($conn, $query);
+    if ($result && mysqli_num_rows($result) > 0) {
+      $repo_creator = mysqli_fetch_assoc($result)["creator"];
+      // code to send notification to repo creator
+      send_notification($conn, $repo_id, "rmv_contri_own", $user_id, $repo_creator);
+    }
+  } else {
+    $notif = ["type" => "error", "msg" => "Failed to remove contribution."];
+  }
+}
 
 $query = "SELECT  user.* ,
             (SELECT COUNT(*)  FROM follower WHERE follower.who_is_being_followed=user.id)AS followers,
@@ -26,13 +47,11 @@ $result = mysqli_query($conn, $query);
 if (mysqli_num_rows($result) == 0) {
   header("Location: login.php");
   exit();
-} else $data = mysqli_fetch_assoc($result);
+} else
+  $data = mysqli_fetch_assoc($result);
 
 
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -41,8 +60,15 @@ if (mysqli_num_rows($result) == 0) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?php echo $data["name"] . "(" . $data["user_name"] . ")"; ?> — CodeVault</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 
 <body>
 
@@ -92,17 +118,24 @@ if (mysqli_num_rows($result) == 0) {
       <aside class="sidebar-left">
         <div class="sidebar-profile">
           <div class="avatar xl"><?php echo get_avatar($data["name"]); ?></div>
-          <div class="profile-name" style="font-size: 20px; margin-top: 12px;">@<?php echo $data["name"]; ?></div>
-          <div class="profile-handle"><?php echo $data["user_name"]; ?></div>
+          <div class="profile-name" style="font-size: 20px; margin-top: 12px;"><?php echo $data["name"]; ?></div>
+          <div class="profile-handle">@<?php echo $data["user_name"]; ?></div>
           <p class="text-dim" style="font-size: 13.5px; margin: 12px 0;">
             <?php if (isset($data["bio"])) {
               echo $data["bio"];
-            } ?></p>
+            } ?>
+          </p>
 
-          <div class="profile-info-list" style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
-            <div class="repo-meta" style="margin-bottom: 8px;">📍 <?php if (isset($data["location"]))  echo $data["location"]; ?></div>
-            <div class="repo-meta" style="margin-bottom: 8px;">📅 Joined <?php echo date("F j,y", strtotime($data["created_at"]));   ?></div>
-            <div class="repo-meta" style="margin-bottom: 8px;"><?php if (isset($data["web"]) && $data["web"] != "") { ?>🔗 <a href=<?php echo $data["web"]; ?> class="text-accent"><?php echo $data["web"]; ?></a><?php } ?></div>
+          <div class="profile-info-list"
+            style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+            <div class="repo-meta" style="margin-bottom: 8px;">📍
+              <?php if (isset($data["location"]))
+                echo $data["location"]; ?></div>
+            <div class="repo-meta" style="margin-bottom: 8px;">📅 Joined
+              <?php echo date("F j,y", strtotime($data["created_at"])); ?></div>
+            <div class="repo-meta" style="margin-bottom: 8px;">
+              <?php if (isset($data["web"]) && $data["web"] != "") { ?>🔗 <a href="<?php echo $data["web"]; ?>"
+                  target="_blank" class="text-accent"><?php echo $data["web"]; ?></a><?php } ?></div>
           </div>
         </div>
 
@@ -110,28 +143,28 @@ if (mysqli_num_rows($result) == 0) {
         <div class="sidebar-widget">
           <div class="widget-header">Statistics</div>
           <div class="profile-stats" style="flex-wrap: wrap; padding: 16px; border: none;">
-            <a href="followers.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+            <a href="follow.php?type=Followers" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
               <div class="n"><?php if (isset($data["followers"])) {
-                                echo $data["followers"];
-                              }  ?></div>
+                echo $data["followers"];
+              } ?></div>
               <div class="l">Followers</div>
             </a>
-            <a href="following.php" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
+            <a href="follow.php?type=Followings" class="profile-stat" style="width: 33%; margin-bottom: 15px;">
               <div class="n"><?php if (isset($data["following"])) {
-                                echo $data["following"];
-                              }  ?></div>
+                echo $data["following"];
+              } ?></div>
               <div class="l">Following</div>
             </a>
             <div class="profile-stat" style="width: 33%; margin-bottom: 15px;">
               <div class="n"><?php if (isset($data["created_repo"]) || isset($data["contributed_repo"])) {
-                                echo $data["created_repo"] + $data["contributed_repo"];
-                              }  ?></div>
+                echo $data["created_repo"] + $data["contributed_repo"];
+              } ?></div>
               <div class="l">Projects</div>
             </div>
             <div class="profile-stat" style="width: 33%;">
               <div class="n"><?php if (isset($data["starred_repo"])) {
-                                echo $data["starred_repo"];
-                              }   ?></div>
+                echo $data["starred_repo"];
+              } ?></div>
               <div class="l">Stars</div>
             </div>
 
@@ -143,13 +176,16 @@ if (mysqli_num_rows($result) == 0) {
       <main class="feed-main">
         <div class="feed-header">
           <div class="feed-filters">
-            <button class="filter-btn active" id="btn-created" onclick="toggleProjects('created')">Created By Me</button>
-            <button class="filter-btn" id="btn-contributing" onclick="toggleProjects('contributing')">Contributing</button>
+            <button class="filter-btn active" id="btn-created" onclick="toggleProjects('created')">Created By
+              Me</button>
+            <button class="filter-btn" id="btn-contributing"
+              onclick="toggleProjects('contributing')">Contributing</button>
           </div>
         </div>
 
         <!-- Created Projects Grid -->
-        <div id="grid-created" class="features-grid anim-fadeup" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+        <div id="grid-created" class="features-grid anim-fadeup"
+          style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
           <?php
           $query = "SELECT  repo.*,version.version_number ,version.created_at  AS version_created_at,
                GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
@@ -167,30 +203,37 @@ if (mysqli_num_rows($result) == 0) {
 
 
 
-          ?>
+              ?>
               <!-- Card 1 -->
               <div class="feed-repo-card">
                 <div class="frc-top">
-                  <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>" class="repo-name"><?php echo $data["title"]; ?></a>
+                  <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>"
+                    class="repo-name"><?php echo $data["title"]; ?></a>
                   <div class="version-chip">v<?php if (isset($data["version_number"])) {
-                                                echo $data["version_number"];
-                                              }  ?></div>
+                    echo $data["version_number"];
+                  } ?></div>
                 </div>
-                <p class="frc-desc"><?php if (isset($data["description"])) echo $data["description"]; ?></p>
+                <p class="frc-desc"><?php if (isset($data["description"]))
+                  echo $data["description"]; ?></p>
                 <div class="frc-footer" style="margin-top: auto;">
                   <?php $tags = explode(",", $data['tag_name']);
 
-                  foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag)) echo $tag; ?> </span><?php } ?>
+                  foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag))
+                         echo $tag; ?>
+                    </span><?php } ?>
 
-                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated <?php echo timeAgo($data["version_created_at"]); ?></div>
+                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated
+                    <?php echo timeAgo($data["version_created_at"]); ?></div>
                 </div>
                 <div class="divider" style="margin: 15px 0;"></div>
                 <div class="flex gap-8">
-                  <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php?repo_id=<?php echo $data['id']; ?>'">⚙️ Settings</button>
-                  <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
+                  <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;"
+                    onclick="location.href='repo_settings.php?repo_id=<?php echo $data['id']; ?>'">⚙️ Settings</button>
+                  <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;"
+                    onclick="location.href='new_version.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
                 </div>
               </div>
-            <?php
+              <?php
             }
           } else { ?>
             <div class="feed-repo-card">
@@ -204,7 +247,8 @@ if (mysqli_num_rows($result) == 0) {
 
 
         <!-- Contributing Projects Grid (Hidden by default) -->
-        <div id="grid-contributing" class="features-grid anim-fadeup" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+        <div id="grid-contributing" class="features-grid anim-fadeup"
+          style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
           <?php
           $query = "SELECT   repo.*,version.version_number ,version.created_at  AS version_created_at,
                GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
@@ -219,22 +263,32 @@ if (mysqli_num_rows($result) == 0) {
           $result = mysqli_query($conn, $query);
           if ($result && mysqli_num_rows($result) > 0) {
             while ($data = mysqli_fetch_assoc($result)) {
-          ?>
+              ?>
               <div class="feed-repo-card">
                 <div class="frc-top">
-                  <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>" class="repo-name"><?php echo $data["title"]; ?></a>
+                  <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>"
+                    class="repo-name"><?php echo $data["title"]; ?></a>
                   <div class="version-chip"><?php echo $data["version_number"]; ?></div>
                 </div>
-                <p class="frc-desc"><?php if (isset($data["description"])) echo $data["description"];    ?></p>
+                <p class="frc-desc"><?php if (isset($data["description"]))
+                  echo $data["description"]; ?></p>
                 <div class="frc-footer" style="margin-top: auto;">
                   <?php $tags = explode(",", $data['tag_name']);
-                  foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag)) echo $tag; ?> </span><?php } ?>
-                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated <?php echo timeAgo($data["version_created_at"]); ?></div>
+                  foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag))
+                         echo $tag; ?>
+                    </span><?php } ?>
+                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated
+                    <?php echo timeAgo($data["version_created_at"]); ?></div>
                 </div>
                 <div class="divider" style="margin: 15px 0;"></div>
                 <div class="flex gap-8">
-                  <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;" onclick="location.href='repo_settings.php?repo_id=<?php echo $data['id']; ?>'">⚙️ Settings</button>
-                  <button class="btn btn-primary btn-sm" style="flex: 1.5; justify-content: center;" onclick="location.href='new_version.php?repo_id=<?php echo $data['id']; ?>'">+ New Version</button>
+                  <button class="btn btn-ghost btn-sm" style="flex: 1; justify-content: center;"
+                    onclick="location.href='view_repo.php?repo_id=<?php echo $data['id']; ?>'">View Repository</button>
+                  <form method="POST">
+                    <input type="hidden" name="rmv_contribution_repo" value="<?php echo $data["id"]; ?>">
+                    <input type="submit" name="rmv_contribution_btn" class="btn btn-outline-red btn-sm"
+                      style="flex: 1.5; justify-content: center;" value="Remove Contribution">
+                  </form>
                 </div>
               </div>
             <?php }
@@ -271,7 +325,7 @@ if (mysqli_num_rows($result) == 0) {
     function toggleDropdown() {
       document.getElementById('userDropdown').classList.toggle('open');
     }
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       const menu = document.querySelector('.user-menu');
       if (!menu.contains(e.target)) {
         document.getElementById('userDropdown').classList.remove('open');
@@ -288,4 +342,13 @@ if (mysqli_num_rows($result) == 0) {
       document.getElementById('grid-contributing').style.display = type === 'contributing' ? 'grid' : 'none';
     }
   </script>
+  <?php if ($notif): ?>
+    <script>
+      window.addEventListener('load', function () {
+        let notyf = new Notyf();
+        notyf.<?php echo $notif["type"]; ?>('<?php echo $notif["msg"]; ?>');
+      });
+    </script>
+  <?php endif; ?>
 </body>
+</html>
