@@ -19,13 +19,13 @@ if (isset($_POST["follow_btn"])) {
     $result = mysqli_query($conn, $query);
     if ($result && mysqli_num_rows($result) > 0) {
         $query = "DELETE FROM follower WHERE who_is_following='$user_id' AND who_is_being_followed='$profile_id' ";
-        if(mysqli_query($conn, $query))
+        if (mysqli_query($conn, $query))
             $notif = ["type" => "success", "msg" => "Unfollowed successfully"];
         else
-            $notif = ["type" => "error", "msg" => "Something went wrong. Please try again"];        
+            $notif = ["type" => "error", "msg" => "Something went wrong. Please try again"];
     } else {
         $query = "INSERT INTO follower (who_is_following, who_is_being_followed) VALUES ('$user_id', '$profile_id')";
-        if(mysqli_query($conn, $query))
+        if (mysqli_query($conn, $query))
             $notif = ["type" => "success", "msg" => "Followed successfully"];
         else
             $notif = ["type" => "error", "msg" => "Something went wrong. Please try again"];
@@ -63,6 +63,39 @@ if ($result && mysqli_num_rows($result) > 0) {
     $is_following = false;
 }
 
+// created repositories query
+$query = "SELECT  repo.*,version.version_number ,version.created_at  AS version_created_at,
+                               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name,
+                               (SELECT COUNT(*) FROM stars WHERE stars.repo_id=repo.id)AS stars
+                FROM repo 
+                JOIN version ON version.id=(
+                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
+                LEFT JOIN tag ON tag.repo_id=repo.id
+                
+                WHERE repo.creator='$profile_id'
+                AND repo.visibility='public'
+                GROUP BY repo.id
+                ORDER BY version.created_at DESC";
+
+$created_result = mysqli_query($conn, $query);
+$total_created = mysqli_num_rows($created_result);
+
+// contributing repositories query
+$query = "SELECT   repo.*,version.version_number ,version.created_at  AS version_created_at,
+               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name,
+                (SELECT COUNT(*)  FROM stars WHERE stars.repo_id=repo.id)AS stars
+                FROM contributor
+                JOIN repo ON repo.id=contributor.repo_id
+                JOIN version ON version.id=(
+                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
+                LEFT JOIN tag ON tag.repo_id=repo.id
+                WHERE contributor.user_id='$profile_id'
+                AND repo.visibility='public'
+                GROUP BY repo.id
+                ORDER BY version.created_at DESC";
+
+$contributed_result = mysqli_query($conn, $query);
+$total_contributed = mysqli_num_rows($contributed_result);
 ?>
 
 
@@ -191,9 +224,9 @@ if ($result && mysqli_num_rows($result) > 0) {
                 <div class="feed-header">
                     <div class="feed-filters">
                         <button class="filter-btn active" id="btn-created" onclick="toggleProjects('created')">Created
-                            Repositories</button>
+                            Repositories(<?php echo $total_created; ?>)</button>
                         <button class="filter-btn" id="btn-contributing"
-                            onclick="toggleProjects('contributing')">Contributing Repositories</button>
+                            onclick="toggleProjects('contributing')">Contributing Repositories(<?php echo $total_contributed; ?>)</button>
                     </div>
                 </div>
 
@@ -202,22 +235,8 @@ if ($result && mysqli_num_rows($result) > 0) {
                     style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
 
                     <?php
-                    $query = "SELECT  repo.*,version.version_number ,version.created_at  AS version_created_at,
-                               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name,
-                               (SELECT COUNT(*) FROM stars WHERE stars.repo_id=repo.id)AS stars
-                FROM repo 
-                JOIN version ON version.id=(
-                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
-                LEFT JOIN tag ON tag.repo_id=repo.id
-                
-                WHERE repo.creator='$profile_id'
-                AND repo.visibility='public'
-                GROUP BY repo.id
-                ORDER BY version.created_at DESC";
-
-                    $result = mysqli_query($conn, $query);
-                    if ($result && mysqli_num_rows($result) > 0) {
-                        while ($data = mysqli_fetch_assoc($result)) {
+                    if ($created_result && mysqli_num_rows($created_result) > 0) {
+                        while ($data = mysqli_fetch_assoc($created_result)) {
 
 
                             ?>
@@ -272,27 +291,8 @@ if ($result && mysqli_num_rows($result) > 0) {
                     style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
                     <!-- Card 2 -->
                     <?php
-                    $query = "SELECT   repo.*,version.version_number ,version.created_at  AS version_created_at,
-               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name,
-                (SELECT COUNT(*)  FROM stars WHERE stars.repo_id=repo.id)AS stars
-                FROM contributor
-                JOIN repo ON repo.id=contributor.repo_id
-                JOIN version ON version.id=(
-                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
-                LEFT JOIN tag ON tag.repo_id=repo.id
-                WHERE contributor.user_id='$profile_id'
-                AND repo.visibility='public'
-                GROUP BY repo.id
-                ORDER BY version.created_at DESC";
-
-                    $result = mysqli_query($conn, $query);
-
-                    if ($result && mysqli_num_rows($result) > 0) {
-                        while ($data = mysqli_fetch_assoc($result)) {
-
-
-
-                            ?>
+                    if ($contributed_result && mysqli_num_rows($contributed_result) > 0) {
+                        while ($data = mysqli_fetch_assoc($contributed_result)) {?>
                             <div class="feed-repo-card" style="margin-bottom: 20px;">
                                 <div class="frc-top">
                                     <p class="repo-name"><?php echo $data["title"]; ?></p>

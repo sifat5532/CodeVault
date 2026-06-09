@@ -51,6 +51,33 @@ if (mysqli_num_rows($result) == 0) {
   $data = mysqli_fetch_assoc($result);
 
 
+
+$query = "SELECT  repo.*,version.version_number ,version.created_at  AS version_created_at,
+               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
+                FROM repo 
+                JOIN version ON version.id=(
+                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
+                LEFT JOIN tag ON tag.repo_id=repo.id
+                WHERE repo.creator='$user_id'
+                GROUP BY repo.id
+                ORDER BY version.created_at DESC";
+
+$created_result = mysqli_query($conn, $query);
+$total_created = mysqli_num_rows($created_result);
+
+$query = "SELECT   repo.*,version.version_number ,version.created_at  AS version_created_at,
+               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
+                FROM contributor
+                JOIN repo ON repo.id=contributor.repo_id
+                JOIN version ON version.id=(
+                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
+                LEFT JOIN tag ON tag.repo_id=repo.id
+                WHERE contributor.user_id='$user_id'
+                GROUP BY repo.id
+                ORDER BY version.created_at DESC";
+$contributed_result = mysqli_query($conn, $query);
+$total_contributed = mysqli_num_rows($contributed_result);
+
 ?>
 
 <!DOCTYPE html>
@@ -130,12 +157,15 @@ if (mysqli_num_rows($result) == 0) {
             style="text-align: left; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
             <div class="repo-meta" style="margin-bottom: 8px;">📍
               <?php if (isset($data["location"]))
-                echo $data["location"]; ?></div>
+                echo $data["location"]; ?>
+            </div>
             <div class="repo-meta" style="margin-bottom: 8px;">📅 Joined
-              <?php echo date("F j,y", strtotime($data["created_at"])); ?></div>
+              <?php echo date("F j,y", strtotime($data["created_at"])); ?>
+            </div>
             <div class="repo-meta" style="margin-bottom: 8px;">
               <?php if (isset($data["web"]) && $data["web"] != "") { ?>🔗 <a href="<?php echo $data["web"]; ?>"
-                  target="_blank" class="text-accent"><?php echo $data["web"]; ?></a><?php } ?></div>
+                  target="_blank" class="text-accent"><?php echo $data["web"]; ?></a><?php } ?>
+            </div>
           </div>
         </div>
 
@@ -177,9 +207,9 @@ if (mysqli_num_rows($result) == 0) {
         <div class="feed-header">
           <div class="feed-filters">
             <button class="filter-btn active" id="btn-created" onclick="toggleProjects('created')">Created By
-              Me</button>
+              Me (<?php echo $total_created; ?>)</button>
             <button class="filter-btn" id="btn-contributing"
-              onclick="toggleProjects('contributing')">Contributing</button>
+              onclick="toggleProjects('contributing')">Contributing (<?php echo $total_contributed; ?>)</button>
           </div>
         </div>
 
@@ -187,19 +217,9 @@ if (mysqli_num_rows($result) == 0) {
         <div id="grid-created" class="features-grid anim-fadeup"
           style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
           <?php
-          $query = "SELECT  repo.*,version.version_number ,version.created_at  AS version_created_at,
-               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
-                FROM repo 
-                JOIN version ON version.id=(
-                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
-                LEFT JOIN tag ON tag.repo_id=repo.id
-                WHERE repo.creator='$user_id'
-                GROUP BY repo.id
-                ORDER BY version.created_at DESC";
 
-          $result = mysqli_query($conn, $query);
-          if ($result && mysqli_num_rows($result) > 0) {
-            while ($data = mysqli_fetch_assoc($result)) {
+          if ($created_result && mysqli_num_rows($created_result) > 0) {
+            while ($data = mysqli_fetch_assoc($created_result)) {
 
 
 
@@ -223,7 +243,8 @@ if (mysqli_num_rows($result) == 0) {
                     </span><?php } ?>
 
                   <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated
-                    <?php echo timeAgo($data["version_created_at"]); ?></div>
+                    <?php echo timeAgo($data["version_created_at"]); ?>
+                  </div>
                 </div>
                 <div class="divider" style="margin: 15px 0;"></div>
                 <div class="flex gap-8">
@@ -250,19 +271,9 @@ if (mysqli_num_rows($result) == 0) {
         <div id="grid-contributing" class="features-grid anim-fadeup"
           style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
           <?php
-          $query = "SELECT   repo.*,version.version_number ,version.created_at  AS version_created_at,
-               GROUP_CONCAT(tag.tag_name  SEPARATOR ',') AS tag_name
-                FROM contributor
-                JOIN repo ON repo.id=contributor.repo_id
-                JOIN version ON version.id=(
-                SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id)
-                LEFT JOIN tag ON tag.repo_id=repo.id
-                WHERE contributor.user_id='$user_id'
-                GROUP BY repo.id
-                ORDER BY version.created_at DESC";
-          $result = mysqli_query($conn, $query);
-          if ($result && mysqli_num_rows($result) > 0) {
-            while ($data = mysqli_fetch_assoc($result)) {
+
+          if ($contributed_result && mysqli_num_rows($contributed_result) > 0) {
+            while ($data = mysqli_fetch_assoc($contributed_result)) {
               ?>
               <div class="feed-repo-card">
                 <div class="frc-top">
@@ -278,7 +289,8 @@ if (mysqli_num_rows($result) == 0) {
                          echo $tag; ?>
                     </span><?php } ?>
                   <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">Updated
-                    <?php echo timeAgo($data["version_created_at"]); ?></div>
+                    <?php echo timeAgo($data["version_created_at"]); ?>
+                  </div>
                 </div>
                 <div class="divider" style="margin: 15px 0;"></div>
                 <div class="flex gap-8">
@@ -351,4 +363,5 @@ if (mysqli_num_rows($result) == 0) {
     </script>
   <?php endif; ?>
 </body>
+
 </html>
