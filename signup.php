@@ -7,6 +7,7 @@ if(isset($_SESSION["id"])){
 
 require "php/config.php";
 
+$notif = null;
 if(isset($_POST["sign_in_btn"])){
     $name = $_POST["name"];
     $user_name = $_POST["user_name"];
@@ -26,9 +27,9 @@ if(isset($_POST["sign_in_btn"])){
               VALUES ('$user_name', '$name', '$email', '$hashed_pass', '$default_dp', '$default_bio', '$default_location', '$default_web', '$default_notification_settings', '$default_repo_visibility')";
 
     if(mysqli_query($conn, $query)){
-        $msg = "<div style='color: #28a745'>Account Created Successfully.</div>";
+        $notif = ["type" => "success", "msg" => "Account Created Successfully."];
     }else{
-        $msg = "<div style='color: #dc3545'>Error! Please Try Again Later.</div>";
+        $notif = ["type" => "error", "msg" => "Error! Please Try Again Later."];
     }
 }
 ?>
@@ -40,6 +41,8 @@ if(isset($_POST["sign_in_btn"])){
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign up — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
   <style>
     .auth-container {
       display: flex;
@@ -66,6 +69,11 @@ if(isset($_POST["sign_in_btn"])){
   </style>
   <script src="script.js" defer></script>
 </head>
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 <body>
   <nav class="navbar">
     <a href="index.php" class="nav-logo">
@@ -77,7 +85,6 @@ if(isset($_POST["sign_in_btn"])){
   <main class="page-wrap auth-container">
     <form class="auth-card" method="POST" action="">
       <h2 style="margin-bottom: 24px; text-align: center;">Create your account</h2>
-        <?php if(isset($msg)){ echo $msg; }?>
       <div class="form-group">
         <label>Name</label>
         <input type="text" name="name" placeholder="Jhon Doe" required/>
@@ -118,5 +125,13 @@ if(isset($_POST["sign_in_btn"])){
       validate_username(uname_input, uname_label, signup_btn);
     });
   </script>
+  <?php if ($notif): ?>
+    <script>
+      window.addEventListener('load', function () {
+        let notyf = new Notyf();
+        notyf.<?php echo $notif["type"]; ?>('<?php echo $notif["msg"]; ?>');
+      });
+    </script>
+  <?php endif; ?>
 </body>
 </html>
