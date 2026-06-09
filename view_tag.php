@@ -23,7 +23,10 @@ $result = mysqli_query($conn, $query);
 
 $data = mysqli_fetch_assoc($result);
 
-
+if ($data['repo_count'] == 0) {
+                            header("Location: feed.php");
+                            exit();
+                        }?>
 
 ?>
 
@@ -146,13 +149,7 @@ $data = mysqli_fetch_assoc($result);
                             </div>
                         </div>
                     <?php } 
-                         if ($data['repo_count'] == 0) {
-                            header("Location: feed.php");
-                            exit();
-                        }{
-                            header("Location: feed.php");
-                            exit();
-                        }?>
+                        ?>
             </main>
 
             <!-- ===== RIGHT SIDEBAR ===== -->
