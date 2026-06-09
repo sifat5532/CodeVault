@@ -1,12 +1,20 @@
-<?php 
+<?php
 session_start();
-if(!isset($_SESSION["id"])){
+if (!isset($_SESSION["id"])) {
   header("Location: login.php");
   exit();
 }
-  $user_id= $_SESSION["id"];
-  require "php/config.php";
-  require "php/utility.php";
+$user_id = $_SESSION["id"];
+require "php/config.php";
+require "php/utility.php";
+
+//top tags
+$query = "SELECT tag.tag_name,
+                  COUNT(DISTINCT (tag.repo_id)) AS total_repo
+          FROM tag 
+          GROUP BY tag.tag_name
+          ORDER BY total_repo DESC LIMIT 6 ";
+$result_tag = mysqli_query($conn, $query);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -101,8 +109,8 @@ if(!isset($_SESSION["id"])){
         </div>
 
         <div class="feed-list">
-          <?php  
-            $query="SELECT repo.*,user.user_name, user.name,version.version_number ,version.created_at  AS version_created_at
+          <?php
+          $query = "SELECT repo.*,user.user_name, user.name,version.version_number ,version.created_at  AS version_created_at
             FROM stars
             JOIN repo ON repo.id=stars.repo_id
             JOIN version ON version.id=(
@@ -110,58 +118,63 @@ if(!isset($_SESSION["id"])){
             JOIN user ON repo.creator=user.id
          
             WHERE stars.user_id='$user_id'";
-             $result=mysqli_query($conn,$query);
-             if($result && mysqli_num_rows($result)>0){
-              while($data=mysqli_fetch_assoc($result)){
+          $result = mysqli_query($conn, $query);
+          if ($result && mysqli_num_rows($result) > 0) {
+            while ($data = mysqli_fetch_assoc($result)) {
 
 
-          ?>
-          <!-- Starred Repo 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
+              ?>
+              <!-- Starred Repo 1 -->
+              <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
+                <div class="frc-top">
+                  <div class="frc-meta">
 
-                  <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
-                  <div>
-                 <a href="view_repo.php?repo_id=<?php echo $data["id"];?>" > 
-                  <div class="repo-name"><?php   if(isset($data["title"]))  echo $data["title"]; ?></div>
-                  </a>
-                  <div class="by">by <strong><?php  if(isset($data["user_name"]))  echo $data["user_name"];  ?></strong></div>
+                    <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
+                    <div>
+                      <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>">
+                        <div class="repo-name"><?php if (isset($data["title"]))
+                          echo $data["title"]; ?></div>
+                      </a>
+                      <div class="by">by <strong><?php if (isset($data["user_name"]))
+                        echo $data["user_name"]; ?></strong>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <p class="frc-desc"><?php if (isset($data["description"]))
+                  echo $data["description"]; ?></p>
+                <div class="frc-footer">
+
+                  <div class="version-chip">
+                    <?php if (isset($data["version_number"]))
+                      echo '✦ v' . $data["version_number"]; ?>
+                  </div>
+
+                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php
+                  $date = $data["version_created_at"];
+                  echo "Updated " . timeAgo($date); ?></div>
+
+
                 </div>
               </div>
-             
-            </div>
-            <p class="frc-desc"><?php if(isset($data["description"])) echo $data["description"];?></p>
-            <div class="frc-footer">
-            
-              <div class="version-chip"><?php  if(isset($data["version_number"])) echo '✦ v'.$data["version_number"]  ; ?></div>
-    
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php  
-              $date=$data["version_created_at"];
-               echo    "Updated " . timeAgo($date); ?></div>
-             
-              
-            </div>
-          </div>
-                 <?php   } }
-                 
-                 
-                 else       {?>
-                    <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
-          
-                <div>
-                        <div class="frc-top" style="align-content: center";>
-              <div class="frc-meta">
-               
-                 <p class="frc-desc" ><?php    echo "You have no starred repositories yet.";?></p>
-                </div>
-                    </div>  
+            <?php }
+          } else { ?>
+            <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
+              <div class="frc-top">
+                <div class="frc-meta">
+
+                  <div>
+                    <div class="frc-top" style="align-content: center" ;>
+                      <div class="frc-meta">
+
+                        <p class="frc-desc"><?php echo "You have no starred repositories yet."; ?></p>
+                      </div>
                     </div>
-                <?php  } ?>
-         
-        </div>
+                  </div>
+                <?php } ?>
+
+              </div>
       </main>
 
       <!-- ===== RIGHT SIDEBAR ===== -->
@@ -170,14 +183,15 @@ if(!isset($_SESSION["id"])){
         <div class="sidebar-widget">
           <div class="widget-header">
             Trending tags
-            <a href="#">Browse all</a>
+            <a href="explore.php">Browse all</a>
           </div>
-          <div class="trending-tag"><span class="t-name">#python</span><span class="t-count">1.2k repos</span></div>
-          <div class="trending-tag"><span class="t-name">#react</span><span class="t-count">980 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#typescript</span><span class="t-count">843 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#docker</span><span class="t-count">612 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#rust</span><span class="t-count">481 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#ml</span><span class="t-count">370 repos</span></div>
+          <?php while ($data = mysqli_fetch_assoc($result_tag)) { ?>
+            <a href="view_tag.php?tag=<?php echo $data["tag_name"] ?>" class="trending-tag"><span class="t-name">#
+                <?php echo $data["tag_name"]; ?>
+              </span><span class="t-count">
+                <?php echo $data["total_repo"]; ?> repos
+              </span></a>
+          <?php } ?>
         </div>
       </aside>
 

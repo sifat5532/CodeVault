@@ -1,6 +1,10 @@
 <?php
 require "php/config.php";
-
+session_start();
+if(isset($_SESSION["id"])){
+  header("Location: feed.php");
+  exit();
+}
 function getNumFromDB($con, $query){
   if($result = mysqli_query($con, $query)){
     return mysqli_fetch_assoc($result)["total"];

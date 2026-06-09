@@ -131,11 +131,11 @@ function is_a_contributor($user_id, $repo_id, $conn)
 
       <div class="version-header anim-fadeup">
         <div class="repo-path mb-16">
-          <a href="user_profile.php"><span class="owner"><?php if (isset($creator_name)) {
+          <a href="user_profile.php?username=<?php echo isset($creator_name) ? $creator_name : ''; ?>"><span class="owner"><?php if (isset($creator_name)) {
             echo $creator_name;
           } ?></span></a>
           <span class="sep">/</span>
-          <a href="view_repo.php"><span class="name"><?php if (isset($repo_title)) {
+          <a href="view_repo.php?repo_id=<?php echo $repo_id; ?>"><span class="name"><?php if (isset($repo_title)) {
             echo $repo_title;
           } ?></span></a>
         </div>
@@ -161,7 +161,7 @@ function is_a_contributor($user_id, $repo_id, $conn)
                   <?php if (isset($data["version_number"])) {
                     echo "v" . $data["version_number"];
                   } ?></div>
-                <button class="btn btn-primary btn-sm">⬇ Download ZIP</button>
+                <a href="repo_files/<?php echo $data["file_zip"]; ?>" class="btn btn-primary btn-sm">⬇ Download ZIP</a>
               </div>
               <p class="frc-desc"><?php if (isset($data["description"])) {
                 echo $data["description"];

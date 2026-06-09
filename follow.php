@@ -160,10 +160,10 @@ $result_follow=mysqli_query($conn,$query);
           <div class="follower-card anim-fadeup" style="animation-delay:0.05s">
             <div class="avatar lg"><?php echo get_avatar($data["name"]);?></div>
             <div class="follower-info">
-              <div class="follower-name"><?php echo $data["name"];?></div>
+              <a href="user_profile.php?username=<?php echo $data["user_name"];?>"><div class="follower-name"><?php echo $data["name"];?></div></a>
               <div class="follower-handle">@<?php echo $data["user_name"];?></div>
             </div>
-            <a href="user_profile.php?user_id=<?php echo $data["id"];?>"><button class="btn btn-ghost btn-sm">View profile</button></a>
+            <a href="user_profile.php?username=<?php echo $data["user_name"];?>"><button class="btn btn-ghost btn-sm">View profile</button></a>
           </div>
          <?php } ?>
         </div>
@@ -174,7 +174,7 @@ $result_follow=mysqli_query($conn,$query);
         <div class="sidebar-widget">
           <div class="widget-header">
             Top Developers
-            <a href="#">See all</a>
+            <a href="explore.php">See all</a>
           </div>
         <?php  
           while($data=mysqli_fetch_assoc($result_follow)){ ?>
