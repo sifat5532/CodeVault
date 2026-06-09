@@ -8,25 +8,29 @@ $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
 
-//  $query="SELECT follower.who_is_being_followed,user.user_name,
-//          repo.id,repo.title,repo.creator,version.version_number,version.created_at
-//         FROM follower
-//          LEFT  JOIN repo  ON repo.creator=follower.who_is_being_followed 
-//          JOIN user ON user.id=repo.creator
-//          JOIN version ON version.id IN
-//           ( SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id
-//           ) 
-//           WHERE follower.who_is_following='$user_id' AND  repo.visibility='public'
-//           UNION
-$query = "SELECT user.name, user.user_name,
-         repo.id,repo.title,repo.creator,version.version_number,version.created_at
-        FROM stars
-         JOIN  repo ON stars.repo_id=repo.id
+$query = "SELECT * FROM(SELECT user.user_name,
+         repo.id,repo.title,repo.creator,repo.description,version.version_number,version.created_at
+        FROM follower
+         JOIN repo  ON repo.creator=follower.who_is_being_followed 
          JOIN user ON user.id=repo.creator
+         JOIN version ON version.id IN
+          ( SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id
+          ) 
+          
+          WHERE follower.who_is_following='$user_id' AND  repo.visibility='public'
+         
+          UNION
+          SELECT  user.user_name,
+          repo.id,repo.title,repo.creator,repo.description,version.version_number,version.created_at
+          FROM stars
+          JOIN  repo ON stars.repo_id=repo.id
+          JOIN user ON user.id=repo.creator
           JOIN version ON version.id IN
           ( SELECT MAX(version.id) FROM version WHERE version.repo_id=repo.id
           ) 
-          WHERE stars.user_id='$user_id' 
+           
+          WHERE stars.user_id='$user_id' )AS feed
+           ORDER BY created_at DESC 
           ";
 $result = mysqli_query($conn, $query);
 
@@ -141,14 +145,14 @@ $result = mysqli_query($conn, $query);
                     <div class="avatar"><?php echo get_avatar($data["user_name"]); ?></div>
                     <div>
                       <div class="by"><a href="user_profile.php?username=<?php echo $data['user_name']; ?>"><strong><?php echo $data['user_name'];    ?></strong></a> </div>
-                      <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>" class="repo-name"><?php echo  $data['user_name'] .'/'.$data['title']; ?></a>
+                      <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>" class="repo-name"><?php echo  $data['user_name'] . '/' . $data['title']; ?></a>
                     </div>
                   </div>
                   <!-- <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button> -->
                 </div>
                 <p class="frc-desc"><?php if (isset($data['description']))  echo $data['description'];      ?></p>
                 <div class="frc-footer">
-
+                  <div class="version-chip">✦ v<?php echo $data['version_number']; ?></div>
                   <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php echo timeAgo($data['created_at']);            ?></div>
                 </div>
               </div>
@@ -239,31 +243,7 @@ $result = mysqli_query($conn, $query);
       }
     });
 
-    // // Star toggle
-    // function toggleStar(btn) {
-    //   const starred = btn.classList.contains('starred');
-    //   const countEl = btn.querySelector('span');
-    //   let count = parseInt(countEl.textContent);
-    //   if (starred) {
-    //     btn.classList.remove('starred');
-    //     btn.innerHTML = '☆ <span>' + (count - 1) + '</span>';
-    //   } else {
-    //     btn.classList.add('starred');
-    //     btn.innerHTML = '★ <span>' + (count + 1) + '</span>';
-    //   }
-    // }
-
-    // // Follow toggle
-    // function toggleFollow(btn) {
-    //   if (btn.classList.contains('following')) {
-    //     btn.classList.remove('following');
-    //     btn.textContent = 'Follow';
-    //   } else {
-    //     btn.classList.add('following');
-    //     btn.textContent = 'Following';
-    //   }
-    // }
-
+   
     // Feed filter
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', function() {
