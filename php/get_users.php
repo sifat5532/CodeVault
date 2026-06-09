@@ -1,7 +1,11 @@
 <?php
+header("Content-Type: application/json");
 require 'config.php';
 require 'utility.php';
-
+if(!isset($_GET["searching_for"])){
+    echo json_encode(["status" => false]);
+    exit();
+}
 $searching_for = $_GET["searching_for"];
 
 $sql = "SELECT id, name, user_name FROM `user` WHERE user.name LIKE '%$searching_for%' OR user.user_name LIKE '%$searching_for%' ORDER BY user.name ASC;";
@@ -14,6 +18,5 @@ while ($row = mysqli_fetch_assoc($result)) {
     $users[] = $row;
 }
 
-header("Content-Type: application/json");
 echo json_encode($users);
 ?>
