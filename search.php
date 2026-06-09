@@ -1,17 +1,17 @@
 <?php 
 session_start();
-$searh_for=$_GET[""];
-$search_for='little star';
+$search_for=$_GET["search"];
+// $search_for='ishra19';
 //developers
 require "php/config.php";
 require "php/utility.php";
-$query="SELECT user.user_name,user.bio,
+$query="SELECT user.name,user.user_name,user.bio,
         (SELECT COUNT(*) FROM repo WHERE repo.creator=user.id)AS total_repo,
         (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed=user.id)AS total_follower
         FROM user
         WHERE user.user_name='$search_for'
         UNION
-        SELECT  user.user_name,user.bio,
+        SELECT user.name, user.user_name,user.bio,
         (SELECT COUNT(*) FROM repo WHERE repo.creator=user.id),
         (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed=user.id)
         FROM user
@@ -20,7 +20,7 @@ $query="SELECT user.user_name,user.bio,
  $dev_count=mysqli_num_rows($dev);
  //repo
   $query="SELECT user.id,user.user_name,repo.id,repo.title,repo.description,
-            (SELECT COUNT(*) FROM stars  WHERE stars.repo_id=repo.id)
+            (SELECT COUNT(*) FROM stars  WHERE stars.repo_id=repo.id)AS total_stars
             FROM repo
              JOIN user ON user.id=repo.creator
              WHERE repo.title='$search_for'
@@ -32,7 +32,8 @@ $repo_count=mysqli_num_rows($repo);
 
 //tag
 $query="SELECT tag.tag_name,COUNT(DISTINCT tag.repo_id)AS total_repo
-        FROM tag WHERE tag.tag_name='$search_for'";
+        FROM tag WHERE tag.tag_name='$search_for'
+        GROUP BY tag.tag_name";
 $tag=mysqli_query($conn,$query);
 $tag_count=mysqli_num_rows($tag);
 $total=$dev_count+$repo_count+$tag_count;
@@ -161,23 +162,25 @@ $total=$dev_count+$repo_count+$tag_count;
 
           <?php     
           while($data=mysqli_fetch_assoc($dev)){      ?>
-          <div class="dev_result_card follower-card anim-fadeup" style="animation-delay:0.1s">
-            <div class="avatar lg"><?php echo get_avatar($data["user_name"]);    ?></div>
-            <div class="follower-info">
-              <a href="user_profile.php?username=<?php $data['user_name'];  ?>" class="follower-name"><?php   echo $data["user_name"];      ?></div>
-              <div class="follower-handle">@<?php  echo $data['user_name'] ?></div>
-              <p class="text-muted" style="font-size: 13px; margin-top: 4px;">
+    
+                <div class="follower-list" style="margin-bottom: 30px;">
+            <div class="follower-card anim-fadeup" style="animation-delay:0.1s">
+              <div class="avatar lg"><?php echo get_avatar($data["user_name"]);    ?></div>
+              <div class="follower-info">
+                <a href="user_profile.php?username=<?php echo $data["user_name"];?>"><div class="follower-name"><?php   echo $data["name"];      ?></div></a>
+                <div class="follower-handle">@<?php echo $data["user_name"];?></div>
+                <p class="text-muted" style="font-size: 13px; margin-top: 4px;">
                       <?php    if(isset($data["bio"]))   echo $data["bio"];            ?></p>
-              <div class="flex items-center gap-12 mt-8">
-                <span class="repo-meta">📦 <?php echo $data["total_repo"];  ?> repos</span>
-                <span class="repo-meta">👥 <?php echo $data["total_follower"]; ?> followers</span>
+                <div class="flex items-center gap-12 mt-4">
+                  <span class="repo-meta">📦 <?php echo $data["total_repo"];?> repos</span>
+                  <span class="repo-meta">👥 <?php echo $data["total_follower"];?> followers</span>
+                </div>
+              </div>
+              <div class="flex gap-8">
+               
               </div>
             </div>
-            <div class="flex flex-col gap-8">
-
-             
-            </div>
-         
+          </div>
           <?php  }?>
 
          <?php  
@@ -202,12 +205,16 @@ $total=$dev_count+$repo_count+$tag_count;
             </div>
           </div>
           <?php  }?>
-
+          
           <!-- Empty State (Hidden by default, used when no results found) -->
+          <?php if ($total == 0) { ?>
+          <div class="notif-empty anim-fadein" style="display: block;">
+          <?php } else { ?>
           <div class="notif-empty anim-fadein" style="display: none;">
+          <?php } ?>
             <div class="notif-empty-icon">🔍</div>
             <h3>No results found</h3>
-            <p>We couldn't find anything matching your search. Try different keywords.</p>
+            <p>We couldn't find anything matching your search. Try different keywords.</p> 
             <div class="mt-16">
               <a href="feed.php" class="text-accent">Return to feed</a>
             </div>
@@ -254,30 +261,6 @@ $total=$dev_count+$repo_count+$tag_count;
       }
     });
 
-    // // Star toggle
-    // function toggleStar(btn) {
-    //   const starred = btn.classList.contains('starred');
-    //   const countEl = btn.querySelector('span');
-    //   let count = parseInt(countEl.textContent);
-    //   if (starred) {
-    //     btn.classList.remove('starred');
-    //     btn.innerHTML = '☆ <span>' + (count - 1) + '</span>';
-    //   } else {
-    //     btn.classList.add('starred');
-    //     btn.innerHTML = '★ <span>' + (count + 1) + '</span>';
-    //   }
-    // }
-
-    // // Follow toggle
-    // function toggleFollow(btn) {
-    //   if (btn.classList.contains('following')) {
-    //     btn.classList.remove('following');
-    //     btn.textContent = 'Follow';
-    //   } else {
-    //     btn.classList.add('following');
-    //     btn.textContent = 'Following';
-    //   }
-    // }
 
     // Feed filter
     document.querySelectorAll('.filter-btn').forEach(btn => {
