@@ -6,25 +6,27 @@ require "php/config.php";
 require "php/utility.php";
 $query = "SELECT COUNT(DISTINCT tag.repo_id) AS repo_count,
   (SELECT COUNT(DISTINCT user.id)
-  FROM(
+  FROM user WHERE user.id IN (
   SELECT repo.creator from repo 
   JOIN tag ON tag.repo_id=repo.id
-  UNiON
+  WHERE tag.tag_name='$tag_name'
+  UNION
   SELECT contributor.user_id from contributor
   JOIN tag ON tag.repo_id=contributor.repo_id
   WHERE tag.tag_name='$tag_name'
+    )
     )AS dev_count,
  MIN(repo.created_at) AS created_at FROM tag
  JOIN repo ON repo.id=tag.repo_id
  WHERE tag.tag_name='$tag_name' ";
 $result = mysqli_query($conn, $query);
-if (mysqli_num_rows($result) == 0) {
-    header("Location: feed.php");
-    exit();
-}
+
 $data = mysqli_fetch_assoc($result);
 
-
+if ($data['repo_count'] == 0) {
+                            header("Location: feed.php");
+                            exit();
+                        }?>
 
 ?>
 
@@ -122,6 +124,7 @@ $data = mysqli_fetch_assoc($result);
                             ORDER BY repo.created_at DESC";
                     $result = mysqli_query($conn, $query);
                     while ($data = mysqli_fetch_assoc($result)) {
+                       
 
                     ?>
                         <!-- Tagged Repo 1 -->
@@ -145,7 +148,8 @@ $data = mysqli_fetch_assoc($result);
 
                             </div>
                         </div>
-                    <?php } ?>
+                    <?php } 
+                        ?>
             </main>
 
             <!-- ===== RIGHT SIDEBAR ===== -->
