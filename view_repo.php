@@ -58,14 +58,25 @@ if($result = mysqli_query($conn, $query)){
       exit();
     }else{
       if($data["user_id"] != $_SESSION["id"]){
-        header("Location: index.php");
-        exit();
+        if(!is_a_contributor($_SESSION["id"], $repo_id, $conn)){
+          header("Location: index.php");
+          exit();
+        }
       }
     }
   }
 }else{
   header("Location: index.php");
   exit();
+}
+
+function is_a_contributor($user_id, $repo_id, $conn){
+  $query = "SELECT * FROM contributor WHERE user_id = '$user_id' AND repo_id = '$repo_id';";
+  $result = mysqli_query($conn, $query);
+  if(mysqli_num_rows($result) > 0){
+    return true;
+  }
+  return false;
 }
 
 // get tag names
