@@ -8,7 +8,8 @@ $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
 require "php/send_notification.php";
-
+require "php/user_info.php";
+$logged_in_user = new User($user_id, $conn);
 // remove contribution
 $notif = null;
 if (isset($_POST["rmv_contribution_btn"]) && isset($_POST["rmv_contribution_repo"])) {
@@ -112,7 +113,9 @@ $total_contributed = mysqli_num_rows($contributed_result);
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" />
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search repos, developers…" />
+      </form>
     </div>
 
     <div class="nav-right">
@@ -121,17 +124,21 @@ $total_contributed = mysqli_num_rows($contributed_result);
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.php" class="danger">🚪 Sign out</a>
+          <a href="php/logout.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -234,7 +241,7 @@ $total_contributed = mysqli_num_rows($contributed_result);
                   } ?></div>
                 </div>
                 <p class="frc-desc"><?php if (isset($data["description"]))
-                  echo $data["description"]; ?></p>
+                  echo substr($data["description"], 0, 150) . '...'; ?></p>
                 <div class="frc-footer" style="margin-top: auto;">
                   <?php $tags = explode(",", $data['tag_name']);
 
@@ -282,7 +289,7 @@ $total_contributed = mysqli_num_rows($contributed_result);
                   <div class="version-chip"><?php echo $data["version_number"]; ?></div>
                 </div>
                 <p class="frc-desc"><?php if (isset($data["description"]))
-                  echo $data["description"]; ?></p>
+                  echo substr($data["description"], 0, 150) . '...'; ?></p>
                 <div class="frc-footer" style="margin-top: auto;">
                   <?php $tags = explode(",", $data['tag_name']);
                   foreach ($tags as $tag) { ?> <span class="tag"> <?php if (isset($tag))

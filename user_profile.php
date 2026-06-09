@@ -1,11 +1,26 @@
 <?php
 session_start();
-$user_id = $_SESSION["id"];
-$profile_name = $_GET["username"];
-$user_name = $_SESSION["username"];
+$user_id = null;
+$user_name = null;
+if (isset($_SESSION["id"]) && isset($_SESSION["username"])) {
+    $user_id = $_SESSION["id"];
+    $user_name = $_SESSION["username"];
+}
+$profile_name = null;
+if(isset($_GET["username"])) {
+    $profile_name = $_GET["username"];
+} else {
+    header("Location: index.php");
+    exit();
+}
 
 require "php/config.php";
 require "php/utility.php";
+require "php/user_info.php";
+$logged_in_user = null;
+if(isset($_SESSION["id"])){
+    $logged_in_user = new User($_SESSION["id"], $conn);
+}
 if ($profile_name === $user_name) {
     header("Location: profile.php");
     exit();
@@ -14,6 +29,10 @@ if ($profile_name === $user_name) {
 $notif = null;
 // toggle follow/following
 if (isset($_POST["follow_btn"])) {
+    if(!isset($_SESSION["id"])){
+        header("Location: login.php");
+        exit();
+    }
     $profile_id = $_POST["profile_id"];
     $query = "SELECT * FROM follower WHERE who_is_following='$user_id' AND who_is_being_followed='$profile_id' ";
     $result = mysqli_query($conn, $query);
@@ -25,9 +44,11 @@ if (isset($_POST["follow_btn"])) {
             $notif = ["type" => "error", "msg" => "Something went wrong. Please try again"];
     } else {
         $query = "INSERT INTO follower (who_is_following, who_is_being_followed) VALUES ('$user_id', '$profile_id')";
-        if (mysqli_query($conn, $query))
+        if (mysqli_query($conn, $query)){
             $notif = ["type" => "success", "msg" => "Followed successfully"];
-        else
+            require "php/send_notification.php";
+            send_notification($conn, "", "follow", $user_id, $profile_id);
+        }else
             $notif = ["type" => "error", "msg" => "Something went wrong. Please try again"];
     }
 }
@@ -131,7 +152,9 @@ $total_contributed = mysqli_num_rows($contributed_result);
 
         <div class="nav-search">
             <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search repos, developers…" />
+            <form method="get" action="search.php">
+                <input type="text" name="search" placeholder="Search repos, developers…" />
+            </form>
         </div>
 
         <div class="nav-right">
@@ -140,17 +163,21 @@ $total_contributed = mysqli_num_rows($contributed_result);
             <a href="notification.php">
                 <div class="notif-btn">
                     🔔
-                    <div class="notif-dot"></div>
+                    <?php if ($logged_in_user && $logged_in_user->getTotalUnread() > 0): ?>
+                        <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+                    <?php endif; ?>
                 </div>
             </a>
 
             <div class="user-menu">
-                <div class="avatar" onclick="toggleDropdown()">RK</div>
+                <div class="avatar" onclick="toggleDropdown()">
+                    <?php if(isset($logged_in_user)) {echo get_avatar($logged_in_user->getName()); } else { echo "null"; } ?>
+                </div>
                 <div class="user-dropdown" id="userDropdown">
                     <a href="profile.php">👤 My Profile</a>
                     <a href="settings.php">⚙️ Settings</a>
                     <div class="dd-divider"></div>
-                    <a href="index.php" class="danger">🚪 Sign out</a>
+                    <a href="php/logout.php" class="danger">🚪 Sign out</a>
                 </div>
             </div>
         </div>
@@ -226,7 +253,8 @@ $total_contributed = mysqli_num_rows($contributed_result);
                         <button class="filter-btn active" id="btn-created" onclick="toggleProjects('created')">Created
                             Repositories(<?php echo $total_created; ?>)</button>
                         <button class="filter-btn" id="btn-contributing"
-                            onclick="toggleProjects('contributing')">Contributing Repositories(<?php echo $total_contributed; ?>)</button>
+                            onclick="toggleProjects('contributing')">Contributing
+                            Repositories(<?php echo $total_contributed; ?>)</button>
                     </div>
                 </div>
 
@@ -292,7 +320,7 @@ $total_contributed = mysqli_num_rows($contributed_result);
                     <!-- Card 2 -->
                     <?php
                     if ($contributed_result && mysqli_num_rows($contributed_result) > 0) {
-                        while ($data = mysqli_fetch_assoc($contributed_result)) {?>
+                        while ($data = mysqli_fetch_assoc($contributed_result)) { ?>
                             <div class="feed-repo-card" style="margin-bottom: 20px;">
                                 <div class="frc-top">
                                     <p class="repo-name"><?php echo $data["title"]; ?></p>

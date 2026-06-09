@@ -1,15 +1,22 @@
-<?php 
+<?php
 session_start();
 require "php/config.php";
 require "php/utility.php";
 $logged_in_user_id = -1;
-if(isset($_SESSION["id"])) $logged_in_user_id = $_SESSION["id"];
+if (isset($_SESSION["id"]))
+  $logged_in_user_id = $_SESSION["id"];
 
-if(isset($_GET["repo_id"])){
+if (isset($_GET["repo_id"])) {
   $repo_id = $_GET["repo_id"];
-}else{
+} else {
   header("Location: feed.php");
   exit();
+}
+
+require "php/user_info.php";
+$logged_in_user = null;
+if (isset($_SESSION["id"])) {
+  $logged_in_user = new User($_SESSION["id"], $conn);
 }
 $query = "SELECT
               repo.title,
@@ -46,34 +53,35 @@ $query = "SELECT
             )
           WHERE repo.id = '$repo_id';";
 
-if($result = mysqli_query($conn, $query)){
-  if(mysqli_num_rows($result) < 1){
+if ($result = mysqli_query($conn, $query)) {
+  if (mysqli_num_rows($result) < 1) {
     header("Location: feed.php");
     exit();
   }
   $data = mysqli_fetch_assoc($result);
-  if($data["visibility"] != "public"){
-    if(!isset($_SESSION["id"])){
+  if ($data["visibility"] != "public") {
+    if (!isset($_SESSION["id"])) {
       header("Location: index.php");
       exit();
-    }else{
-      if($data["user_id"] != $_SESSION["id"]){
-        if(!is_a_contributor($_SESSION["id"], $repo_id, $conn)){
+    } else {
+      if ($data["user_id"] != $_SESSION["id"]) {
+        if (!is_a_contributor($_SESSION["id"], $repo_id, $conn)) {
           header("Location: index.php");
           exit();
         }
       }
     }
   }
-}else{
+} else {
   header("Location: index.php");
   exit();
 }
 
-function is_a_contributor($user_id, $repo_id, $conn){
+function is_a_contributor($user_id, $repo_id, $conn)
+{
   $query = "SELECT * FROM contributor WHERE user_id = '$user_id' AND repo_id = '$repo_id';";
   $result = mysqli_query($conn, $query);
-  if(mysqli_num_rows($result) > 0){
+  if (mysqli_num_rows($result) > 0) {
     return true;
   }
   return false;
@@ -117,11 +125,11 @@ if ($zip->open($zipFileName) === TRUE) {
 
 // Sort by name ascending
 usort($folders, function ($a, $b) {
-    return strcmp($a[0], $b[0]);
+  return strcmp($a[0], $b[0]);
 });
 
 usort($files, function ($a, $b) {
-    return strcmp($a[0], $b[0]);
+  return strcmp($a[0], $b[0]);
 });
 
 
@@ -133,7 +141,7 @@ usort($files, function ($a, $b) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?php echo $data["title"];?></title>
+  <title><?php echo $data["title"]; ?></title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .starred {
@@ -148,6 +156,11 @@ usort($files, function ($a, $b) {
     }
   </style>
 </head>
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 
 <body>
 
@@ -164,7 +177,9 @@ usort($files, function ($a, $b) {
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" />
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search repos, developers…" />
+      </form>
     </div>
 
     <div class="nav-right">
@@ -173,17 +188,21 @@ usort($files, function ($a, $b) {
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user && $logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge">
+              <?php echo $logged_in_user->getTotalUnread(); ?>
+            </div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()"><?php if(isset($logged_in_user)){ echo get_avatar($logged_in_user->getName()); }else{ echo "null"; } ?></div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.php" class="danger">🚪 Sign out</a>
+          <a href="php/logout.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -192,100 +211,105 @@ usort($files, function ($a, $b) {
   <!-- ===== PAGE ===== -->
   <div class="page-wrap">
     <div class="repo-view-layout">
-      
+
       <!-- Main Content -->
       <main>
         <div class="repo-header-main">
           <div>
             <div class="repo-path">
-              <a href="user_profile.php?username=<?php echo $data["user_name"];?>" class="owner"><?php echo $data["user_name"];?></a>
+              <a href="user_profile.php?username=<?php echo $data["user_name"]; ?>"
+                class="owner"><?php echo $data["user_name"]; ?></a>
               <span class="sep">/</span>
-              <span class="name"><?php echo $data["title"];?></span>
-              <span class="badge badge-gray" style="margin-left: 10px;"><?php echo $data["visibility"];?></span>
+              <span class="name"><?php echo $data["title"]; ?></span>
+              <span class="badge badge-gray" style="margin-left: 10px;"><?php echo $data["visibility"]; ?></span>
             </div>
             <div class="">
-              <span class="repo-meta" style="font-size: 13px;">📅 Created <?php echo timeAgo($data["created_at"]);?></span>
-              <span class="repo-meta" style="font-size: 13px;">Last updated <?php echo timeAgo($data["last_updated"]);?></span>
+              <span class="repo-meta" style="font-size: 13px;">📅 Created
+                <?php echo timeAgo($data["created_at"]); ?></span>
+              <span class="repo-meta" style="font-size: 13px;">Last updated
+                <?php echo timeAgo($data["last_updated"]); ?></span>
             </div>
-            <p class="text-muted mt-8"><?php echo $data["description"];?></p>
+            <p class="text-muted mt-8"><?php echo $data["description"]; ?></p>
             <div class="flex gap-8 mt-16">
-              <?php while($tags = mysqli_fetch_assoc($tag_result)){?>
-              <a href="view_tag.php?tag=<?php echo $tags["tag_name"];?>"><span class="tag"><?php echo $tags["tag_name"];?></span></a>
-              <?php }?>
+              <?php while ($tags = mysqli_fetch_assoc($tag_result)) { ?>
+                <a href="view_tag.php?tag=<?php echo $tags["tag_name"]; ?>"><span
+                    class="tag"><?php echo $tags["tag_name"]; ?></span></a>
+              <?php } ?>
             </div>
           </div>
 
           <div class="gap-12">
-            <a class="btn btn-primary" href="repo_files/<?php echo $data["file_name"];?>">⬇️ Download ZIP</a>
+            <a class="btn btn-primary" href="repo_files/<?php echo $data["file_name"]; ?>">⬇️ Download ZIP</a>
           </div>
         </div>
 
         <!-- Stats & Actions Bar -->
         <div class="repo-stats-grid">
           <div class="repo-stat-box">
-            <div class="val" id="star_count"><?php echo $data["total_stars"];?></div>
+            <div class="val" id="star_count"><?php echo $data["total_stars"]; ?></div>
             <div class="lbl">Stars</div>
           </div>
           <div class="repo-stat-box">
-            <div class="val"><?php echo $data["total_versions"];?></div>
+            <div class="val"><?php echo $data["total_versions"]; ?></div>
             <div class="lbl">Versions</div>
           </div>
           <div class="repo-stat-box">
-            <div class="val"><?php echo $total_tags;?></div>
+            <div class="val"><?php echo $total_tags; ?></div>
             <div class="lbl">Tags</div>
           </div>
           <div class="repo-stat-box">
-            <div class="val"><?php echo $data["total_contributors"];?></div>
+            <div class="val"><?php echo $data["total_contributors"]; ?></div>
             <div class="lbl">Contributors</div>
           </div>
         </div>
 
         <div class="flex gap-12 mb-24">
-          <?php if($data["is_starred"] == 1){
+          <?php if ($data["is_starred"] == 1) {
             echo "<button class='btn btn-ghost btn-sm starred' id='star_btn'>★ Starred</button>";
-          }else{
+          } else {
             echo "<button class='btn btn-ghost btn-sm' id='star_btn'>☆ Star</button>";
           } ?></button>
           <button class="btn btn-ghost btn-sm" id="share">🔗 Share</button>
-          <?php if($data["demo"] != ""){
+          <?php if ($data["demo"] != "") {
             $demo = $data["demo"];
             echo '<a href="$demo" target="_blank"><button class="btn btn-outline btn-sm">Live Demo ↗</button></a>';
-          }else{
+          } else {
             echo '<button class="btn btn-outline btn-sm" disabled>Live Demo ↗</button>';
           }
-            ?>
+          ?>
         </div>
 
         <!-- File Explorer -->
         <div class="file-explorer anim-fadeup" style="margin-top: 20px;">
           <div class="widget-header" style="background: var(--bg-3);">
             <div class="flex items-center gap-8">
-              📦 <span>Latest Files (v<?php echo $data["version_number"];?>)</span> <span class="text-muted" style="font-weight: 400; font-size: 12px; margin-left: 4px;">— <?php echo $zipSizeMB; ?> MB total</span>
+              📦 <span>Latest Files (v<?php echo $data["version_number"]; ?>)</span> <span class="text-muted"
+                style="font-weight: 400; font-size: 12px; margin-left: 4px;">— <?php echo $zipSizeMB; ?> MB total</span>
             </div>
-            <a href="all_versions.php?repo_id=<?php echo $repo_id;?>">See all versions</a>
+            <a href="all_versions.php?repo_id=<?php echo $repo_id; ?>">See all versions</a>
           </div>
-          <?php foreach ($folders as $folder) {?>
-          <div class="file-row">
-            <div class="icon">📁</div>
-            <div class="name"><?php echo $folder[0]; ?></div>
-            <div class="meta"><?php echo $folder[1]; ?> MB</div>
-          </div>
-          <?php }?>
-          <?php foreach ($files as $file) {?>
-          <div class="file-row">
-            <div class="icon">📄</div>
-            <div class="name"><?php echo $file[0]; ?></div>
-            <div class="meta"><?php echo $file[1]; ?> MB</div>
-          </div>
+          <?php foreach ($folders as $folder) { ?>
+            <div class="file-row">
+              <div class="icon">📁</div>
+              <div class="name"><?php echo $folder[0]; ?></div>
+              <div class="meta"><?php echo $folder[1]; ?> MB</div>
+            </div>
+          <?php } ?>
+          <?php foreach ($files as $file) { ?>
+            <div class="file-row">
+              <div class="icon">📄</div>
+              <div class="name"><?php echo $file[0]; ?></div>
+              <div class="meta"><?php echo $file[1]; ?> MB</div>
+            </div>
           <?php } ?>
         </div>
 
         <!-- Version Description Section -->
         <div class="card anim-fadeup" style="animation-delay: 0.1s; margin-bottom: 24px;">
-          <h3 class="mb-16">Version <?php echo $data["version_number"];?> Notes</h3>
+          <h3 class="mb-16">Version <?php echo $data["version_number"]; ?> Notes</h3>
           <div class="divider mb-16"></div>
           <p class="text-dim">
-            <?php echo $data["version_note"];?>
+            <?php echo $data["version_note"]; ?>
           </p>
         </div>
 
@@ -295,35 +319,42 @@ usort($files, function ($a, $b) {
       <aside class="sidebar-right">
         <div class="sidebar-widget">
           <div class="widget-header">Creator</div>
-          <a href="user_profile.php?username=<?php echo $data["user_name"];?>" class="suggest-user" style="border: none;">
-            <div class="avatar"><?php echo get_avatar($data["name"]);?></div>
+          <a href="user_profile.php?username=<?php echo $data["user_name"]; ?>" class="suggest-user"
+            style="border: none;">
+            <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
             <div class="info">
-              <div class="name"><?php echo $data["name"];?></div>
-              <div class="handle">@<?php echo $data["user_name"];?></div>
+              <div class="name"><?php echo $data["name"]; ?></div>
+              <div class="handle">@<?php echo $data["user_name"]; ?></div>
             </div>
           </a>
           <div style="padding: 0 18px 18px; font-size: 13px; color: var(--text-muted);">
-            <?php echo $data["bio"];?>
-            <div class="mt-8">👥 <?php echo $data["total_followers"];?> followers • 📦 <?php echo $data["total_repos"];?> repos</div>
+            <?php echo $data["bio"]; ?>
+            <div class="mt-8">👥 <?php echo $data["total_followers"]; ?> followers • 📦
+              <?php echo $data["total_repos"]; ?> repos</div>
           </div>
         </div>
 
         <div class="sidebar-widget">
-          <div class="widget-header">Contributors (<?php echo $data["total_contributors"];?>)</div>
-          <?php while($contributors = mysqli_fetch_assoc($contributor_result)){ ?>
-          <a href="user_profile.php?username=<?php echo $contributors["user_name"];?>"><div class="suggest-user" style="border: none;"><div class="avatar"><?php echo get_avatar($contributors["name"]); ?></div><div class="name"><?php echo $contributors["user_name"];?></div></div></a>
-          <?php }?>
+          <div class="widget-header">Contributors (<?php echo $data["total_contributors"]; ?>)</div>
+          <?php while ($contributors = mysqli_fetch_assoc($contributor_result)) { ?>
+            <a href="user_profile.php?username=<?php echo $contributors["user_name"]; ?>">
+              <div class="suggest-user" style="border: none;">
+                <div class="avatar"><?php echo get_avatar($contributors["name"]); ?></div>
+                <div class="name"><?php echo $contributors["user_name"]; ?></div>
+              </div>
+            </a>
+          <?php } ?>
         </div>
       </aside>
     </div>
 
     <!-- Modal for Preview -->
     <div class="modal-overlay" id="imgModal">
-        <div class="modal" style="max-width: 800px;">
-            <button class="modal-close" onclick="closeImgModal()">✕</button>
-            <div style="width:100%; height:400px; background: var(--bg-3); border-radius: var(--radius);"></div>
-            <p class="mt-16 text-center">Dashboard Preview - Dark Mode</p>
-        </div>
+      <div class="modal" style="max-width: 800px;">
+        <button class="modal-close" onclick="closeImgModal()">✕</button>
+        <div style="width:100%; height:400px; background: var(--bg-3); border-radius: var(--radius);"></div>
+        <p class="mt-16 text-center">Dashboard Preview - Dark Mode</p>
+      </div>
     </div>
 
     <!-- ===== FOOTER ===== -->
@@ -357,7 +388,7 @@ usort($files, function ($a, $b) {
     // Share functionality: Copy current URL to clipboard
     const shareBtn = document.getElementById('share');
     if (shareBtn) {
-      shareBtn.addEventListener('click', function() {
+      shareBtn.addEventListener('click', function () {
         navigator.clipboard.writeText(window.location.href).then(() => {
           alert('Link copied to clipboard!');
         });
@@ -370,34 +401,34 @@ usort($files, function ($a, $b) {
     const star_count_elem = document.getElementById("star_count");
     let star_btn = document.getElementById("star_btn");
     star_btn.addEventListener("click", change_star);
-    
+
     async function change_star() {
-        let response = await fetch("php/toggle_star.php", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            repo_id: const_repo_id,
-            author_id: <?php echo $data["user_id"]; ?>,
-          })
-        });
-        let data = await response.json();
-        if(data.status == true){
-          if(data.is_starred == true){
-            star_btn.classList.add("starred");
-            star_btn.innerHTML = "★ Starred";
-            star_count_elem.innerHTML = parseInt(star_count_elem.innerHTML) + 1;
-          }else{
-            star_btn.classList.remove("starred");
-            star_btn.innerHTML = "☆ Star";
-            star_count_elem.innerHTML = parseInt(star_count_elem.innerHTML) - 1;
-          }
-        }else{
-          if(data.is_logged_in == false){
-            window.location.href = "login.php";
-          }
+      let response = await fetch("php/toggle_star.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          repo_id: const_repo_id,
+          author_id: <?php echo $data["user_id"]; ?>,
+        })
+      });
+      let data = await response.json();
+      if (data.status == true) {
+        if (data.is_starred == true) {
+          star_btn.classList.add("starred");
+          star_btn.innerHTML = "★ Starred";
+          star_count_elem.innerHTML = parseInt(star_count_elem.innerHTML) + 1;
+        } else {
+          star_btn.classList.remove("starred");
+          star_btn.innerHTML = "☆ Star";
+          star_count_elem.innerHTML = parseInt(star_count_elem.innerHTML) - 1;
         }
+      } else {
+        if (data.is_logged_in == false) {
+          window.location.href = "login.php";
+        }
+      }
     }
   </script>
 </body>

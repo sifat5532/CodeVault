@@ -1,12 +1,22 @@
-<?php 
+<?php
 session_start();
-if(!isset($_SESSION["id"])){
+if (!isset($_SESSION["id"])) {
   header("Location: login.php");
   exit();
 }
-  $user_id= $_SESSION["id"];
-  require "php/config.php";
-  require "php/utility.php";
+$user_id = $_SESSION["id"];
+require "php/config.php";
+require "php/utility.php";
+require "php/user_info.php";
+$logged_in_user = new User($_SESSION["id"], $conn);
+
+//top tags
+$query = "SELECT tag.tag_name,
+                  COUNT(DISTINCT (tag.repo_id)) AS total_repo
+          FROM tag 
+          GROUP BY tag.tag_name
+          ORDER BY total_repo DESC LIMIT 6 ";
+$result_tag = mysqli_query($conn, $query);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +27,11 @@ if(!isset($_SESSION["id"])){
   <title>Starred — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 <body>
 
   <!-- ===== NAVBAR ===== -->
@@ -33,7 +47,9 @@ if(!isset($_SESSION["id"])){
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" />
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search repos, developers…" />
+      </form>
     </div>
 
     <div class="nav-right">
@@ -42,17 +58,21 @@ if(!isset($_SESSION["id"])){
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.php" class="danger">🚪 Sign out</a>
+          <a href="php/logout.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -65,20 +85,20 @@ if(!isset($_SESSION["id"])){
       <!-- ===== LEFT SIDEBAR ===== -->
       <aside class="sidebar-left">
         <div class="sidebar-profile">
-          <div class="avatar xl">RK</div>
-          <div class="profile-name">Rafid Khan</div>
-          <div class="profile-handle">@rafidkhan</div>
+          <div class="avatar xl"><?php echo get_avatar($logged_in_user->getName()); ?></div>
+          <div class="profile-name"><?php echo $logged_in_user->getName(); ?></div>
+          <div class="profile-handle">@<?php echo $logged_in_user->getUsername(); ?></div>
           <div class="profile-stats">
             <div class="profile-stat">
-              <div class="n">14</div>
+              <div class="n"><?php echo $logged_in_user->getTotalRepo(); ?></div>
               <div class="l">Repos</div>
             </div>
             <div class="profile-stat">
-              <div class="n">86</div>
+              <div class="n"><?php echo $logged_in_user->getTotalFollowers(); ?></div>
               <div class="l">Followers</div>
             </div>
             <div class="profile-stat">
-              <div class="n">53</div>
+              <div class="n"><?php echo $logged_in_user->getTotalStars(); ?></div>
               <div class="l">Stars</div>
             </div>
           </div>
@@ -88,8 +108,8 @@ if(!isset($_SESSION["id"])){
           <a href="feed.php"><span class="nav-icon">🏠</span> Home</a>
           <a href="profile.php"><span class="nav-icon">📦</span> My Repos</a>
           <a href="starred.php" class="active"><span class="nav-icon">⭐</span> Starred</a>
-          <a href="followers.php"><span class="nav-icon">👥</span> Followers</a>
-          <a href="following.php"><span class="nav-icon">👥</span> Following</a>
+          <a href="follow.php?type=Followers"><span class="nav-icon">👥</span> Followers</a>
+          <a href="follow.php?type=Followings"><span class="nav-icon">👥</span> Following</a>
           <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>
@@ -101,8 +121,8 @@ if(!isset($_SESSION["id"])){
         </div>
 
         <div class="feed-list">
-          <?php  
-            $query="SELECT repo.*,user.user_name, user.name,version.version_number ,version.created_at  AS version_created_at
+          <?php
+          $query = "SELECT repo.*,user.user_name, user.name,version.version_number ,version.created_at  AS version_created_at
             FROM stars
             JOIN repo ON repo.id=stars.repo_id
             JOIN version ON version.id=(
@@ -110,58 +130,63 @@ if(!isset($_SESSION["id"])){
             JOIN user ON repo.creator=user.id
          
             WHERE stars.user_id='$user_id'";
-             $result=mysqli_query($conn,$query);
-             if($result && mysqli_num_rows($result)>0){
-              while($data=mysqli_fetch_assoc($result)){
+          $result = mysqli_query($conn, $query);
+          if ($result && mysqli_num_rows($result) > 0) {
+            while ($data = mysqli_fetch_assoc($result)) {
 
 
-          ?>
-          <!-- Starred Repo 1 -->
-          <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
+              ?>
+              <!-- Starred Repo 1 -->
+              <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
+                <div class="frc-top">
+                  <div class="frc-meta">
 
-                  <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
-                  <div>
-                 <a href="view_repo.php?repo_id=<?php echo $data["id"];?>" > 
-                  <div class="repo-name"><?php   if(isset($data["title"]))  echo $data["title"]; ?></div>
-                  </a>
-                  <div class="by">by <strong><?php  if(isset($data["user_name"]))  echo $data["user_name"];  ?></strong></div>
+                    <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
+                    <div>
+                      <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>">
+                        <div class="repo-name"><?php if (isset($data["title"]))
+                          echo $data["title"]; ?></div>
+                      </a>
+                      <div class="by">by <strong><?php if (isset($data["user_name"]))
+                        echo $data["user_name"]; ?></strong>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <p class="frc-desc"><?php if (isset($data["description"]))
+                  echo $data["description"]; ?></p>
+                <div class="frc-footer">
+
+                  <div class="version-chip">
+                    <?php if (isset($data["version_number"]))
+                      echo '✦ v' . $data["version_number"]; ?>
+                  </div>
+
+                  <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php
+                  $date = $data["version_created_at"];
+                  echo "Updated " . timeAgo($date); ?></div>
+
+
                 </div>
               </div>
-             
-            </div>
-            <p class="frc-desc"><?php if(isset($data["description"])) echo $data["description"];?></p>
-            <div class="frc-footer">
-            
-              <div class="version-chip"><?php  if(isset($data["version_number"])) echo '✦ v'.$data["version_number"]  ; ?></div>
-    
-              <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);"><?php  
-              $date=$data["version_created_at"];
-               echo    "Updated " . timeAgo($date); ?></div>
-             
-              
-            </div>
-          </div>
-                 <?php   } }
-                 
-                 
-                 else       {?>
-                    <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
-            <div class="frc-top">
-              <div class="frc-meta">
-          
-                <div>
-                        <div class="frc-top" style="align-content: center";>
-              <div class="frc-meta">
-               
-                 <p class="frc-desc" ><?php    echo "You have no starred repositories yet.";?></p>
-                </div>
-                    </div>  
+            <?php }
+          } else { ?>
+            <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
+              <div class="frc-top">
+                <div class="frc-meta">
+
+                  <div>
+                    <div class="frc-top" style="align-content: center" ;>
+                      <div class="frc-meta">
+
+                        <p class="frc-desc"><?php echo "You have no starred repositories yet."; ?></p>
+                      </div>
                     </div>
-                <?php  } ?>
-         
-        </div>
+                  </div>
+                <?php } ?>
+
+              </div>
       </main>
 
       <!-- ===== RIGHT SIDEBAR ===== -->
@@ -170,14 +195,15 @@ if(!isset($_SESSION["id"])){
         <div class="sidebar-widget">
           <div class="widget-header">
             Trending tags
-            <a href="#">Browse all</a>
+            <a href="explore.php">Browse all</a>
           </div>
-          <div class="trending-tag"><span class="t-name">#python</span><span class="t-count">1.2k repos</span></div>
-          <div class="trending-tag"><span class="t-name">#react</span><span class="t-count">980 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#typescript</span><span class="t-count">843 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#docker</span><span class="t-count">612 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#rust</span><span class="t-count">481 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#ml</span><span class="t-count">370 repos</span></div>
+          <?php while ($data = mysqli_fetch_assoc($result_tag)) { ?>
+            <a href="view_tag.php?tag=<?php echo $data["tag_name"] ?>" class="trending-tag"><span class="t-name">#
+                <?php echo $data["tag_name"]; ?>
+              </span><span class="t-count">
+                <?php echo $data["total_repo"]; ?> repos
+              </span></a>
+          <?php } ?>
         </div>
       </aside>
 

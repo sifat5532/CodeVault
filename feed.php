@@ -7,7 +7,8 @@ if (!isset($_SESSION["id"])) {
 $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
-
+require "php/user_info.php";
+$logged_in_user = new User($user_id, $conn);
 $query = "SELECT * FROM (
 
               -- repos from people you follow
@@ -125,7 +126,9 @@ $result_tag = mysqli_query($conn, $query);
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" />
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search repos, developers…" />
+      </form>
     </div>
 
     <div class="nav-right">
@@ -133,18 +136,20 @@ $result_tag = mysqli_query($conn, $query);
 
       <a href="notification.php">
         <div class="notif-btn">
-          🔔
-          <div class="notif-dot"></div>
+          🔔<?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
+          <!-- <div class="notif-dot"></div> -->
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()"><?php echo get_avatar($logged_in_user->getName()); ?></div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.php" class="danger">🚪 Sign out</a>
+          <a href="php/logout.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -157,20 +162,20 @@ $result_tag = mysqli_query($conn, $query);
       <!-- ===== LEFT SIDEBAR ===== -->
       <aside class="sidebar-left">
         <div class="sidebar-profile">
-          <div class="avatar xl">RK</div>
-          <div class="profile-name">Rafid Khan</div>
-          <div class="profile-handle">@rafidkhan</div>
+          <div class="avatar xl"><?php echo get_avatar($logged_in_user->getName()); ?></div>
+          <div class="profile-name"><?php echo $logged_in_user->getName(); ?></div>
+          <div class="profile-handle">@<?php echo $logged_in_user->getUsername(); ?></div>
           <div class="profile-stats">
             <div class="profile-stat">
-              <div class="n">14</div>
+              <div class="n"><?php echo $logged_in_user->getTotalRepo(); ?></div>
               <div class="l">Repos</div>
             </div>
             <div class="profile-stat">
-              <div class="n">86</div>
+              <div class="n"><?php echo $logged_in_user->getTotalFollowers(); ?></div>
               <div class="l">Followers</div>
             </div>
             <div class="profile-stat">
-              <div class="n">53</div>
+              <div class="n"><?php echo $logged_in_user->getTotalStars(); ?></div>
               <div class="l">Stars</div>
             </div>
           </div>
@@ -180,8 +185,8 @@ $result_tag = mysqli_query($conn, $query);
           <a href="feed.php" class="active"><span class="nav-icon">🏠</span> Home</a>
           <a href="profile.php"><span class="nav-icon">📦</span> My Repos</a>
           <a href="starred.php"><span class="nav-icon">⭐</span> Starred</a>
-          <a href="followers.php"><span class="nav-icon">👥</span> Followers</a>
-          <a href="following.php"><span class="nav-icon">👥</span> Following</a>
+          <a href="follow.php?type=Followers"><span class="nav-icon">👥</span> Followers</a>
+          <a href="follow.php?type=Followings"><span class="nav-icon">👥</span> Following</a>
           <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>
@@ -207,7 +212,8 @@ $result_tag = mysqli_query($conn, $query);
                     <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
                     <div>
                       <div class="by"><a
-                          href="user_profile.php?username=<?php echo $data['user_name']; ?>"><strong><?php echo $data['name']; ?></strong></a> <?php echo $data['in_feed_des']; ?>
+                          href="user_profile.php?username=<?php echo $data['user_name']; ?>"><strong><?php echo $data['name']; ?></strong></a>
+                        <?php echo $data['in_feed_des']; ?>
                       </div>
                       <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>"
                         class="repo-name"><?php echo $data['user_name'] . '/' . $data['title']; ?></a>
@@ -216,7 +222,7 @@ $result_tag = mysqli_query($conn, $query);
                   <!-- <button class="star-btn" onclick="toggleStar(this)">☆ <span>142</span></button> -->
                 </div>
                 <p class="frc-desc"><?php if (isset($data['description']))
-                  echo $data['description']; ?></p>
+                  echo substr($data['description'], 0, 150) . '...'; ?></p>
                 <div class="frc-footer">
                   <div class="version-chip">✦ v<?php echo $data['version_number']; ?></div>
                   <div class="repo-meta" style="margin-left:auto; color: var(--text-muted);">

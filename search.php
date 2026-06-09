@@ -1,10 +1,17 @@
 <?php 
 session_start();
 $search_for=$_GET["search"];
-// $search_for='ishra19';
+
 //developers
 require "php/config.php";
 require "php/utility.php";
+require "php/user_info.php";
+$logged_in_user = null;
+if (isset($_SESSION["id"])) {
+  $logged_in_user = new User($_SESSION["id"], $conn);
+}
+if($search_for != "")
+{
 $query="SELECT user.name,user.user_name,user.bio,
         (SELECT COUNT(*) FROM repo WHERE repo.creator=user.id)AS total_repo,
         (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed=user.id)AS total_follower
@@ -23,7 +30,7 @@ $query="SELECT user.name,user.user_name,user.bio,
             (SELECT COUNT(*) FROM stars  WHERE stars.repo_id=repo.id)AS total_stars
             FROM repo
              JOIN user ON user.id=repo.creator
-             WHERE repo.title LIKE '%$search_for%' OR repo.description LIKE '%$search_for%' OR user.user_name LIKE '%$search_for%' OR user.name LIKE '%$search_for%'
+             WHERE repo.visibility='public' AND (repo.title LIKE '%$search_for%' OR repo.description LIKE '%$search_for%' OR user.user_name LIKE '%$search_for%' OR user.name LIKE '%$search_for%')
              GROUP BY repo.id
             ORDER BY repo.created_at DESC";
 $repo=mysqli_query($conn,$query);
@@ -37,15 +44,9 @@ $query="SELECT tag.tag_name,COUNT(DISTINCT tag.repo_id)AS total_repo
 $tag=mysqli_query($conn,$query);
 $tag_count=mysqli_num_rows($tag);
 $total=$dev_count+$repo_count+$tag_count;
-
-
-
-
+}
 
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -56,7 +57,11 @@ $total=$dev_count+$repo_count+$tag_count;
   <title>Search Results — CodeVault</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-
+<script>
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.history.href);
+  }
+</script>
 <body>
 
   <!-- ===== NAVBAR ===== -->
@@ -72,7 +77,9 @@ $total=$dev_count+$repo_count+$tag_count;
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" value="react dashboard" />
+      <form method="get" action="">
+        <input type="text" name="search" value="<?php if(isset($search_for)) echo $search_for;?>" placeholder="Search repos, developers…" />
+      </form>
     </div>
 
     <div class="nav-right">
@@ -81,17 +88,19 @@ $total=$dev_count+$repo_count+$tag_count;
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user && $logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()"><?php if(isset($logged_in_user)){ echo get_avatar($logged_in_user->getName()); } else { echo "null"; } ?></div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.php" class="danger">🚪 Sign out</a>
+          <a href="php/logout.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -106,13 +115,13 @@ $total=$dev_count+$repo_count+$tag_count;
         <div class="section-label" style="margin-left: 16px; margin-bottom: 8px;">Filter by</div>
         <nav class="sidebar-nav">
           <a href="#" class="active all_results_btn" onclick="filterResult(0)"><span class="nav-icon">📁</span>
-            All Results <span class="nav-badge"><?php     echo $total;   ?></span></a>
+            All Results <span class="nav-badge"><?php if(isset($total)) echo $total;   ?></span></a>
           <a href="#" class="repo_results_btn" onclick="filterResult(1)"><span class="nav-icon">📦</span> Repositories
-            <span class="nav-badge"><?php     echo $repo_count;     ?></span></a>
+            <span class="nav-badge"><?php if(isset($repo_count)) echo $repo_count;     ?></span></a>
           <a href="#" class="dev_results_btn" onclick="filterResult(2)"><span class="nav-icon">👥</span> Developers
-            <span class="nav-badge"><?php echo $dev_count;  ?></span></a>
+            <span class="nav-badge"><?php if(isset($dev_count)) echo $dev_count;  ?></span></a>
           <a href="#" class="tags_results_btn" onclick="filterResult(3)"><span class="nav-icon">🏷️</span> Tags <span
-              class="nav-badge"><?php echo $tag_count; ?></span></a>
+              class="nav-badge"><?php if(isset($tag_count)) echo $tag_count; ?></span></a>
 
         </nav>
       </aside>
@@ -122,21 +131,22 @@ $total=$dev_count+$repo_count+$tag_count;
         <div class="feed-header">
           <div>
             <h2 style="font-size: 18px;">Results for <span class="text-accent"> <?php echo '  "'.$search_for.'"'; ?></span></h2>
-            <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Found <?php echo $total ?> results across the vault</p>
+            <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Found <?php if(isset($total)) echo $total; else{echo 0;} ?> results across the vault</p>
           </div>
           <nav class="mobile-search-filters">
             <a href="#" class="active all_results_btn" onclick="filterResult(0)"><span class="nav-icon">📁</span> All
-              Results <span class="nav-badge"><?php     echo $total;   ?></span></a>
+              Results <span class="nav-badge"><?php if(isset($total)) echo $total;   ?></span></a>
             <a href="#" class="repo_results_btn" onclick="filterResult(1)"><span class="nav-icon">📦</span> Repositories
-              <span class="nav-badge"><?php     echo $repo_count;     ?></span></a>
+              <span class="nav-badge"><?php if(isset($repo_count)) echo $repo_count;     ?></span></a>
             <a href="#" class="dev_results_btn" onclick="filterResult(2)"><span class="nav-icon">👥</span> Developers
-              <span class="nav-badge"><?php echo $dev_count;  ?></span></a>
+              <span class="nav-badge"><?php if(isset($dev_count)) echo $dev_count;  ?></span></a>
             <a href="#" class="tags_results_btn" onclick="filterResult(3)"><span class="nav-icon">🏷️</span> Tags <span
-                class="nav-badge"><?php echo $tag_count; ?></span></a>
+                class="nav-badge"><?php if(isset($tag_count)) echo $tag_count; ?></span></a>
         </div>
 
         <div class="feed-list">
-          <?php  
+          <?php 
+          if(isset($repo)){
           while($data=mysqli_fetch_assoc($repo)){      ?>
           <!-- Repository Result -->
           <div class="repo_result_card feed-repo-card anim-fadeup" style="animation-delay:0.05s">
@@ -150,17 +160,18 @@ $total=$dev_count+$repo_count+$tag_count;
               </div>
 
             </div>
-            <p class="frc-desc"><?php  if(isset($data["description"])) echo $data["description"];        ?></p>
+            <p class="frc-desc"><?php  if(isset($data["description"])) echo substr($data["description"], 0, 150) . '...';        ?></p>
             <div class="frc-footer">
           
             
             </div>
           </div>
-          <?php   }  ?>
+          <?php   } } ?>
 
           <!-- Developer Result -->
 
           <?php     
+          if(isset($dev)){
           while($data=mysqli_fetch_assoc($dev)){      ?>
     
           <div class="dev_result_card follower-list">
@@ -170,7 +181,7 @@ $total=$dev_count+$repo_count+$tag_count;
                 <a href="user_profile.php?username=<?php echo $data["user_name"];?>"><div class="follower-name"><?php   echo $data["name"];      ?></div></a>
                 <div class="follower-handle">@<?php echo $data["user_name"];?></div>
                 <p class="text-muted" style="font-size: 13px; margin-top: 4px;">
-                      <?php    if(isset($data["bio"]))   echo $data["bio"];            ?></p>
+                      <?php    if(isset($data["bio"]))   echo substr($data["bio"], 0, 50) . "...";            ?></p>
                 <div class="flex items-center gap-12 mt-4">
                   <span class="repo-meta">📦 <?php echo $data["total_repo"];?> repos</span>
                   <span class="repo-meta">👥 <?php echo $data["total_follower"];?> followers</span>
@@ -181,9 +192,10 @@ $total=$dev_count+$repo_count+$tag_count;
               </div>
             </div>
           </div>
-          <?php  }?>
+          <?php  } }?>
 
          <?php  
+         if(isset($tag)){
          while($data=mysqli_fetch_assoc($tag) )
          { ?>
 
@@ -199,10 +211,10 @@ $total=$dev_count+$repo_count+$tag_count;
 
             </div>
           </div>
-          <?php  }?>
+          <?php  } }?>
           
           <!-- Empty State (Hidden by default, used when no results found) -->
-          <?php if ($total == 0) { ?>
+          <?php if (!isset($total) || $total == 0) { ?>
           <div class="notif-empty anim-fadein" style="display: block;">
           <?php } else { ?>
           <div class="notif-empty anim-fadein" style="display: none;">
@@ -223,9 +235,9 @@ $total=$dev_count+$repo_count+$tag_count;
 
         <div class="sidebar-widget">
           <div class="widget-header">Suggested Keywords</div>
-          <div class="trending-tag"><span class="t-name">#react-ui</span></div>
+          <!-- <div class="trending-tag"><span class="t-name">#react-ui</span></div>
           <div class="trending-tag"><span class="t-name">#dashboard-theme</span></div>
-          <div class="trending-tag"><span class="t-name">#data-visualization</span></div>
+          <div class="trending-tag"><span class="t-name">#data-visualization</span></div> -->
         </div>
       </aside>
 

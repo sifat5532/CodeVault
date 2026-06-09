@@ -1,9 +1,9 @@
 <?php
-// session_start();
-// if(!isset($_SESSION["id"])){
-//   header("Location: login.php");
-//   exit();
-// }
+session_start();
+if(!isset($_SESSION["id"])){
+  header("Location: login.php");
+  exit();
+}
 
 if(isset($_GET["type"])){
   $type = $_GET["type"];
@@ -18,8 +18,9 @@ if($type != "Followers" && $type != "Followings"){
 
 require "php/config.php";
 require "php/utility.php";
-// $id = $_SESSION["id"];
-$id = 1;
+require "php/user_info.php";
+$id = $_SESSION["id"];
+$logged_in_user = new User($id, $conn);
 if($type === "Followers"){
   $query = "SELECT COUNT(follower.who_is_being_followed) as total FROM follower WHERE follower.who_is_being_followed = $id;";
   $query_user_list = "
@@ -88,7 +89,9 @@ $result_follow=mysqli_query($conn,$query);
 
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search repos, developers…" />
+      <form method="get" action="search.php">
+        <input type="text" name="search" placeholder="Search repos, developers…" />
+      </form>
     </div>
 
     <div class="nav-right">
@@ -97,17 +100,21 @@ $result_follow=mysqli_query($conn,$query);
       <a href="notification.php">
         <div class="notif-btn">
           🔔
-          <div class="notif-dot"></div>
+          <?php if ($logged_in_user->getTotalUnread() > 0): ?>
+            <div class="notif-badge"><?php echo $logged_in_user->getTotalUnread(); ?></div>
+          <?php endif; ?>
         </div>
       </a>
 
       <div class="user-menu">
-        <div class="avatar" onclick="toggleDropdown()">RK</div>
+        <div class="avatar" onclick="toggleDropdown()">
+          <?php echo get_avatar($logged_in_user->getName()); ?>
+        </div>
         <div class="user-dropdown" id="userDropdown">
           <a href="profile.php">👤 My Profile</a>
           <a href="settings.php">⚙️ Settings</a>
           <div class="dd-divider"></div>
-          <a href="index.php" class="danger">🚪 Sign out</a>
+          <a href="php/logout.php" class="danger">🚪 Sign out</a>
         </div>
       </div>
     </div>
@@ -120,20 +127,20 @@ $result_follow=mysqli_query($conn,$query);
       <!-- ===== LEFT SIDEBAR ===== -->
       <aside class="sidebar-left">
         <div class="sidebar-profile">
-          <div class="avatar xl">RK</div>
-          <div class="profile-name">Rafid Khan</div>
-          <div class="profile-handle">@rafidkhan</div>
+          <div class="avatar xl"><?php echo get_avatar($logged_in_user->getName()); ?></div>
+          <div class="profile-name"><?php echo $logged_in_user->getName(); ?></div>
+          <div class="profile-handle">@<?php echo $logged_in_user->getUsername(); ?></div>
           <div class="profile-stats">
             <div class="profile-stat">
-              <div class="n">14</div>
+              <div class="n"><?php echo $logged_in_user->getTotalRepo(); ?></div>
               <div class="l">Repos</div>
             </div>
             <div class="profile-stat">
-              <div class="n">86</div>
+              <div class="n"><?php echo $logged_in_user->getTotalFollowers(); ?></div>
               <div class="l">Followers</div>
             </div>
             <div class="profile-stat">
-              <div class="n">53</div>
+              <div class="n"><?php echo $logged_in_user->getTotalStars(); ?></div>
               <div class="l">Stars</div>
             </div>
           </div>
@@ -143,8 +150,8 @@ $result_follow=mysqli_query($conn,$query);
           <a href="feed.php"><span class="nav-icon">🏠</span> Home</a>
           <a href="profile.php"><span class="nav-icon">📦</span> My Repos</a>
           <a href="starred.php"><span class="nav-icon">⭐</span> Starred</a>
-          <a href="followers.php" class="active"><span class="nav-icon">👥</span> Followers</a>
-          <a href="following.php"><span class="nav-icon">👥</span> Following</a>
+          <a href="follow.php?type=Followers" <?php if(isset($_GET['type']) && $_GET['type'] == 'Followers'): ?>class="active"<?php endif; ?>><span class="nav-icon">👥</span> Followers</a>
+          <a href="follow.php?type=Followings" <?php if(isset($_GET['type']) && $_GET['type'] == 'Followings'): ?>class="active"<?php endif; ?>><span class="nav-icon">👥</span> Following</a>
           <a href="settings.php"><span class="nav-icon">⚙️</span> Settings</a>
         </nav>
       </aside>
@@ -160,10 +167,10 @@ $result_follow=mysqli_query($conn,$query);
           <div class="follower-card anim-fadeup" style="animation-delay:0.05s">
             <div class="avatar lg"><?php echo get_avatar($data["name"]);?></div>
             <div class="follower-info">
-              <div class="follower-name"><?php echo $data["name"];?></div>
+              <a href="user_profile.php?username=<?php echo $data["user_name"];?>"><div class="follower-name"><?php echo $data["name"];?></div></a>
               <div class="follower-handle">@<?php echo $data["user_name"];?></div>
             </div>
-            <a href="user_profile.php?user_id=<?php echo $data["id"];?>"><button class="btn btn-ghost btn-sm">View profile</button></a>
+            <a href="user_profile.php?username=<?php echo $data["user_name"];?>"><button class="btn btn-ghost btn-sm">View profile</button></a>
           </div>
          <?php } ?>
         </div>
@@ -174,7 +181,7 @@ $result_follow=mysqli_query($conn,$query);
         <div class="sidebar-widget">
           <div class="widget-header">
             Top Developers
-            <a href="#">See all</a>
+            <a href="explore.php">See all</a>
           </div>
         <?php  
           while($data=mysqli_fetch_assoc($result_follow)){ ?>
