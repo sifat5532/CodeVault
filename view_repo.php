@@ -372,7 +372,6 @@ usort($files, function ($a, $b) {
     star_btn.addEventListener("click", change_star);
     
     async function change_star() {
-        let settings = "<?php echo $data["notification_settings"]; ?>";
         let response = await fetch("php/toggle_star.php", {
           method: "POST",
           headers: {
@@ -381,7 +380,6 @@ usort($files, function ($a, $b) {
           body: JSON.stringify({
             repo_id: const_repo_id,
             author_id: <?php echo $data["user_id"]; ?>,
-            notification_settings: settings
           })
         });
         let data = await response.json();
