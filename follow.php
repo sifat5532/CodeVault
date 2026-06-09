@@ -53,6 +53,13 @@ if($type === "Followers"){
 }
 $count = ($result = mysqli_query($conn, $query)) ? mysqli_fetch_assoc($result)["total"] : 0;
 $result = mysqli_query($conn, $query_user_list);
+//who to follow
+$query="SELECT user.name,user.user_name,
+        (SELECT COUNT(*) FROM repo WHERE repo.creator=user.id)AS total_repo,
+        (SELECT COUNT(*) FROM stars JOIN repo ON stars.repo_id=repo.id WHERE repo.creator=user.id)AS total_stars,
+        (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed=user.id)AS total_follower
+        FROM user  ORDER  BY total_stars DESC,total_repo ASC,total_follower DESC LIMIT 4";
+$result_follow=mysqli_query($conn,$query);   
 
 ?>
 
@@ -166,25 +173,21 @@ $result = mysqli_query($conn, $query_user_list);
       <aside class="sidebar-right">
         <div class="sidebar-widget">
           <div class="widget-header">
-            Who to follow
+            Top Developers
             <a href="#">See all</a>
           </div>
+        <?php  
+          while($data=mysqli_fetch_assoc($result_follow)){ ?>
           <div class="suggest-user">
-            <div class="avatar">MZ</div>
-            <div class="info">
-              <div class="name">man_zhang</div>
-              <div class="handle">@man_zhang</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+            <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
+            <a  href="user_profile.php?username=<?php  echo $data["user_name"]; ?>" class="info">
+              <div class="name"><?php  echo $data["name"];     ?></div>
+              <div class="handle">@<?php  echo $data["user_name"];     ?></div>
+             </a>
+            
           </div>
-          <div class="suggest-user">
-            <div class="avatar">DK</div>
-            <div class="info">
-              <div class="name">dev_kabir</div>
-              <div class="handle">@dev_kabir</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-          </div>
+          <?php  } ?>
+         
         </div>
       </aside>
 
