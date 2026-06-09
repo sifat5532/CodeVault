@@ -8,7 +8,7 @@ $user_id = $_SESSION["id"];
 require "php/config.php";
 require "php/utility.php";
 
-$query = "SELECT * FROM(SELECT user.user_name,
+$query = "SELECT * FROM(SELECT user.user_name,user.name,
          repo.id,repo.title,repo.creator,repo.description,version.version_number,version.created_at
         FROM follower
          JOIN repo  ON repo.creator=follower.who_is_being_followed 
@@ -20,7 +20,7 @@ $query = "SELECT * FROM(SELECT user.user_name,
           WHERE follower.who_is_following='$user_id' AND  repo.visibility='public'
          
           UNION
-          SELECT  user.user_name,
+          SELECT  user.user_name,user.name,
           repo.id,repo.title,repo.creator,repo.description,version.version_number,version.created_at
           FROM stars
           JOIN  repo ON stars.repo_id=repo.id
@@ -33,7 +33,20 @@ $query = "SELECT * FROM(SELECT user.user_name,
            ORDER BY created_at DESC 
           ";
 $result = mysqli_query($conn, $query);
-
+//who to follow
+$query="SELECT user.name,user.user_name,
+        (SELECT COUNT(*) FROM repo WHERE repo.creator=user.id)AS total_repo,
+        (SELECT COUNT(*) FROM stars JOIN repo ON stars.repo_id=repo.id WHERE repo.creator=user.id)AS total_stars,
+        (SELECT COUNT(*) FROM follower WHERE follower.who_is_being_followed=user.id)AS total_follower
+        FROM user  ORDER  BY total_stars DESC,total_repo ASC,total_follower DESC LIMIT 4";
+$result_follow=mysqli_query($conn,$query);   
+//top tags
+$query="SELECT tag.tag_name,
+        COUNT(DISTINCT (tag.repo_id)) AS total_repo
+        FROM tag 
+        GROUP BY tag.tag_name
+        ORDER BY total_repo DESC LIMIT 6 ";
+$result_tag=mysqli_query($conn,$query);
 ?>
 
 
@@ -142,9 +155,9 @@ $result = mysqli_query($conn, $query);
               <div class="feed-repo-card anim-fadeup" style="animation-delay:0.05s">
                 <div class="frc-top">
                   <div class="frc-meta">
-                    <div class="avatar"><?php echo get_avatar($data["user_name"]); ?></div>
+                    <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
                     <div>
-                      <div class="by"><a href="user_profile.php?username=<?php echo $data['user_name']; ?>"><strong><?php echo $data['user_name'];    ?></strong></a> </div>
+                      <div class="by"><a href="user_profile.php?username=<?php echo $data['name']; ?>"><strong><?php echo $data['name'];    ?></strong></a> </div>
                       <a href="view_repo.php?repo_id=<?php echo $data["id"]; ?>" class="repo-name"><?php echo  $data['user_name'] . '/' . $data['title']; ?></a>
                     </div>
                   </div>
@@ -170,55 +183,33 @@ $result = mysqli_query($conn, $query);
         <!-- Suggested Users -->
         <div class="sidebar-widget">
           <div class="widget-header">
-            Who to follow
-            <a href="#">See all</a>
+            Top Developers
+            <a href="explore.php">See all</a>
           </div>
+          <?php  
+          while($data=mysqli_fetch_assoc($result_follow)){ ?>
           <div class="suggest-user">
-            <div class="avatar">MZ</div>
-            <div class="info">
-              <div class="name">man_zhang</div>
-              <div class="handle">@man_zhang</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
+            <div class="avatar"><?php echo get_avatar($data["name"]); ?></div>
+            <a  href="user_profile.php?username=<?php  echo $data["user_name"]; ?>" class="info">
+              <div class="name"><?php  echo $data["name"];     ?></div>
+              <div class="handle">@<?php  echo $data["user_name"];     ?></div>
+             </a>
+            
           </div>
-          <div class="suggest-user">
-            <div class="avatar">DK</div>
-            <div class="info">
-              <div class="name">dev_kabir</div>
-              <div class="handle">@dev_kabir</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-          </div>
-          <div class="suggest-user">
-            <div class="avatar">YS</div>
-            <div class="info">
-              <div class="name">yui_sudo</div>
-              <div class="handle">@yui_sudo</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-          </div>
-          <div class="suggest-user">
-            <div class="avatar">OB</div>
-            <div class="info">
-              <div class="name">olumide_b</div>
-              <div class="handle">@olumide_b</div>
-            </div>
-            <button class="follow-btn" onclick="toggleFollow(this)">Follow</button>
-          </div>
+          <?php  } ?>
+         
+        
         </div>
 
         <!-- Trending Tags -->
         <div class="sidebar-widget">
           <div class="widget-header">
             Trending tags
-            <a href="#">Browse all</a>
+            <a href="explore.php">Browse all</a>
           </div>
-          <div class="trending-tag"><span class="t-name">#python</span><span class="t-count">1.2k repos</span></div>
-          <div class="trending-tag"><span class="t-name">#react</span><span class="t-count">980 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#typescript</span><span class="t-count">843 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#docker</span><span class="t-count">612 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#rust</span><span class="t-count">481 repos</span></div>
-          <div class="trending-tag"><span class="t-name">#ml</span><span class="t-count">370 repos</span></div>
+          <?php while($data=mysqli_fetch_assoc($result_tag)) { ?>
+          <a href="view_tag.php?tag=<?php echo $data["tag_name"]?>" class="trending-tag"><span class="t-name">#<?php echo $data["tag_name"];  ?></span><span class="t-count"><?php echo $data["total_repo"];   ?> repos</span></a>
+          <?php }?>
         </div>
 
       </aside>
