@@ -31,6 +31,7 @@ if(mysqli_fetch_assoc(mysqli_query($conn, $query))["starred"] > 0){
 
 if(mysqli_query($conn, $q2)){
     if($settings[0] == "1" && $author_id != $user_id && $is_now_starred){
+        require 'send_notification.php';
         send_notification($conn, $repo_id, "star", $user_id, $author_id);
     }
     echo json_encode(["status" => true, "is_starred" => $is_now_starred]);
@@ -38,9 +39,4 @@ if(mysqli_query($conn, $q2)){
     echo json_encode(["status" => false, "is_logged_in" => true]);
 }
 
-// send notification
-function send_notification($conn, $repo_id, $type, $sender_id, $receiver_id){
-    $query = "INSERT INTO `notification`(`who_sent`, `who_got`, `repo_id`, `is_read`, `type`) VALUES ('$sender_id','$receiver_id','$repo_id','0','$type')";
-    mysqli_query($conn, $query);
-}
 ?>

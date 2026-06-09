@@ -11,6 +11,7 @@ if (!isset($_GET["repo_id"])) {
 }
 require "php/config.php";
 require "php/utility.php";
+require 'php/send_notification.php';
 
 $repo_id = $_GET["repo_id"];
 
@@ -72,6 +73,8 @@ if(isset($_POST["rmv_contributor"])){
   $query = "DELETE FROM `contributor` WHERE user_id = '$rmv_contri_id' AND repo_id = '$repo_id';";
   if(mysqli_query($conn, $query)){
     $notif = ["type" => "success", "msg" => "Contributor removed successfully!"];
+    // send notification to the user
+    send_notification($conn, $repo_id, "removed_as_contributor", $_SESSION["id"], $rmv_contri_id);
   }else{
     $notif = ["type" => "error", "msg" => "Error, could not remove!"];
   }
@@ -91,6 +94,8 @@ if(isset($_POST["add_contri"])){
       $query = "INSERT INTO `contributor`(`user_id`, `repo_id`) VALUES ('$add_contri_id','$repo_id');";
       if(mysqli_query($conn, $query)){
         $notif = ["type" => "success", "msg" => "Contributor added successfully!"];
+        // send notification to the user
+        send_notification($conn, $repo_id, "added_as_contributor", $_SESSION["id"], $add_contri_id);
       }else{
         $notif = ["type" => "error", "msg" => "Could not add. Please try again"];
       }
